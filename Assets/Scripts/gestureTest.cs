@@ -44,17 +44,43 @@ public class GestureListener
 		if (frame.Hands.Count > 0) {
 			List<Hand> hands = frame.Hands;
 			foreach (Hand hand in hands) {
-				// Grab
-				if (hand.GrabStrength == 1) {
-					Debug.Log("Gesture grab detected");
-                }
-				// Palm
-				if (hand.GrabStrength == 0) {
-					Debug.Log("Gesture palm detected");
-				}
-				// Gun (IsExtend = T, T, F, F, F)
 				if (hand.Fingers.Count == 5) {
 					List<Finger> fingers = hand.Fingers;
+
+					// point (IsExtended = F, T, F, F, F)
+					bool gesture_point_flag = true;
+					foreach (Finger finger in fingers) {
+						if (finger.Type == Finger.FingerType.TYPE_THUMB) {
+							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_INDEX) {
+							if (finger.IsExtended != true) { gesture_point_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_MIDDLE) {
+							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_RING) {
+							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_PINKY) {
+							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+					}
+					if (gesture_point_flag == true) {
+						Debug.Log("Gesture point detected.");
+					}
+
+					// OK (PinchStrength = 1, IssExtended = _, _, T, T, T)
+					bool gesture_ok_flag = true;
+					if (hand.PinchStrength != 1) { gesture_ok_flag = false; }
+					foreach (Finger finger in fingers) {
+						if (finger.Type == Finger.FingerType.TYPE_MIDDLE) {
+							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_RING) {
+							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_PINKY) {
+							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
+					}
+					if (gesture_ok_flag == true) {
+						Debug.Log("Gesture OK detected.");
+					}
+
+					// Gun (IsExtended = T, T, F, F, F)
 					bool gesture_gun_flag = true;
 					foreach (Finger finger in fingers) {
 						if (finger.Type == Finger.FingerType.TYPE_THUMB) {
@@ -70,47 +96,50 @@ public class GestureListener
 					}
 					if (gesture_gun_flag == true) {
 						Debug.Log("Gesture gun detected.");
-                    }
-                }
-				// OK (PinchStrength = 1, IssExtend = _, _, T, T, T)
-				if (hand.Fingers.Count == 5) {
-					List<Finger> fingers = hand.Fingers;
-					bool gesture_ok_flag = true;
-					if (hand.PinchStrength != 1) { gesture_ok_flag = false; }
+					}
+
+					// Palm (IsExtended = T, T, T, T, T)
+					bool gesture_palm_flag = true;
 					foreach (Finger finger in fingers) {
-						if (finger.Type == Finger.FingerType.TYPE_MIDDLE) {
-							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
-						if (finger.Type == Finger.FingerType.TYPE_RING) {
-							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
-						if (finger.Type == Finger.FingerType.TYPE_PINKY) {
-							if (finger.IsExtended != true) { gesture_ok_flag = false; }}
-                    }
-					if (gesture_ok_flag == true) {
-						Debug.Log("Gesture OK detected.");
-                    }
-				}
-				// point (IsExtend = F, T, F, F, F)
-				if (hand.Fingers.Count == 5)
-				{
-					List<Finger> fingers = hand.Fingers;
-					bool gesture_point_flag = true;
-					foreach (Finger finger in fingers)
-					{
 						if (finger.Type == Finger.FingerType.TYPE_THUMB) {
-							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+							if (finger.IsExtended != true) { gesture_palm_flag = false; }
+						}
 						if (finger.Type == Finger.FingerType.TYPE_INDEX) {
-							if (finger.IsExtended != true) { gesture_point_flag = false; }}
+							if (finger.IsExtended != true) { gesture_palm_flag = false; }
+						}
 						if (finger.Type == Finger.FingerType.TYPE_MIDDLE) {
-							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+							if (finger.IsExtended != true) { gesture_palm_flag = false; }
+						}
 						if (finger.Type == Finger.FingerType.TYPE_RING) {
-							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+							if (finger.IsExtended != true) { gesture_palm_flag = false; }
+						}
 						if (finger.Type == Finger.FingerType.TYPE_PINKY) {
-							if (finger.IsExtended != false) { gesture_point_flag = false; }}
+							if (finger.IsExtended != true) { gesture_palm_flag = false; }
+						}
 					}
-					if (gesture_point_flag == true)
-					{
-						Debug.Log("Gesture point detected.");
+					if (gesture_palm_flag == true && hand.GrabStrength == 0) {
+						Debug.Log("Gesture palm detected");
 					}
+
+					// Grab
+					bool gesture_grab_flag = true;
+					foreach (Finger finger in fingers) {
+						if (finger.Type == Finger.FingerType.TYPE_THUMB) {
+							if (finger.IsExtended != false) { gesture_grab_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_INDEX) {
+							if (finger.IsExtended != false) { gesture_grab_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_MIDDLE) {
+							if (finger.IsExtended != false) { gesture_grab_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_RING) {
+							if (finger.IsExtended != false) { gesture_grab_flag = false; }}
+						if (finger.Type == Finger.FingerType.TYPE_PINKY) {
+							if (finger.IsExtended != false) { gesture_grab_flag = false; }}
+					}
+					if (gesture_grab_flag == true && hand.GrabStrength == 1) {
+						Debug.Log("Gesture grab detected");
+					}
+
+
 				}
 			}
         }
@@ -125,6 +154,7 @@ public class Gesture {
 		Gesture_Palm,
 		Gesture_Gun, 
 		Gesture_OK,
-		Gesture_Point
+		Gesture_Point, 
+		Gesture_None
     }
 }
