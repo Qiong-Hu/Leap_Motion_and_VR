@@ -70,9 +70,17 @@ public class GestureListener
 
 			// Point (right hand prior to left)
 			if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-				rightGesture.Select();
+				rightGesture.Create();
             }
 			else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
+				leftGesture.Create();
+            }
+
+			// Gun (right hand prior to left)
+			if (rightGesture.Type == Gesture.GestureType.Gesture_Gun) {
+				rightGesture.Select();
+            }
+			else if (leftGesture.Type == Gesture.GestureType.Gesture_Gun) {
 				leftGesture.Select();
             }
 
@@ -198,6 +206,10 @@ public class Gesture {
 	public void Grab() {
 		Debug.Log("Begin grabbing...");
 	}
+
+	public void Create() {
+		Debug.Log("Begin creating...");
+    }
 
 	public void Select() {
 		Debug.Log("Begin selecting...");
