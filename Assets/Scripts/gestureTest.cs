@@ -58,10 +58,10 @@ public class GestureListener
 					rightGesture.Type = rightGesture.DetectGestureType(hand);
 				}
 			}
-			
-			// Gesture commands
-			// Grab (right hand prior to left)
-			if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
+
+            #region Gesture commands
+            // Grab (right hand prior to left)
+            if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
 				rightGesture.Grab();
             }
 			else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
@@ -89,14 +89,15 @@ public class GestureListener
 				leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
 				rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
             }
+            #endregion
 
         }
 
-		
+
     }
 }
 
-// TODO: "Gesture" class in separate script
+// TODO: "Gesture" class in a separate script
 public class Gesture {
 	public enum GestureType {
 		Gesture_Grab,
