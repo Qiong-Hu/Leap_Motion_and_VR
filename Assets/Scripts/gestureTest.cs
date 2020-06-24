@@ -9,16 +9,15 @@ public class gestureTest : MonoBehaviour {
 	void Start () {
 
 		Controller controller = new Controller();
-		GestureListener listener = new GestureListener();
+		GestureListener gesturelistener = new GestureListener();
 
-		controller.Connect += listener.OnServiceConnect;
-		controller.Device += listener.OnConnect;
-		controller.FrameReady += listener.OnFrame;
+		controller.Connect += gesturelistener.OnServiceConnect;
+		controller.Device += gesturelistener.OnConnect;
+		controller.FrameReady += gesturelistener.OnFrame;
 
-		Debug.Log("Gesture Test begins");
+		Debug.Log("Gesture Test begins.");
 
 	}
-
 
 
 	// Update is called once per frame
@@ -32,11 +31,11 @@ public class gestureTest : MonoBehaviour {
 public class GestureListener
 {
 	public void OnServiceConnect (object sender, ConnectionEventArgs args) {
-		Debug.Log("Leapmotion Service Connected");
+		Debug.Log("Leapmotion Service Connected.");
     }
 
 	public void OnConnect (object sender, DeviceEventArgs args) {
-		Debug.Log("Leapmotion Controller Connected");
+		Debug.Log("Leapmotion Controller Connected.");
     }
 
 	public void OnFrame (object sender, FrameEventArgs args) {
@@ -50,6 +49,7 @@ public class GestureListener
 			Gesture leftGesture = new Gesture();
 			Gesture rightGesture = new Gesture();
 
+			// Detect gestures
 			foreach (Hand hand in hands) {
 				if (hand.IsLeft) {
 					leftGesture.Type = leftGesture.DetectGestureType(hand);
@@ -58,7 +58,38 @@ public class GestureListener
 					rightGesture.Type = rightGesture.DetectGestureType(hand);
 				}
 			}
-			Debug.Log("left: " + leftGesture.Type + " right: " + rightGesture.Type);
+			
+			// Gesture commands
+			// Grab (right hand prior to left)
+			if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
+				rightGesture.Grab();
+            }
+			else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
+				leftGesture.Grab();
+            }
+
+			// Point (right hand prior to left)
+			if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
+				rightGesture.Select();
+            }
+			else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
+				leftGesture.Select();
+            }
+
+			// Confirm (right hand prior to left)
+			if (rightGesture.Type == Gesture.GestureType.Gesture_OK) {
+				rightGesture.Confirm();
+            }
+			else if (leftGesture.Type == Gesture.GestureType.Gesture_OK) {
+				leftGesture.Confirm();
+            }
+
+			// Stretch (both hands)
+			if (rightGesture.Type == Gesture.GestureType.Gesture_Palm &&
+				leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
+				rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
+            }
+
         }
 
 		
@@ -76,13 +107,14 @@ public class Gesture {
 		Gesture_None
 	}
 
+	// Current gesture type
 	private GestureType gestureType = GestureType.Gesture_None;
 	public GestureType Type {
 		get { return gestureType; }
 		set { gestureType = value; }
 	}
 
-	// Defined Gesture Parameters {IsExtended (5), PinchStrength, GrabStrength}
+	// Pre-defined Gesture Parameters {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
 	private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
 	private void RegisterGestureParams() { 
 		Dictionary<string, ArrayList> gesture_grab_param = new Dictionary<string, ArrayList>() {
@@ -118,6 +150,7 @@ public class Gesture {
 		{ "GrabStrength", new ArrayList { null} },
 		{ "PinchStrength", new ArrayList { null} }
 	};
+	public Hand currHand = new Hand();
 
 	private void GetGestureParams(Hand hand) {
 		List<Finger> fingers = hand.Fingers;
@@ -141,8 +174,11 @@ public class Gesture {
 
 		gesture_param["GrabStrength"][0] = hand.GrabStrength;
 		gesture_param["PinchStrength"][0] = hand.PinchStrength;
+
+		currHand = hand;
 	}
 
+	// Get current gesture type from hand
 	public GestureType DetectGestureType(Hand hand) {
 		RegisterGestureParams();
 		GetGestureParams(hand);
@@ -158,20 +194,20 @@ public class Gesture {
 		return gestureType;
 	}
 
-	void Grab() {
-		Debug.Log("Begin grabbing");
+	public void Grab() {
+		Debug.Log("Begin grabbing...");
 	}
 
-	void Select() {
-
+	public void Select() {
+		Debug.Log("Begin selecting...");
     }
 
-	void Confirm() {
-
+	public void Confirm() {
+		Debug.Log("Confirmed.");
     }
 
-	void Stretch() {
-
+	public void Stretch(Hand leftHand, Hand rightHand) {
+		Debug.Log("Begin stretching...");
     }
 
 	// list1 = current ArrayList, list2 = reference ArrayList
