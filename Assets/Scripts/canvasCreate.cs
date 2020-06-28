@@ -50,4 +50,10 @@ public class canvasCreate : MonoBehaviour {
 		return nameList;
 	}
 
+
+	// button functions
+	public void Create() {
+		// TODO
+    }
+
 }
