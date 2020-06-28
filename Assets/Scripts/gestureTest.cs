@@ -14,7 +14,6 @@ public class gestureTest : MonoBehaviour {
 		controller.Connect += gesturelistener.OnServiceConnect;
 		controller.Device += gesturelistener.OnConnect;
 		controller.FrameReady += gesturelistener.OnFrame;
-
 		Debug.Log("Gesture Test begins.");
 
 	}
@@ -100,7 +99,6 @@ public class GestureListener
             #endregion
 
         }
-
 
     }
 }
