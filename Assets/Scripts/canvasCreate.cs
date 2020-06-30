@@ -7,14 +7,12 @@ using UnityEngine.UI;
 
 public class canvasCreate : MonoBehaviour {
 
-
+	public string url = "http://localhost:5001";
+		
+	List<string> nameList = new List<string>();
 
 	// Use this for initialization
 	void Start () {
-		// For debug
-		string url = "http://localhost:5001";
-		List<string> nameList = new List<string>();
-
 		nameList = GetObjList(url);
 		ShowList(nameList);
 	}
