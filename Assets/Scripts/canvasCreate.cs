@@ -54,45 +54,61 @@ public class canvasCreate : MonoBehaviour {
 		int count = 1;
 
 		foreach (string name in nameList) {
-			// Create button object
-			GameObject button = new GameObject(name, typeof(Button), typeof(RectTransform), typeof(Image));
-			button.transform.SetParent(this.transform);
-			button.transform.localRotation = Quaternion.identity;
-			button.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-
-			// Set button position
-			RectTransform rectTransform = button.GetComponent<RectTransform>();
-			rectTransform.anchorMin = new Vector2(0, 1);
-			rectTransform.anchorMax = new Vector2(0, 1);
-			rectTransform.pivot = new Vector2(0.5f, 0.5f);
-			rectTransform.sizeDelta = new Vector2(1600, 250);
-			rectTransform.anchoredPosition3D = new Vector3(0, -4*count, 0);
+			NameButton nameButton = new NameButton();
+			nameButton.Initialize(name, count);
 			count++;
-
-			// Add text to button
-			GameObject textObj = new GameObject("Text", typeof(Text));
-			textObj.transform.SetParent(button.transform);
-			textObj.transform.localRotation = Quaternion.identity;
-			textObj.transform.localScale = new Vector3(1, 1, 1);
-
-			// Set text position
-			RectTransform textRectTransform = textObj.GetComponent<RectTransform>();
-			textRectTransform.anchorMin = new Vector2(0, 0);
-			textRectTransform.anchorMax = new Vector2(1, 1);
-			textRectTransform.pivot = new Vector2(0.5f, 0.5f);
-			textRectTransform.offsetMin = new Vector2(0, 0);
-			textRectTransform.offsetMax = new Vector2(0, 0);
-			textRectTransform.anchoredPosition3D = new Vector3(0, 0, 0);
-
-			// Set text style
-			Text text = textObj.GetComponent<Text>();
-			text.text = name;
-			text.font = (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
-			text.fontSize = 200;
-			text.color = new Color32(50, 50, 50, 255);
-			text.alignment = TextAnchor.MiddleCenter;
-
 		}
 	}
+
+}
+
+public class NameButton {
+
+	public GameObject button;
+
+	public void Initialize(string name, int count) {
+		button = new GameObject(name, typeof(Button), typeof(RectTransform), typeof(Image));
+		Display(name, count);
+	}
+
+	// Display the button object
+	private void Display(string name, int count) {
+		// Create button object
+		button.transform.SetParent(GameObject.Find("Canvas").transform);
+		button.transform.localRotation = Quaternion.identity;
+		button.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+
+		// Set button position
+		RectTransform rectTransform = button.GetComponent<RectTransform>();
+		rectTransform.anchorMin = new Vector2(0, 1);
+		rectTransform.anchorMax = new Vector2(0, 1);
+		rectTransform.pivot = new Vector2(0.5f, 0.5f);
+		rectTransform.sizeDelta = new Vector2(1600, 250);
+		rectTransform.anchoredPosition3D = new Vector3(0, -4 * count, 0);
+
+		// Add text to button
+		GameObject textObj = new GameObject("Text", typeof(Text));
+		textObj.transform.SetParent(button.transform);
+		textObj.transform.localRotation = Quaternion.identity;
+		textObj.transform.localScale = new Vector3(1, 1, 1);
+
+		// Set text position
+		RectTransform textRectTransform = textObj.GetComponent<RectTransform>();
+		textRectTransform.anchorMin = new Vector2(0, 0);
+		textRectTransform.anchorMax = new Vector2(1, 1);
+		textRectTransform.pivot = new Vector2(0.5f, 0.5f);
+		textRectTransform.offsetMin = new Vector2(0, 0);
+		textRectTransform.offsetMax = new Vector2(0, 0);
+		textRectTransform.anchoredPosition3D = new Vector3(0, 0, 0);
+
+		// Set text style
+		Text text = textObj.GetComponent<Text>();
+		text.text = name;
+		text.font = (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
+		text.fontSize = 200;
+		text.color = new Color32(50, 50, 50, 255);
+		text.alignment = TextAnchor.MiddleCenter;
+	}
+
 
 }

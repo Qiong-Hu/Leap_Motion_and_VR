@@ -5,6 +5,9 @@ using Leap;
 
 public class gestureTest : MonoBehaviour {
 
+	// TODO: Get url link, nameList, buttonPositions from canvasCreate script
+	public GameObject canvas;
+
 	// Use this for initialization
 	void Start () {
 
