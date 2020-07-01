@@ -11,6 +11,10 @@ public class canvasCreate : MonoBehaviour {
 		
 	List<string> nameList = new List<string>();
 
+	//For debug
+	public GameObject sphere;
+	NameButton nameButton;
+
 	// Use this for initialization
 	void Start () {
 		nameList = GetObjList(url);
@@ -19,7 +23,7 @@ public class canvasCreate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		Debug.Log(nameButton.WithinRange(sphere.transform.position));
 	}
 
 	// Get the name list of all available design objects from the compiler
@@ -54,9 +58,12 @@ public class canvasCreate : MonoBehaviour {
 		int count = 1;
 
 		foreach (string name in nameList) {
-			NameButton nameButton = new NameButton();
+			nameButton = new NameButton();
 			nameButton.Initialize(name, count);
 			count++;
+			
+
+			break;
 		}
 	}
 
@@ -65,6 +72,9 @@ public class canvasCreate : MonoBehaviour {
 public class NameButton {
 
 	public GameObject button;
+	public RectTransform rectTransform;
+
+	private GameObject canvas = GameObject.Find("Canvas");
 
 	public void Initialize(string name, int count) {
 		button = new GameObject(name, typeof(Button), typeof(RectTransform), typeof(Image));
@@ -74,12 +84,12 @@ public class NameButton {
 	// Display the button object
 	private void Display(string name, int count) {
 		// Create button object
-		button.transform.SetParent(GameObject.Find("Canvas").transform);
+		button.transform.SetParent(canvas.transform);
 		button.transform.localRotation = Quaternion.identity;
-		button.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+		button.transform.localScale = Vector3.one * 0.01f;
 
 		// Set button position
-		RectTransform rectTransform = button.GetComponent<RectTransform>();
+		rectTransform = button.GetComponent<RectTransform>();
 		rectTransform.anchorMin = new Vector2(0, 1);
 		rectTransform.anchorMax = new Vector2(0, 1);
 		rectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -90,16 +100,16 @@ public class NameButton {
 		GameObject textObj = new GameObject("Text", typeof(Text));
 		textObj.transform.SetParent(button.transform);
 		textObj.transform.localRotation = Quaternion.identity;
-		textObj.transform.localScale = new Vector3(1, 1, 1);
+		textObj.transform.localScale = Vector3.one;
 
 		// Set text position
 		RectTransform textRectTransform = textObj.GetComponent<RectTransform>();
 		textRectTransform.anchorMin = new Vector2(0, 0);
 		textRectTransform.anchorMax = new Vector2(1, 1);
 		textRectTransform.pivot = new Vector2(0.5f, 0.5f);
-		textRectTransform.offsetMin = new Vector2(0, 0);
-		textRectTransform.offsetMax = new Vector2(0, 0);
-		textRectTransform.anchoredPosition3D = new Vector3(0, 0, 0);
+		textRectTransform.offsetMin = Vector2.zero;
+		textRectTransform.offsetMax = Vector2.zero;
+		textRectTransform.anchoredPosition3D = Vector3.zero;
 
 		// Set text style
 		Text text = textObj.GetComponent<Text>();
@@ -110,5 +120,54 @@ public class NameButton {
 		text.alignment = TextAnchor.MiddleCenter;
 	}
 
+	// Get button global position range
+	// pos = "topLeft", "topright", "bottomLeft", "bottomRight", "center"
+	public Vector3 GetPosition(string pos) {
+		Vector3 centerPos = button.transform.position;
+		Vector3 rightRange = Vector3.Scale(Vector3.Scale(
+			button.transform.right * rectTransform.sizeDelta[0] / 2,
+			button.transform.localScale), canvas.transform.localScale);
+		Vector3 upRange = Vector3.Scale(Vector3.Scale(
+			button.transform.up * rectTransform.sizeDelta[1] / 2,
+			button.transform.localScale), canvas.transform.localScale);
+
+		if (pos == "topLeft" || pos == "A") {
+			return centerPos - rightRange + upRange;
+        } else if (pos == "topRight" || pos == "B") {
+			return centerPos + rightRange + upRange;
+        } else if (pos == "bottomRight" || pos == "C") {
+			return centerPos + rightRange - upRange;
+        } else if (pos == "bottomLeft" || pos == "D") {
+			return centerPos - rightRange - upRange;
+        } else if (pos == "center") {
+			return centerPos;
+        } else {
+			Debug.Log("GetPosition function fail to recognize request");
+			return centerPos;
+        }
+
+	}
+
+	// Calculate the vertical distance between a point and the button/canvas plane
+	public float VerticalDis(Vector3 point) {
+		return Mathf.Abs(Vector3.Dot(point - GetPosition("center"), button.transform.forward));
+    }
+
+	// Detect whether projection of a point on canvas is within the range of current button rectangle
+	public bool WithinRange(Vector3 point) {
+		Vector3 proj = Vector3.ProjectOnPlane(point - GetPosition("center"), button.transform.forward) + GetPosition("center");
+
+		// (ABxAE)*(CDxCE)>=0 and (DAxDE)*(BCxBE)>=0
+		float withinHeight = Vector3.Dot(Vector3.Cross(GetPosition("B") - GetPosition("A"), proj - GetPosition("A")),
+			Vector3.Cross(GetPosition("D") - GetPosition("C"), proj - GetPosition("C")));
+		float withinWidth = Vector3.Dot(Vector3.Cross(GetPosition("A") - GetPosition("D"), proj - GetPosition("D")),
+			Vector3.Cross(GetPosition("C") - GetPosition("B"), proj - GetPosition("B")));
+
+		if (withinHeight >= 0 && withinWidth >= 0) {
+			return true;
+        } else {
+			return false;
+        }
+    }
 
 }
