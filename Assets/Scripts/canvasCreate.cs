@@ -8,9 +8,16 @@ using UnityEngine.UI;
 public class canvasCreate : MonoBehaviour {
 
 	public string url = "http://localhost:5001";
-		
-	List<string> nameList = new List<string>();
+	
+	[HideInInspector]
+	public List<string> nameList = new List<string>();
+	[HideInInspector]
+	public List<NameButton> buttonList = new List<NameButton>();
 
+	// For debug
+	public GameObject sphere;
+	public float hoverThreshold = 0.05f;
+	public float touchThreshold = 0.005f;
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +27,17 @@ public class canvasCreate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		// For debug
+		if (buttonList[0].WithinRange(sphere.transform.position) && 
+			buttonList[0].VerticalDis(sphere.transform.position) <= hoverThreshold &&
+			buttonList[0].VerticalDis(sphere.transform.position) > touchThreshold) {
+			buttonList[0].ChangeColor("hover");
+		} else if (buttonList[0].WithinRange(sphere.transform.position) && 
+			buttonList[0].VerticalDis(sphere.transform.position) <= touchThreshold) {
+			buttonList[0].ChangeColor("select");
+        } else {
+			buttonList[0].ChangeColor("normal");
+        }
 	}
 
 	// Get the name list of all available design objects from the compiler
@@ -59,7 +76,7 @@ public class canvasCreate : MonoBehaviour {
 			nameButton.Initialize(name, count);
 			count++;
 			
-
+			buttonList.Add(nameButton);
 			break;
 		}
 	}
@@ -70,12 +87,14 @@ public class NameButton {
 
 	public GameObject button;
 	public RectTransform rectTransform;
+	public string name;
 
 	private GameObject canvas = GameObject.Find("Canvas");
 
-	public void Initialize(string name, int count) {
-		button = new GameObject(name, typeof(Button), typeof(RectTransform), typeof(Image));
-		Display(name, count);
+	public void Initialize(string currName, int count) {
+		button = new GameObject(currName, typeof(Button), typeof(RectTransform), typeof(Image));
+		Display(currName, count);
+		name = currName;
 	}
 
 	// Display the button object
@@ -139,7 +158,7 @@ public class NameButton {
         } else if (pos == "center") {
 			return centerPos;
         } else {
-			Debug.Log("GetPosition function fail to recognize request");
+			Debug.Log("GetPosition function fails to recognize pos '" + pos + "'");
 			return centerPos;
         }
 
@@ -165,6 +184,22 @@ public class NameButton {
         } else {
 			return false;
         }
+    }
+
+	// Change button color
+	// choice = "hover", "select", "normal"
+	public void ChangeColor(string choice) {
+		if (choice == "hover") {
+			button.GetComponent<Image>().color = new Color32(255, 208, 105, 255);
+        } else if (choice == "select") {
+			button.GetComponent<Image>().color = new Color32(108, 255, 108, 255);
+		} else if (choice == "normal") {
+			button.GetComponent<Image>().color = Color.white;
+        } else {
+			Debug.Log("ChangeColor function fails to recognize choice '" + choice + "'");
+			button.GetComponent<Image>().color = Color.white;
+        }
+		
     }
 
 }
