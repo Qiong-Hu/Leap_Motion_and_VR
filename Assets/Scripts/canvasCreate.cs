@@ -14,15 +14,17 @@ public class canvasCreate : MonoBehaviour {
 	[HideInInspector]
 	public List<NameButton> buttonList = new List<NameButton>();
 
-	// For debug
-	public GameObject sphere;
-	public float hoverThreshold = 0.05f;
+	public float hoverThreshold = 0.03f;
 	public float touchThreshold = 0.005f;
+
+	GameObject sphere;// For debug
 
 	// Use this for initialization
 	void Start () {
 		nameList = GetObjList(url);
 		ShowList(nameList);
+
+		sphere = GameObject.Find("Sphere");//For debug
 	}
 	
 	// Update is called once per frame
@@ -77,7 +79,6 @@ public class canvasCreate : MonoBehaviour {
 			count++;
 			
 			buttonList.Add(nameButton);
-			break;
 		}
 	}
 
@@ -187,17 +188,25 @@ public class NameButton {
     }
 
 	// Change button color
+	public void ChangeColor(Color color) {
+		button.GetComponent<Image>().color = color;
+	}
+
+	public void ChangeColor(Color32 color) {
+		button.GetComponent<Image>().color = color;
+	}
+	
 	// choice = "hover", "select", "normal"
 	public void ChangeColor(string choice) {
 		if (choice == "hover") {
-			button.GetComponent<Image>().color = new Color32(255, 208, 105, 255);
+			ChangeColor(new Color32(255, 208, 105, 255));
         } else if (choice == "select") {
-			button.GetComponent<Image>().color = new Color32(108, 255, 108, 255);
+			ChangeColor(new Color32(108, 255, 108, 255));
 		} else if (choice == "normal") {
-			button.GetComponent<Image>().color = Color.white;
+			ChangeColor(Color.white);
         } else {
 			Debug.Log("ChangeColor function fails to recognize choice '" + choice + "'");
-			button.GetComponent<Image>().color = Color.white;
+			ChangeColor(Color.white);
         }
 		
     }
