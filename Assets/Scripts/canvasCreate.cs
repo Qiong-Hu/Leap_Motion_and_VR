@@ -11,9 +11,6 @@ public class canvasCreate : MonoBehaviour {
 		
 	List<string> nameList = new List<string>();
 
-	//For debug
-	public GameObject sphere;
-	NameButton nameButton;
 
 	// Use this for initialization
 	void Start () {
@@ -23,7 +20,7 @@ public class canvasCreate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log(nameButton.WithinRange(sphere.transform.position));
+		
 	}
 
 	// Get the name list of all available design objects from the compiler
@@ -58,7 +55,7 @@ public class canvasCreate : MonoBehaviour {
 		int count = 1;
 
 		foreach (string name in nameList) {
-			nameButton = new NameButton();
+			NameButton nameButton = new NameButton();
 			nameButton.Initialize(name, count);
 			count++;
 			
