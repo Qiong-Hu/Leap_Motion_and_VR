@@ -143,6 +143,7 @@ public class Gesture {
 		Gesture_Gun,
 		Gesture_OK,
 		Gesture_Point,
+		Gesture_Thumbup,
 		Gesture_None
 	}
 
@@ -174,12 +175,16 @@ public class Gesture {
 		Dictionary<string, ArrayList> gesture_point_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { false, true, false, false, false} }
 		};
+		Dictionary<string, ArrayList> gesture_thumbup_param = new Dictionary<string, ArrayList>() {
+			{ "IsExtended", new ArrayList { true, false, false, false, false} }
+		};
 
 		gesture_param_list.Add(gesture_grab_param);
 		gesture_param_list.Add(gesture_palm_param);
 		gesture_param_list.Add(gesture_gun_param);
 		gesture_param_list.Add(gesture_ok_param);
 		gesture_param_list.Add(gesture_point_param);
+		gesture_param_list.Add(gesture_thumbup_param);
 	}
 
 
