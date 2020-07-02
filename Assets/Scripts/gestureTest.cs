@@ -35,10 +35,12 @@ public class gestureTest : MonoBehaviour {
 		// initial buttonList in canvasCreate is empty
 		if (buttonList.Count == 0) {
 			buttonList = canvas.GetComponent<canvasCreate>().buttonList;
+        } 
+		// Only allow gesture commands after buttonList is generated and obtained
+		else {
+			GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
         }
 
-		Debug.Log("left:" + gestureListener.leftGesture.Type);
-		Debug.Log("right:" + gestureListener.rightGesture.Type);
 	}
 
 	// TODO, for debug
@@ -53,10 +55,10 @@ public class gestureTest : MonoBehaviour {
 
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-			rightGesture.Create();
+			rightGesture.Create(buttonList);
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
-			leftGesture.Create();
+			leftGesture.Create(buttonList);
 		}
 
 		// Gun (right hand prior to left)
@@ -81,22 +83,28 @@ public class gestureTest : MonoBehaviour {
 			rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
 		}
 	}
+
 }
-
-
 
 public class GestureListener
 {
+	public Gesture leftGesture = new Gesture();
+	public Gesture rightGesture = new Gesture();
+
 	public void OnServiceConnect (object sender, ConnectionEventArgs args) {
 		Debug.Log("Leapmotion Service Connected.");
     }
 
 	public void OnConnect (object sender, DeviceEventArgs args) {
 		Debug.Log("Leapmotion Controller Connected.");
+		
+		GestureInit();
     }
 
-	public Gesture leftGesture = new Gesture();
-	public Gesture rightGesture = new Gesture();
+	public void GestureInit() {
+		leftGesture.RegisterGestureParams();
+		rightGesture.RegisterGestureParams();
+    }
 
 	public void OnFrame (object sender, FrameEventArgs args) {
 		//Debug.Log("Leapmotin Frame Available");
@@ -156,7 +164,7 @@ public class Gesture {
 
 	// Pre-defined Gesture Parameters {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
 	private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
-	private void RegisterGestureParams() { 
+	public void RegisterGestureParams() { 
 		Dictionary<string, ArrayList> gesture_grab_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { false, false, false, false, false } },
 			{ "GrabStrength", new ArrayList { 1f} }
@@ -186,7 +194,6 @@ public class Gesture {
 		gesture_param_list.Add(gesture_point_param);
 		gesture_param_list.Add(gesture_thumbup_param);
 	}
-
 
 	// Current gesture param
 	private Dictionary<string, ArrayList> gesture_param = new Dictionary<string, ArrayList>() {
@@ -224,7 +231,6 @@ public class Gesture {
 
 	// Get current gesture type from hand
 	public GestureType DetectGestureType(Hand hand) {
-		RegisterGestureParams();
 		GetGestureParams(hand);
 
 		gestureType = GestureType.Gesture_None;
@@ -238,22 +244,41 @@ public class Gesture {
 		return gestureType;
 	}
 
+	// Define gesture commands
+	
 	public void Grab() {
 		Debug.Log("Begin grabbing...");
 	}
 
-	public void Create() {
-		Debug.Log("Begin creating...");
+	public void Create(List<NameButton> buttonList) {
+		// Steps: 
+		// 1. find index fingertip pos
+		// 2. find button within range
+		// 3. change within-range button color based on vertical dis
+		// 4. send button name to CallCompiler 
+		// 5. set flag to avoid callcompiler repeatedly (only create when button state turn from "hover" to "select")
 
-		// For debug
+		Vector3 fingerPos = new Vector3();
 		foreach (Finger finger in currHand.Fingers) {
 			if (finger.Type == Finger.FingerType.TYPE_INDEX) {
-				Vector3 fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f;
-				//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
-				//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
+				fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f; // unit=cm in Leapmotion
 			}
+			break;
 		}
+		
+		// Need debug: pos not right
+		Debug.Log(fingerPos);
+		//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
+		//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
+
+		// For debug
+		CallCompiler("");
 	}
+
+	// maybe call compiler in main's Update() ?
+	public void CallCompiler(string name) {
+		Debug.Log("Begin creating...");
+    }
 
 	public void Select() {
 		Debug.Log("Begin selecting...");
