@@ -5,27 +5,81 @@ using Leap;
 
 public class gestureTest : MonoBehaviour {
 
-	public GameObject canvas;
+	GameObject canvas;
+	string url;
+	List<NameButton> buttonList = new List<NameButton>();
 
-	private string url = canvas.GetComponent<canvasCreate>().url;
+	Controller controller = new Controller();
+	GestureListener gestureListener = new GestureListener();
 
 	// Use this for initialization
 	void Start () {
-
-		Controller controller = new Controller();
-		GestureListener gesturelistener = new GestureListener();
-
-		controller.Connect += gesturelistener.OnServiceConnect;
-		controller.Device += gesturelistener.OnConnect;
-		controller.FrameReady += gesturelistener.OnFrame;
+		controller.Connect += gestureListener.OnServiceConnect;
+		controller.Device += gestureListener.OnConnect;
+		controller.FrameReady += gestureListener.OnFrame;
 		Debug.Log("Gesture Test begins.");
 
+		Init();
+	}
+
+	void Init() {
+		canvas = GameObject.Find("Canvas");
+		url = canvas.GetComponent<canvasCreate>().url;
 	}
 
 
 	// Update is called once per frame
 	void Update () {
-		
+		// Obtain buttonList in Update() instead of Init() 
+		// because canvasCreate need some time to generate buttonList
+		// initial buttonList in canvasCreate is empty
+		if (buttonList.Count == 0) {
+			buttonList = canvas.GetComponent<canvasCreate>().buttonList;
+        }
+
+		Debug.Log("left:" + gestureListener.leftGesture.Type);
+		Debug.Log("right:" + gestureListener.rightGesture.Type);
+	}
+
+	// TODO, for debug
+	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
+		// Grab (right hand prior to left)
+		if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
+			rightGesture.Grab();
+		}
+		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
+			leftGesture.Grab();
+		}
+
+		// Point (right hand prior to left)
+		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
+			rightGesture.Create();
+		}
+		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
+			leftGesture.Create();
+		}
+
+		// Gun (right hand prior to left)
+		if (rightGesture.Type == Gesture.GestureType.Gesture_Gun) {
+			rightGesture.Select();
+		}
+		else if (leftGesture.Type == Gesture.GestureType.Gesture_Gun) {
+			leftGesture.Select();
+		}
+
+		// Confirm (right hand prior to left)
+		if (rightGesture.Type == Gesture.GestureType.Gesture_OK) {
+			rightGesture.Confirm();
+		}
+		else if (leftGesture.Type == Gesture.GestureType.Gesture_OK) {
+			leftGesture.Confirm();
+		}
+
+		// Stretch (both hands)
+		if (rightGesture.Type == Gesture.GestureType.Gesture_Palm &&
+			leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
+			rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
+		}
 	}
 }
 
@@ -41,6 +95,9 @@ public class GestureListener
 		Debug.Log("Leapmotion Controller Connected.");
     }
 
+	public Gesture leftGesture = new Gesture();
+	public Gesture rightGesture = new Gesture();
+
 	public void OnFrame (object sender, FrameEventArgs args) {
 		//Debug.Log("Leapmotin Frame Available");
 
@@ -49,8 +106,6 @@ public class GestureListener
 
 		if (frame.Hands.Count > 0) {
 			List<Hand> hands = frame.Hands;
-			Gesture leftGesture = new Gesture();
-			Gesture rightGesture = new Gesture();
 
 			// Detect gestures
 			foreach (Hand hand in hands) {
@@ -61,47 +116,9 @@ public class GestureListener
 					rightGesture.Type = rightGesture.DetectGestureType(hand);
 				}
 			}
-
-            #region Gesture commands
-            // Grab (right hand prior to left)
-            if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
-				rightGesture.Grab();
-            }
-			else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
-				leftGesture.Grab();
-            }
-
-			// Point (right hand prior to left)
-			if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-				rightGesture.Create();
-            }
-			else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
-				leftGesture.Create();
-            }
-
-			// Gun (right hand prior to left)
-			if (rightGesture.Type == Gesture.GestureType.Gesture_Gun) {
-				rightGesture.Select();
-            }
-			else if (leftGesture.Type == Gesture.GestureType.Gesture_Gun) {
-				leftGesture.Select();
-            }
-
-			// Confirm (right hand prior to left)
-			if (rightGesture.Type == Gesture.GestureType.Gesture_OK) {
-				rightGesture.Confirm();
-            }
-			else if (leftGesture.Type == Gesture.GestureType.Gesture_OK) {
-				leftGesture.Confirm();
-            }
-
-			// Stretch (both hands)
-			if (rightGesture.Type == Gesture.GestureType.Gesture_Palm &&
-				leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
-				rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
-            }
-            #endregion
-
+        } else {
+			leftGesture.Type = Gesture.GestureType.Gesture_None;
+			rightGesture.Type = Gesture.GestureType.Gesture_None;
         }
 
     }
@@ -209,9 +226,22 @@ public class Gesture {
 		Debug.Log("Begin grabbing...");
 	}
 
+	private void ObtainButtonList() {
+
+    }
+
 	public void Create() {
 		Debug.Log("Begin creating...");
-    }
+
+		// For debug
+		foreach (Finger finger in currHand.Fingers) {
+			if (finger.Type == Finger.FingerType.TYPE_INDEX) {
+				Vector3 fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f;
+				//Debug.Log("withinRange:" + nameButton0.WithinRange(fingerPos));
+				//Debug.Log("verticalDis:" + nameButton0.VerticalDis(fingerPos));
+			}
+		}
+	}
 
 	public void Select() {
 		Debug.Log("Begin selecting...");
