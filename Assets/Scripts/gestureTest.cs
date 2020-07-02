@@ -104,19 +104,30 @@ public class GestureListener
 		// Get the most recent frame and report some basic information
 		Frame frame = args.frame;
 
-		if (frame.Hands.Count > 0) {
+		// Detect gestures
+		if (frame.Hands.Count == 2) {
 			List<Hand> hands = frame.Hands;
 
-			// Detect gestures
 			foreach (Hand hand in hands) {
 				if (hand.IsLeft) {
 					leftGesture.Type = leftGesture.DetectGestureType(hand);
-				}
-				else {
+				} else {
 					rightGesture.Type = rightGesture.DetectGestureType(hand);
 				}
 			}
-        } else {
+        } else if (frame.Hands.Count == 1) {
+			List<Hand> hands = frame.Hands;
+
+			foreach (Hand hand in hands) {
+				if (hand.IsLeft) {
+					leftGesture.Type = leftGesture.DetectGestureType(hand);
+					rightGesture.Type = Gesture.GestureType.Gesture_None;
+				} else {
+					rightGesture.Type = rightGesture.DetectGestureType(hand);
+					leftGesture.Type = Gesture.GestureType.Gesture_None;
+				}
+			}
+		} else {
 			leftGesture.Type = Gesture.GestureType.Gesture_None;
 			rightGesture.Type = Gesture.GestureType.Gesture_None;
         }
@@ -226,10 +237,6 @@ public class Gesture {
 		Debug.Log("Begin grabbing...");
 	}
 
-	private void ObtainButtonList() {
-
-    }
-
 	public void Create() {
 		Debug.Log("Begin creating...");
 
@@ -237,8 +244,8 @@ public class Gesture {
 		foreach (Finger finger in currHand.Fingers) {
 			if (finger.Type == Finger.FingerType.TYPE_INDEX) {
 				Vector3 fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f;
-				//Debug.Log("withinRange:" + nameButton0.WithinRange(fingerPos));
-				//Debug.Log("verticalDis:" + nameButton0.VerticalDis(fingerPos));
+				//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
+				//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
 			}
 		}
 	}
