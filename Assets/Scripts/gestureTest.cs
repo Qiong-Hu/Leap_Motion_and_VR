@@ -258,17 +258,15 @@ public class Gesture {
 		// 4. send button name to CallCompiler 
 		// 5. set flag to avoid callcompiler repeatedly (only create when button state turn from "hover" to "select")
 
-		Vector3 fingerPos = new Vector3();
-		foreach (Finger finger in currHand.Fingers) {
-			if (finger.Type == Finger.FingerType.TYPE_INDEX) {
-				fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f; // unit=cm in Leapmotion
-			}
-			Debug.Log(fingerPos.x + ", " + fingerPos.y + ", " + fingerPos.z);
-			break;
+		// Step 1. Find index fingertip pos
+		// Leapmotion's inbuilt tipPosition returns wrong pos
+		Vector3 fingerTipPos = new Vector3();
+		if (currHand.IsLeft) {
+			fingerTipPos = GameObject.Find("L_index_end").transform.position;
+        } else {
+			fingerTipPos = GameObject.Find("R_index_end").transform.position;
 		}
-
-		// Need debug: pos not right (0.1726, 0.9937, 0.0429)
-		//Debug.Log(fingerPos.x + ", " + fingerPos.y + ", " + fingerPos.z);
+		
 		//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
 		//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
 
