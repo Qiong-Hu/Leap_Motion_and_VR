@@ -272,7 +272,7 @@ public class Gesture {
 		//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
 
 		// For debug
-		CallCompiler("");
+		//CallCompiler("");
 	}
 
 	// maybe call compiler in main's Update() ?
