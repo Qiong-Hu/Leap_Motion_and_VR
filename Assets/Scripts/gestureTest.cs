@@ -263,11 +263,12 @@ public class Gesture {
 			if (finger.Type == Finger.FingerType.TYPE_INDEX) {
 				fingerPos = new Vector3(finger.TipPosition.x, finger.TipPosition.y, finger.TipPosition.z) / 100f; // unit=cm in Leapmotion
 			}
+			Debug.Log(fingerPos.x + ", " + fingerPos.y + ", " + fingerPos.z);
 			break;
 		}
-		
-		// Need debug: pos not right
-		Debug.Log(fingerPos);
+
+		// Need debug: pos not right (0.1726, 0.9937, 0.0429)
+		//Debug.Log(fingerPos.x + ", " + fingerPos.y + ", " + fingerPos.z);
 		//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
 		//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
 
