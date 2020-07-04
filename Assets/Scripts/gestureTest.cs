@@ -1,13 +1,19 @@
-﻿using System.Collections;
+﻿// This script is attached to Leap Rig
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Leap;
 
 public class gestureTest : MonoBehaviour {
 
+	// Obtain canvas obj
 	GameObject canvas;
 	string url;
 	List<NameButton> buttonList = new List<NameButton>();
+
+	// Button trigger params
+	float hoverThreshold;
+	float touchThreshold;
 
 	Controller controller = new Controller();
 	GestureListener gestureListener = new GestureListener();
@@ -23,8 +29,11 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void Init() {
+		// Obtain canvas obj and params defined in canvasCreate script
 		canvas = GameObject.Find("Canvas");
 		url = canvas.GetComponent<canvasCreate>().url;
+		hoverThreshold = canvas.GetComponent<canvasCreate>().hoverThreshold;
+		touchThreshold = canvas.GetComponent<canvasCreate>().touchThreshold;
 	}
 
 
@@ -55,11 +64,16 @@ public class gestureTest : MonoBehaviour {
 
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-			rightGesture.Create(buttonList);
+			rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
-			leftGesture.Create(buttonList);
-		}
+			leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
+		} else {
+			// Reset buttonlist color
+			foreach (NameButton nameButton in buttonList) {
+				nameButton.ChangeColor("normal");
+            }
+        }
 
 		// Gun (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Gun) {
@@ -250,33 +264,67 @@ public class Gesture {
 		Debug.Log("Begin grabbing...");
 	}
 
-	public void Create(List<NameButton> buttonList) {
+	public void Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
 		// 2. find button within range
 		// 3. change within-range button color based on vertical dis
 		// 4. send button name to CallCompiler 
 		// 5. set flag to avoid callcompiler repeatedly (only create when button state turn from "hover" to "select")
+		// 6. after created, reset all button color and flag
 
 		// Step 1. Find index fingertip pos
 		// Leapmotion's inbuilt tipPosition returns wrong pos
-		Vector3 fingerTipPos = new Vector3();
+		Vector3 fingertipPos = new Vector3();
 		if (currHand.IsLeft) {
-			fingerTipPos = GameObject.Find("L_index_end").transform.position;
+			try {
+				fingertipPos = GameObject.Find("L_index_end").transform.position;
+            } catch {
+				Debug.Log("Fail to find left fingertip position.");
+            }
         } else {
-			fingerTipPos = GameObject.Find("R_index_end").transform.position;
+			try {
+				fingertipPos = GameObject.Find("R_index_end").transform.position;
+			}
+			catch {
+				Debug.Log("Fail to find right fingertip position.");
+			}
 		}
-		
-		//Debug.Log("withinRange:" + nameButton.WithinRange(fingerPos));
-		//Debug.Log("verticalDis:" + nameButton.VerticalDis(fingerPos));
 
+		// Step 2. Find button within range
+		string creationName = "";
+		foreach (NameButton currButton in buttonList) {
+			if (currButton.WithinRange(fingertipPos)) {
+
+				// Step 3. Change within-range button color based on vertical dis
+				// TODO: after selected when finger raise, don't show "hover" color (use flag to control)
+				if (currButton.VerticalDis(fingertipPos) <= hoverThreshold &&
+					currButton.VerticalDis(fingertipPos) > touchThreshold) {
+					currButton.ChangeColor("hover");
+				}
+				else if (currButton.VerticalDis(fingertipPos) <= touchThreshold &&
+					currButton.VerticalDis(fingertipPos) >= -touchThreshold) {
+					currButton.ChangeColor("select");
+					creationName = currButton.name;
+					
+					CallCompiler(creationName);//For debug
+				}
+				else {
+					currButton.ChangeColor("normal");
+				}
+            } else {
+				currButton.ChangeColor("normal");
+            }
+        }
+
+		
 		// For debug
 		//CallCompiler("");
 	}
 
-	// maybe call compiler in main's Update() ?
+	// maybe return selected button's name here and call compiler in main's Update() ?
 	public void CallCompiler(string name) {
-		Debug.Log("Begin creating...");
+		Debug.Log("Begin creating " + name + "...");
     }
 
 	public void Select() {

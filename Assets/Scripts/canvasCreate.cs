@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿// This script is attached to Canvas object
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -14,33 +15,21 @@ public class canvasCreate : MonoBehaviour {
 	[HideInInspector]
 	public List<NameButton> buttonList = new List<NameButton>();
 
-	public float hoverThreshold = 0.03f;
+	public float hoverThreshold = 0.04f;
 	public float touchThreshold = 0.005f;
 
-	GameObject sphere;// For debug
+	//GameObject sphere;// For debug
 
 	// Use this for initialization
 	void Start () {
 		nameList = GetObjList(url);
 		ShowList(nameList);
-
-		sphere = GameObject.Find("Sphere");//For debug
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		// For debug
-		if (buttonList[0].WithinRange(sphere.transform.position) && 
-			buttonList[0].VerticalDis(sphere.transform.position) <= hoverThreshold &&
-			buttonList[0].VerticalDis(sphere.transform.position) > touchThreshold) {
-			buttonList[0].ChangeColor("hover");
-		} else if (buttonList[0].WithinRange(sphere.transform.position) && 
-			buttonList[0].VerticalDis(sphere.transform.position) <= touchThreshold) {
-			buttonList[0].ChangeColor("select");
-        } else {
-			buttonList[0].ChangeColor("normal");
-        }
-	}
+
+    }
 
 	// Get the name list of all available design objects from the compiler
 	List<string> GetObjList(string url) {
@@ -166,8 +155,9 @@ public class NameButton {
 	}
 
 	// Calculate the vertical distance between a point and the button/canvas plane
+	// Can be negative, meaning point through the button surface
 	public float VerticalDis(Vector3 point) {
-		return Mathf.Abs(Vector3.Dot(point - GetPosition("center"), button.transform.forward));
+		return -Vector3.Dot(point - GetPosition("center"), button.transform.forward);
     }
 
 	// Detect whether projection of a point on canvas is within the range of current button rectangle
