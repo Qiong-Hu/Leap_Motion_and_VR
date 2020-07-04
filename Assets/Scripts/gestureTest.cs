@@ -306,8 +306,6 @@ public class Gesture {
 					currButton.VerticalDis(fingertipPos) >= -touchThreshold) {
 					currButton.ChangeColor("select");
 					creationName = currButton.name;
-					
-					CallCompiler(creationName);//For debug
 				}
 				else {
 					currButton.ChangeColor("normal");
@@ -317,9 +315,11 @@ public class Gesture {
             }
         }
 
-		
 		// For debug
-		//CallCompiler("");
+		// Step 4. send button name to CallCompiler
+		if (creationName != "") {
+			CallCompiler(creationName);
+        }
 	}
 
 	// maybe return selected button's name here and call compiler in main's Update() ?

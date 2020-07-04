@@ -18,11 +18,15 @@ public class canvasCreate : MonoBehaviour {
 	public float hoverThreshold = 0.04f;
 	public float touchThreshold = 0.005f;
 
-	//GameObject sphere;// For debug
-
 	// Use this for initialization
 	void Start () {
 		nameList = GetObjList(url);
+
+		// Add export, delete, exit
+		nameList.Add("Export");
+		nameList.Add("Delete");
+		nameList.Add("Exit");
+
 		ShowList(nameList);
 	}
 	
@@ -84,6 +88,7 @@ public class NameButton {
 	public void Initialize(string currName, int count) {
 		button = new GameObject(currName, typeof(Button), typeof(RectTransform), typeof(Image));
 		Display(currName, count);
+		ChangeColor("normal");
 		name = currName;
 	}
 
@@ -193,7 +198,14 @@ public class NameButton {
         } else if (choice == "select") {
 			ChangeColor(new Color32(108, 255, 108, 255));
 		} else if (choice == "normal") {
-			ChangeColor(Color.white);
+			// normal create color = white, export = yellow, delete/exit = red
+			if (name == "Export") {
+				ChangeColor(Color.yellow);
+            } else if (name == "Delete" || name == "Exit") {
+				ChangeColor(new Color32(200, 0, 0, 175)); // reddish
+            } else {
+				ChangeColor(Color.white);
+            }
         } else {
 			Debug.Log("ChangeColor function fails to recognize choice '" + choice + "'");
 			ChangeColor(Color.white);
