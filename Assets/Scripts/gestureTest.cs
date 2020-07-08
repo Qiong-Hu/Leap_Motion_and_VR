@@ -15,8 +15,13 @@ public class gestureTest : MonoBehaviour {
 	float hoverThreshold;
 	float touchThreshold;
 
+	// Obtain Leapmotion controller and add listener
 	Controller controller = new Controller();
 	GestureListener gestureListener = new GestureListener();
+
+	// For obj creation
+	string creationName = "";
+	string creationNamePrev = "";
 
 	// Use this for initialization
 	void Start () {
@@ -52,7 +57,6 @@ public class gestureTest : MonoBehaviour {
 
 	}
 
-	// TODO, for debug
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
 		// Grab (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
@@ -64,10 +68,12 @@ public class gestureTest : MonoBehaviour {
 
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-			rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			CallCompiler();
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
-			leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			CallCompiler();
 		} else {
 			// Reset buttonlist color
 			foreach (NameButton nameButton in buttonList) {
@@ -95,6 +101,18 @@ public class gestureTest : MonoBehaviour {
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Palm &&
 			leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
 			rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
+		}
+	}
+
+	// For debug
+	// creationName, creationNamePrev use global param
+	void CallCompiler() {
+		if (creationName != "") {
+			// if prev==sth+"-hover" and curr==sth, then create sth
+			if (creationNamePrev.Equals(creationName + "-hover")) {
+				Debug.Log("Create " + creationName);
+			}
+			creationNamePrev = creationName;
 		}
 	}
 
@@ -264,7 +282,7 @@ public class Gesture {
 		Debug.Log("Begin grabbing...");
 	}
 
-	public void Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
+	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
 		// 2. find button within range
@@ -297,10 +315,11 @@ public class Gesture {
 			if (currButton.WithinRange(fingertipPos)) {
 
 				// Step 3. Change within-range button color based on vertical dis
-				// TODO: after selected when finger raise, don't show "hover" color (use flag to control)
+				// TODO: after selected when finger raise, don't show "hover" color (use flag to control?)
 				if (currButton.VerticalDis(fingertipPos) <= hoverThreshold &&
 					currButton.VerticalDis(fingertipPos) > touchThreshold) {
 					currButton.ChangeColor("hover");
+					creationName = currButton.name + "-hover";
 				}
 				else if (currButton.VerticalDis(fingertipPos) <= touchThreshold &&
 					currButton.VerticalDis(fingertipPos) >= -touchThreshold) {
@@ -315,17 +334,9 @@ public class Gesture {
             }
         }
 
-		// For debug
-		// Step 4. send button name to CallCompiler
-		if (creationName != "") {
-			CallCompiler(creationName);
-        }
+		// Step 4. send button name to CallCompiler (in Update)
+		return creationName;
 	}
-
-	// maybe return selected button's name here and call compiler in main's Update() ?
-	public void CallCompiler(string name) {
-		Debug.Log("Begin creating " + name + "...");
-    }
 
 	public void Select() {
 		Debug.Log("Begin selecting...");
