@@ -28,7 +28,7 @@ namespace FARVR.Creation {
         private string type;
 
         /// <summary>
-        /// The parameters defining the furniture that is generated
+        /// The parameters defining the generated obj
         /// </summary>
         private Dictionary<string, float> parameters;
 
@@ -41,7 +41,8 @@ namespace FARVR.Creation {
 
         private float linespacing = 0.08f;
 
-        //The following are existing predefined furniture objects used to verify the object created
+        // TODO: same as "nameList" in canvasCreate gained from backend compiler
+        // The following are existing predefined furniture objects used to verify the object created
         /// <summary>
         /// The available object names from backend design compilers.
         /// </summary>
@@ -60,8 +61,9 @@ namespace FARVR.Creation {
             Tug
         };
 
+        // TODO: auto gained from compiler
         /// <summary>
-        /// The furniture catalog. Contains all available furnitures in current class that users can generate
+        /// The obj catalog. Contains all available furnitures in current class that users can generate
         /// </summary>
         public static Dictionary<string, Dictionary<string, float>> FurnitureCatalog = new Dictionary<string, Dictionary<string, float>>() {
             {"Stool", new Dictionary<string, float>() {

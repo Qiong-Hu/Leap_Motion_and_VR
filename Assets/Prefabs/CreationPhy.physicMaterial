@@ -3,9 +3,9 @@
 --- !u!134 &13400000
 PhysicMaterial:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: FurniturePhy
+  m_Name: CreationPhy
   dynamicFriction: 0.6
   staticFriction: 0.6
   bounciness: 0.1

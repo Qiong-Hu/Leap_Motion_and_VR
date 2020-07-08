@@ -22,8 +22,8 @@ GameObject:
   - component: {fileID: 114911268836710706}
   - component: {fileID: 54450193040711626}
   m_Layer: 0
-  m_Name: Furniture
-  m_TagString: Furniture
+  m_Name: CreationObj
+  m_TagString: Design
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
