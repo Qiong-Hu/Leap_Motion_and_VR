@@ -11,6 +11,7 @@ public class gestureTest : MonoBehaviour {
 	GameObject canvas;
 	string url;
 	List<NameButton> buttonList = new List<NameButton>();
+	List<string> nameList = new List<string>();
 
 	// Button trigger params
 	float hoverThreshold;
@@ -55,6 +56,7 @@ public class gestureTest : MonoBehaviour {
 		// initial buttonList in canvasCreate is empty
 		if (buttonList.Count == 0) {
 			buttonList = canvas.GetComponent<canvasCreate>().buttonList;
+			nameList = canvas.GetComponent<canvasCreate>().nameList;
         } 
 		// Only allow gesture commands after buttonList is generated and obtained
 		else {
@@ -129,6 +131,7 @@ public class gestureTest : MonoBehaviour {
 		GameObject gameobj;
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
+		designObj.RegisterNameList(nameList);
 		designObj.MakeDesign(url, type, id, new Vector3(0, 5, 0.5f * id), Vector3.one * 10);
 		
 		designList.Add(designObj);

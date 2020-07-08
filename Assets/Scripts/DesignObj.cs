@@ -41,27 +41,18 @@ namespace FARVR.Design {
 
         private float linespacing = 0.08f;
 
-        // TODO: same as "nameList" in canvasCreate gained from backend compiler
-        // The following are existing predefined furniture objects used to verify the object created
         /// <summary>
-        /// The available object names from backend design compilers.
+        /// The available object names from backend design compilers
+        /// used to verify the object created
         /// </summary>
-        public enum FurnitureName
-        {
-            Stool,
-            SimpleTable,
-            SimpleChair,
-            RockerChair,
-            Paperbot,
-            BoatBase,
-            Canoe,
-            Catamaran,
-            Trimaran,
-            CatFoil,
-            Tug
-        };
+        private List<string> objectList = new List<string>();
+        public void RegisterNameList(List<string> nameList) {
+            foreach (string name in nameList) {
+                objectList.Add(name);
+            }
+        }
 
-        // TODO: auto gained from compiler
+        // TODO: auto gain from backend compiler
         /// <summary>
         /// The obj catalog. Contains all available furnitures in current class that users can generate
         /// </summary>
@@ -537,12 +528,10 @@ namespace FARVR.Design {
         // Overloaded version of Verification that only takes type
         private bool VerifyDesign(string type)
         {
-            foreach (KeyValuePair<string, Dictionary<string, float>> entry in FurnitureCatalog)
-            {
-                if (entry.Key == type)
+            foreach (string objectName in objectList) {
+                if (objectName == type)
                 {
-                    parameters = entry.Value;
-                    return VerifyDesign(type, parameters);
+                    return true;
                 }
             }
 
