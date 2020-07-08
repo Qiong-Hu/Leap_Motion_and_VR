@@ -35,7 +35,9 @@ public class canvasCreate : MonoBehaviour {
 
     }
 
-	// Get the name list of all available design objects from the compiler
+	/// <summary>
+    /// Get the name list of all available design objects from the compiler
+    /// </summary>
 	List<string> GetObjList(string url) {
 		List<string> nameList = new List<string>();
 
@@ -62,7 +64,9 @@ public class canvasCreate : MonoBehaviour {
 		return nameList;
 	}
 
-	// Create a list of buttons on canvas to show the available design objects
+	/// <summary>
+    /// Create a list of buttons on canvas to show the available design objects
+    /// </summary>
 	void ShowList(List<string> nameList) {
 		int count = 1;
 
@@ -92,7 +96,9 @@ public class NameButton {
 		name = currName;
 	}
 
-	// Display the button object
+	/// <summary>
+    /// Display the button object
+    /// </summary>
 	private void Display(string name, int count) {
 		// Create button object
 		button.transform.SetParent(canvas.transform);
@@ -131,8 +137,10 @@ public class NameButton {
 		text.alignment = TextAnchor.MiddleCenter;
 	}
 
-	// Get button global position range
-	// pos = "topLeft", "topright", "bottomLeft", "bottomRight", "center"
+	/// <summary>
+    /// Get button global position range
+    /// </summary>
+    /// <param name="pos">="topLeft", "topright", "bottomLeft", "bottomRight", "center"</param>
 	public Vector3 GetPosition(string pos) {
 		Vector3 centerPos = button.transform.position;
 		Vector3 rightRange = Vector3.Scale(Vector3.Scale(
@@ -159,13 +167,18 @@ public class NameButton {
 
 	}
 
-	// Calculate the vertical distance between a point and the button/canvas plane
-	// Can be negative, meaning point through the button surface
+	/// <summary>
+    /// Calculate the vertical distance between a point and the button/canvas plane
+    /// Can be negative, meaning point through the button surface
+    /// </summary>
+    /// <param name="point"></param>
 	public float VerticalDis(Vector3 point) {
 		return -Vector3.Dot(point - GetPosition("center"), button.transform.forward);
     }
 
-	// Detect whether projection of a point on canvas is within the range of current button rectangle
+	/// <summary>
+    /// Detect whether projection of a point on canvas is within the range of current button rectangle
+    /// </summary>
 	public bool WithinRange(Vector3 point) {
 		Vector3 proj = Vector3.ProjectOnPlane(point - GetPosition("center"), button.transform.forward) + GetPosition("center");
 
@@ -182,7 +195,6 @@ public class NameButton {
         }
     }
 
-	// Change button color
 	public void ChangeColor(Color color) {
 		button.GetComponent<Image>().color = color;
 	}
@@ -191,7 +203,10 @@ public class NameButton {
 		button.GetComponent<Image>().color = color;
 	}
 	
-	// choice = "hover", "select", "normal"
+	/// <summary>
+    /// Change button color
+    /// </summary>
+    /// <param name="choice"> = "hover", "select", "normal"</param>
 	public void ChangeColor(string choice) {
 		if (choice == "hover") {
 			ChangeColor(new Color32(255, 208, 105, 255));

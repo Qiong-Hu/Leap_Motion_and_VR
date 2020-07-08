@@ -1,4 +1,4 @@
-﻿// This script is attached to Prefab obj Furniture
+﻿// This script is attached to Prefab obj CreationObj
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,23 +9,21 @@ using System.IO;
 using STLImporter;
 using Parabox.STL;
 
-namespace FARVR
-{
-    public class Furniture : MonoBehaviour
-    {
+namespace FARVR.Creation {
+    public class CreationObj : MonoBehaviour {
         // A Material used to display on the Prefab Object
         public Material MaterialPrefab;
 
-        // Text display for furniture - Prefab
+        // Text displayer prefab
         public GameObject TextDisplayer;
 
         /// <summary>
-        /// The ID of the furniture
+        /// The ID of the created obj
         /// </summary>
         private int ID;
 
         /// <summary>
-        /// The type of furniture that will be displayed
+        /// The type of obj that will be created/displayed
         /// </summary>
         private string type;
 
@@ -193,7 +191,7 @@ namespace FARVR
                 gameObject.AddComponent<MeshCollider>();
                 gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().convex = true;
-                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/FurniturePhy") as PhysicMaterial;
+                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
                 gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.InflateConvexMesh;
                 Renderer rend = gameObject.GetComponent<Renderer>();
                 rend.material = MaterialPrefab;
@@ -280,7 +278,7 @@ namespace FARVR
                     gameObject.AddComponent<MeshCollider>();
                     gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                     gameObject.GetComponent<MeshCollider>().convex = true;
-                    gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/FurniturePhy") as PhysicMaterial;
+                    gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
                     gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.WeldColocatedVertices;
                     Renderer rend = gameObject.GetComponent<Renderer>();
                     rend.material = MaterialPrefab;
@@ -348,7 +346,7 @@ namespace FARVR
                 gameObject.GetComponent<MeshFilter>().mesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().convex = true;
-                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/FurniturePhy") as PhysicMaterial;
+                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
                 gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.WeldColocatedVertices;
 
                 MeshRenderer rend = gameObject.GetComponent<MeshRenderer>();

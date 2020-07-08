@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Leap;
-using FARVR;
+using FARVR.Creation;
 
 public class gestureTest : MonoBehaviour {
 
@@ -198,7 +198,7 @@ public class Gesture {
 		set { gestureType = value; }
 	}
 
-	// Pre-defined Gesture Parameters {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
+	// Pre-defined Gesture Parameters: {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
 	private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
 	public void RegisterGestureParams() { 
 		Dictionary<string, ArrayList> gesture_grab_param = new Dictionary<string, ArrayList>() {
@@ -265,7 +265,9 @@ public class Gesture {
 		currHand = hand;
 	}
 
-	// Get current gesture type from hand
+	/// <summary>
+    /// Get current gesture type from hand
+    /// </summary>
 	public GestureType DetectGestureType(Hand hand) {
 		GetGestureParams(hand);
 
@@ -280,9 +282,9 @@ public class Gesture {
 		return gestureType;
 	}
 
-	// Define gesture commands
-	
-	public void Grab() {
+    #region Define gesture commands
+
+    public void Grab() {
 		Debug.Log("Begin grabbing...");
 	}
 
@@ -354,8 +356,14 @@ public class Gesture {
 		Debug.Log("Begin stretching...");
     }
 
-	// list1 = current ArrayList, list2 = reference ArrayList
-	private bool CompareArrayList(ArrayList list1, ArrayList list2) {
+    #endregion
+
+	/// <summary>
+    /// Compare curr ArrayList to ref ArrayList
+    /// </summary>
+    /// <param name="list1"> current ArrayList </param>
+    /// <param name="list2"> reference ArrayList </param>
+    private bool CompareArrayList(ArrayList list1, ArrayList list2) {
 		if (list1.Count != list2.Count) {
 			return false;
 		}
@@ -372,7 +380,11 @@ public class Gesture {
 		}
 	}
 
-	// dict1 = current gesture param dict, dict2 = reference gesture param dict
+	/// <summary>
+    /// Compare curr Dict to ref Dict
+    /// </summary>
+    /// <param name="dict1"> current gesture param dict </param>
+    /// <param name="dict2"> reference gesture param dict </param>
 	private bool CompareDict(Dictionary<string, ArrayList> dict1, Dictionary<string, ArrayList> dict2) {
 		bool flag = true;
 		foreach(string key in dict2.Keys) {
@@ -383,4 +395,5 @@ public class Gesture {
         }
 		return flag;
     }
+
 }
