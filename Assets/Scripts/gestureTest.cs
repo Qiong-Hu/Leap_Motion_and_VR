@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Leap;
+using FARVR;
 
 public class gestureTest : MonoBehaviour {
 
@@ -110,11 +111,14 @@ public class gestureTest : MonoBehaviour {
 		if (creationName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (creationNamePrev.Equals(creationName + "-hover")) {
+				// TODO: really actually create here
 				Debug.Log("Create " + creationName);
 			}
 			creationNamePrev = creationName;
 		}
 	}
+
+
 
 }
 

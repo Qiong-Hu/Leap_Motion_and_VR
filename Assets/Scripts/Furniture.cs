@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿// This script is attached to Prefab obj Furniture
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
