@@ -150,29 +150,29 @@ namespace FARVR.Creation {
             }}
         };
 
-
-        // Creates a furniture object
+        // Creates a design object
         /// <summary>
-        /// Generates a furniture object by setting all the parameters in the object.
+        /// Generates a design object by setting all the parameters in the object.
         /// </summary>
-        /// <returns>RETURN CODE: 0 = Successful creation of Furniture; 1 = Failed to retrieve mesh from server; 2 = Invalid parameters</returns>
+        /// <returns>RETURN CODE: 0 = Successful creation of obj; 1 = Failed to retrieve mesh from server; 2 = Invalid parameters</returns>
         /// <param name="localparameters">Parameters used to generate a mesh</param>
-        /// <param name="ftype">The name of the furniture that we are to generate</param>
-        /// <param name="id">A unique ID for the furniture.</param>
-        public int MakeFurniture(int port, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
+        /// <param name="ftype">The name of the design obj that we are to generate</param>
+        /// <param name="id">A unique ID for the design obj.</param>
+        // Obsolete name: MakeFurniture
+        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
-            if (!VerifyFurniture(ftype, localparameters))
+            if (!VerifyDesign(ftype, localparameters))
             {
                 return 2;
             }
 
-            // Hold the name of the furniture as the type of furniture
+            // Hold the name of the design obj same as type
             type = ftype;
 
-            // Hold the id of the furniture
+            // Hold the id of the design obj
             ID = id;
 
-            // Hold the parameters of the furniture
+            // Hold the parameters of the design obj
             parameters = localparameters;
 
             gameObject.name = type + ID.ToString();
@@ -180,8 +180,8 @@ namespace FARVR.Creation {
             gameObject.AddComponent<MeshRenderer>();
 
             // TODO: Add Physics collision to object
-            // furniture.gameObject.AddComponent<MeshCollider> ();
-            Mesh[] meshes = GetSTL(port);
+            // .gameObject.AddComponent<MeshCollider> ();
+            Mesh[] meshes = GetSTL(url);
             if (meshes == null)
             {
                 Debug.Log("Failed to get mesh");
@@ -198,11 +198,11 @@ namespace FARVR.Creation {
                 Renderer rend = gameObject.GetComponent<Renderer>();
                 rend.material = MaterialPrefab;
 
-                /* Transforms the furniture based on what we have initialized it to be */
-                TransformFurniture(location, rotation, scale);
+                /* Transforms the design obj based on what we have initialized it to be */
+                TransformDesign(location, rotation, scale);
 
-                /* Update: Added a Collider tag that allows us to distinguish whether an Existing Furniture was hit or not */
-                gameObject.tag = "Furniture";
+                /* Update: Added a Collider tag that allows us to distinguish whether an Existing design obj was hit or not */
+                gameObject.tag = "Design";
 
                 /* Add the text displays */
                 int Vcounter = 1;
@@ -221,42 +221,43 @@ namespace FARVR.Creation {
 
         // The following are overloaded functions that act as an alternative to default parameters
         // Optional rotation AND scale
-        public int MakeFurniture(int port, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location)
+        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location)
         {
-            return MakeFurniture(port, localparameters, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
+            return MakeDesign(url, localparameters, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
         }
 
         // Optional rotation
-        public int MakeFurniture(int port, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Vector3 scale)
+        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Vector3 scale)
         {
-            return MakeFurniture(port, localparameters, ftype, id, location, Quaternion.identity, scale);
+            return MakeDesign(url, localparameters, ftype, id, location, Quaternion.identity, scale);
         }
 
         // Optional scale
-        public int MakeFurniture(int port, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotate)
+        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotate)
         {
-            return MakeFurniture(port, localparameters, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
+            return MakeDesign(url, localparameters, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
         }
 
-        //Make furniture using catalog and predefined parameters
+        // Make design obj using catalog and predefined parameters
         /// <summary>
-        /// Generates a furniture object by setting all the parameters in the object. Returns the parameters for the furniture
+        /// Generates a design object by setting all the parameters in the object. 
+        /// Returns the parameters for the design obj
         /// </summary>
-        /// <returns>Dictionary of the parameters that were used to generate the furniture; NULL = Invalid parameters</returns>
-        /// <param name="ftype">The name of the furniture that we are to generate</param>
-        /// <param name="id">A unique ID for the furniture.</param>
-        public Dictionary<string, float> MakeFurniture(int port, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
+        /// <returns>Dictionary of the parameters that were used to generate the obj; NULL = Invalid parameters</returns>
+        /// <param name="ftype">The name of the design obj that we are to generate</param>
+        /// <param name="id">A unique ID for the design obj.</param>
+        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
-            //Verify that the furniture is valid
-            if (!VerifyFurniture(ftype))
+            //Verify that the design obj is valid
+            if (!VerifyDesign(ftype))
             {
-                Debug.Log("Failed to find valid furniture");
+                Debug.Log("Failed to find valid design object");
                 return null;
             }
             else
             {
 
-                //If the furniture is valid
+                //If the design obj is valid
                 parameters = FurnitureCatalog[ftype];
 
                 type = ftype;
@@ -267,8 +268,8 @@ namespace FARVR.Creation {
                 gameObject.AddComponent<MeshRenderer>();
 
                 // TODO: Add Physics collision to object
-                // furniture.gameObject.AddComponent<MeshCollider> ();
-                Mesh[] meshes = GetSTL(port);
+                // .gameObject.AddComponent<MeshCollider> ();
+                Mesh[] meshes = GetSTL(url);
                 if (meshes == null)
                 {
                     Debug.Log("Failed to get mesh");
@@ -285,11 +286,11 @@ namespace FARVR.Creation {
                     Renderer rend = gameObject.GetComponent<Renderer>();
                     rend.material = MaterialPrefab;
 
-                    /*  Transform the furniture based on provided parameters */
-                    TransformFurniture(location, rotation, scale);
+                    /*  Transform the design obj based on provided parameters */
+                    TransformDesign(location, rotation, scale);
 
-                    /* Update: Added a Collider tag that allows us to distinguish whether an Existing Furniture was hit or not */
-                    gameObject.tag = "Furniture";
+                    /* Update: Added a Collider tag that allows us to distinguish whether an Existing design obj was hit or not */
+                    gameObject.tag = "Design";
 
                     /* Add the text displays */
                     int Vcounter = 1;
@@ -309,34 +310,34 @@ namespace FARVR.Creation {
 
         // The following are overloaded functions that act as an alternative to default parameters
         // Optional rotation AND scale
-        public Dictionary<string, float> MakeFurniture(int port, string ftype, int id, Vector3 location)
+        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location)
         {
-            return MakeFurniture(port, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
+            return MakeDesign(url, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
         }
 
         // Optional rotation
-        public Dictionary<string, float> MakeFurniture(int port, string ftype, int id, Vector3 location, Vector3 scale)
+        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Vector3 scale)
         {
-            return MakeFurniture(port, ftype, id, location, Quaternion.identity, scale);
+            return MakeDesign(url, ftype, id, location, Quaternion.identity, scale);
         }
 
         // Optional scale
-        public Dictionary<string, float> MakeFurniture(int port, string ftype, int id, Vector3 location, Quaternion rotate)
+        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotate)
         {
-            return MakeFurniture(port, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
+            return MakeDesign(url, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
         }
 
         /// <summary>
-        /// Updates the furniture. Returns the corresponding mesh of the object and updates the furniture object.
+        /// Updates the design obj. Return and update the corresponding mesh of the object.
         /// </summary>
-        /// <returns>RETURN CODE: 0 = Successfully updated furniture; 1 = Failed to retrieve mesh</returns>
-        /// <param name="local">Local parameters of the given furniture.</param>
-        /// <param name="Furniture">The GameObject corresponding to the furniture</param>
-        public int UpdateFurniture(int port, Dictionary<string, float> localparameters)
+        /// <returns>RETURN CODE: 0 = Successfully updated design obj; 1 = Failed to retrieve mesh</returns>
+        /// <param name="localparameters">Local parameters of the given design obj.</param>
+        // Obsolete name: UpdateFurniture
+        public int UpdateDesign(string url, Dictionary<string, float> localparameters)
         {
             parameters = localparameters;
-            // Assuming we need to update the furniture
-            Mesh[] meshes = GetSTL(port);
+            // Assuming we need to update the design obj
+            Mesh[] meshes = GetSTL(url);
             meshes[0].RecalculateNormals();
             if (meshes == null)
             {
@@ -376,13 +377,14 @@ namespace FARVR.Creation {
         }
 
         /// <summary>
-        /// Transforms the furniture.
+        /// Transforms the design obj.
         /// </summary>
         /// <returns>RETURN CODE: 0 = Successful update of transformation; 1 = Invalid parameters</returns>
         /// <param name="translate">Vector3 for new object position.</param>
         /// <param name="rotate">Quarternion rotation for new object rotation.</param>
         /// <param name="scale">Vector3 for new object localscale.</param>
-        public int TransformFurniture(Vector3 translate, Quaternion rotate, Vector3 scale)
+        // Obsolete name: TransformFurniture
+        public int TransformDesign(Vector3 translate, Quaternion rotate, Vector3 scale)
         {
             if (translate != gameObject.transform.position)
             {
@@ -405,7 +407,7 @@ namespace FARVR.Creation {
             return 0;
         }
 
-        // To obtain transformations of furniture
+        // To obtain transform info of design obj
         public Vector3 GetPosition()
         {
             return gameObject.transform.position;
@@ -443,13 +445,14 @@ namespace FARVR.Creation {
             return FurnitureCatalog[ftype];
         }
 
-        public GameObject GetFurniture()
+        // Obsolete name: GetFurniture
+        public GameObject GetGameobject()
         {
             return gameObject;
         }
 
         /// <summary>
-        /// Display all the data about the current furniture. For Debugging Purposes.
+        /// Display all the data about the current design obj. For Debugging Purposes.
         /// </summary>
         public void Display()
         {
@@ -460,7 +463,7 @@ namespace FARVR.Creation {
             Debug.Log("ID: " + ID.ToString());
 
             // Log the local param
-            // Because we do not know what type the furniture is beforehand, we can't simply call the key
+            // Because we do not know the type of the design obj is beforehand, we can't simply call the key
             foreach (KeyValuePair<string, float> entry in parameters)
             {
                 Debug.Log("Local Parameter: " + entry.Key + " = " + entry.Value.ToString());
@@ -485,17 +488,18 @@ namespace FARVR.Creation {
             }
         }
 
-        public void RemoveFurniture()
+        // Obsolete name: RemoveFurniture
+        public void RemoveDesign()
         {
             Destroy(gameObject);
         }
 
-        // Verify Furniture parameters via FurnitureCatalog
-        private bool VerifyFurniture(string type, Dictionary<string, float> parameter)
+        // Verify design obj parameters via FurnitureCatalog
+        private bool VerifyDesign(string type, Dictionary<string, float> parameter)
         {
             foreach (KeyValuePair<string, Dictionary<string, float>> entry in FurnitureCatalog)
             {
-                // Check if furniture type exists
+                // Check if the type of the design obj exists
                 if (entry.Key == type)
                 {
                     // If the type exists, we verify the parameters are valid
@@ -530,15 +534,15 @@ namespace FARVR.Creation {
             return false;
         }
 
-        // Overloaded version of VerifyFurniture that only takes type
-        private bool VerifyFurniture(string type)
+        // Overloaded version of Verification that only takes type
+        private bool VerifyDesign(string type)
         {
             foreach (KeyValuePair<string, Dictionary<string, float>> entry in FurnitureCatalog)
             {
                 if (entry.Key == type)
                 {
                     parameters = entry.Value;
-                    return VerifyFurniture(type, parameters);
+                    return VerifyDesign(type, parameters);
                 }
             }
 
@@ -546,25 +550,20 @@ namespace FARVR.Creation {
         }
 
         // The single function we will use to get an STL binary file
-        private Mesh[] GetSTL(int port)
+        // url = "http://ayeaye.ee.ucla.edu:5001", "https://roco.mehtank.com", "http://localhost:5001"
+        private Mesh[] GetSTL(string url)
         {
-            // port = 5000 or 5001
-
             //Store Mesh
             Mesh[] holder = null;
 
-            /* If you wish to use a local server, please use the localhost url; otherwise, please use the given url */
-            //string url = "http://ayeaye.ee.ucla.edu:{0}/{1}.stl?{2}";
-            //string url = "https://roco.mehtank.com/{0}.stl?{1}";
-            string url = "http://localhost:{0}/{1}.stl?{2}";
+            string link = "/{0}.stl?{1}";
 
             //Stage 1: Get the STL Binary from the server
             string param = LinkParam(parameters);
 
-            url = string.Format(url, port.ToString(), type, param);
-            //url = string.Format(url, type, param);
+            link = url + string.Format(link, type, param);
 
-            using (UnityWebRequest www = UnityWebRequest.Get(url))
+            using (UnityWebRequest www = UnityWebRequest.Get(link))
             {
                 www.SendWebRequest();
                 while (!www.isDone) ;
@@ -584,7 +583,7 @@ namespace FARVR.Creation {
             return holder;
         }
 
-        //Exports STL into a .stl file for printing and manufacturing
+        // Exports STL into a .stl file for printing and manufacturing
         private bool ExportSTL()
         {
             GameObject[] garr = new GameObject[1];
@@ -604,7 +603,7 @@ namespace FARVR.Creation {
 
         }
 
-        // A function to read the bytes into furniture object
+        // A function to read the bytes into design object
         private Mesh[] MakeMesh(byte[] data)
         {
             //Stage 2: Transform the STL into a working Mesh
