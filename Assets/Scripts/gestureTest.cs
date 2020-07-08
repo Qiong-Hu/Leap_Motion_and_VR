@@ -24,9 +24,10 @@ public class gestureTest : MonoBehaviour {
 	string creationName = "";
 	string creationNamePrev = "";
 
-	// Define creation obj list
+	// Define design obj list
 	public GameObject designObjPrefab;
 	List<DesignObj> designList = new List<DesignObj>();
+	private int designCounter = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -74,11 +75,11 @@ public class gestureTest : MonoBehaviour {
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
 			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
-			CallCompiler();
+			CreateObj();
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
 			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
-			CallCompiler();
+			CreateObj();
 		} else {
 			// Reset buttonlist color
 			foreach (NameButton nameButton in buttonList) {
@@ -111,18 +112,28 @@ public class gestureTest : MonoBehaviour {
 
 	// For debug
 	// creationName, creationNamePrev use global param
-	void CallCompiler() {
+	void CreateObj() {
 		if (creationName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (creationNamePrev.Equals(creationName + "-hover")) {
-				// TODO: really actually create here
-				Debug.Log("Create " + creationName);
+				// really actually create here
+				Debug.Log("Begin creating...");
+				CallCompiler(creationName, designCounter++);
 			}
 			creationNamePrev = creationName;
 		}
 	}
 
-
+	// Call compiler and retrieve stl of the design obj
+	void CallCompiler(string type, int id) {
+		GameObject gameobj;
+		gameobj = Instantiate(designObjPrefab) as GameObject;
+		DesignObj designObj = gameobj.GetComponent<DesignObj>();
+		designObj.MakeDesign(url, type, id, new Vector3(0, 5, 0.5f * id), Vector3.one * 10);
+		
+		designList.Add(designObj);
+		Debug.Log(designObj.GetFType() + " is created.");
+	}
 
 }
 
@@ -289,7 +300,7 @@ public class Gesture {
     #region Define gesture commands
 
     public void Grab() {
-		Debug.Log("Begin grabbing...");
+		//Debug.Log("Begin grabbing...");
 	}
 
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
@@ -349,15 +360,15 @@ public class Gesture {
 	}
 
 	public void Select() {
-		Debug.Log("Begin selecting...");
+		//Debug.Log("Begin selecting...");
     }
 
 	public void Confirm() {
-		Debug.Log("Confirmed.");
+		//Debug.Log("Confirmed.");
     }
 
 	public void Stretch(Hand leftHand, Hand rightHand) {
-		Debug.Log("Begin stretching...");
+		//Debug.Log("Begin stretching...");
     }
 
     #endregion
