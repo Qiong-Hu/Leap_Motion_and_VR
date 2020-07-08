@@ -9,8 +9,8 @@ using System.IO;
 using STLImporter;
 using Parabox.STL;
 
-namespace FARVR.Creation {
-    public class CreationObj : MonoBehaviour {
+namespace FARVR.Design {
+    public class DesignObj : MonoBehaviour {
         // A Material used to display on the Prefab Object
         public Material MaterialPrefab;
 

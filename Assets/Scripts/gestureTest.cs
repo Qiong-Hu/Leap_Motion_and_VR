@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Leap;
-using FARVR.Creation;
+using FARVR.Design;
 
 public class gestureTest : MonoBehaviour {
 
@@ -23,6 +23,10 @@ public class gestureTest : MonoBehaviour {
 	// For obj creation
 	string creationName = "";
 	string creationNamePrev = "";
+
+	// Define creation obj list
+	public GameObject designObjPrefab;
+	List<DesignObj> designList = new List<DesignObj>();
 
 	// Use this for initialization
 	void Start () {
