@@ -65,6 +65,7 @@ public class gestureTest : MonoBehaviour {
 
 			// Act on GestureCommands
 			CreateObj();
+			GrabObj();
 		}
 
 	}
@@ -78,8 +79,6 @@ public class gestureTest : MonoBehaviour {
 			palmTransform = leftGesture.Grab();
 		} else {
 			palmTransform = new Dictionary<string, ArrayList>();
-			palmTransform["position"] = new ArrayList { };
-			palmTransform["rotation"] = new ArrayList { };
         }
 
 		// Point (right hand prior to left)
@@ -119,7 +118,7 @@ public class gestureTest : MonoBehaviour {
 		}
 	}
 
-	// For debug
+	// Generate new design object
 	// creationName, creationNamePrev use global param
 	void CreateObj() {
 		if (creationName != "") {
@@ -144,7 +143,7 @@ public class gestureTest : MonoBehaviour {
 		creationNamePrev = creationName;
 	}
 
-	// Call compiler and retrieve stl of the design obj
+	// Call compiler, retrieve stl of the design obj, add to designList => used in CreateObj
 	void CallCompiler(string type, int id) {
 		GameObject gameobj;
 		gameobj = Instantiate(designObjPrefab) as GameObject;
@@ -156,6 +155,12 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log(designObj.GetFType() + " is created.");
 	}
 
+	// Grab design object
+	void GrabObj() {
+		if (palmTransform.ContainsKey("position") && palmTransform.ContainsKey("rotation")) {
+			Debug.Log("Begin grabbing...");//TODO
+        }
+    }
 }
 
 public class GestureListener
