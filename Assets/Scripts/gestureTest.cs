@@ -61,11 +61,14 @@ public class gestureTest : MonoBehaviour {
         } 
 		// Only allow gesture commands after buttonList is generated and obtained
 		else {
-			GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
+			if (gestureListener.leftGesture.Type != Gesture.GestureType.Gesture_None ||
+				gestureListener.rightGesture.Type != Gesture.GestureType.Gesture_None) {
+				GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
 
-			// Act on GestureCommands
-			CreateObj();
-			GrabObj();
+				// Act on GestureCommands
+				CreateObj();
+				GrabObj();
+            }
 		}
 
 	}
@@ -181,6 +184,9 @@ public class GestureListener
 	public void GestureInit() {
 		leftGesture.RegisterGestureParams();
 		rightGesture.RegisterGestureParams();
+
+		leftGesture.Type = Gesture.GestureType.Gesture_None;
+		rightGesture.Type = Gesture.GestureType.Gesture_None;
     }
 
 	public void OnFrame (object sender, FrameEventArgs args) {
