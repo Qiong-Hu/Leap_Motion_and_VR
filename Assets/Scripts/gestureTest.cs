@@ -149,7 +149,7 @@ public class gestureTest : MonoBehaviour {
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
 		designObj.RegisterNameList(nameList);
-		designObj.MakeDesign(url, type, id, new Vector3(0, 5, 0.5f * id), Vector3.one * 10);
+		designObj.MakeDesign(url, type, id, new Vector3(0, 10, 0.5f * id), Vector3.one * 10);
 		
 		designList.Add(designObj);
 		Debug.Log(designObj.GetFType() + " is created.");
@@ -158,7 +158,7 @@ public class gestureTest : MonoBehaviour {
 	// Grab design object
 	void GrabObj() {
 		if (palmTransform.ContainsKey("position") && palmTransform.ContainsKey("rotation")) {
-			Debug.Log("Begin grabbing...");//TODO
+			Debug.Log("Begin grabbing...");//TODO: Detect physical collider between design object and hand model => for grab
         }
     }
 }
