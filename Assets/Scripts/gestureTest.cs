@@ -118,9 +118,20 @@ public class gestureTest : MonoBehaviour {
 		if (creationName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (creationNamePrev.Equals(creationName + "-hover")) {
-				// really actually create here
-				Debug.Log("Begin creating...");
-				CallCompiler(creationName, designCounter++);
+				if (creationName == "Export") {
+					// TODO: selectedObj.Export()
+					Debug.Log(creationName);
+                } else if (creationName == "Delete") {
+					// TODO: selectedObj.RemoveDesign()
+					Debug.Log(creationName);
+				} else if (creationName == "Exit") {
+					// TODO: auto save all stl; exit program
+					Debug.Log(creationName);
+                } else {
+					// really actually create here
+					Debug.Log("Begin creating...");
+					CallCompiler(creationName, designCounter++);
+                }
 			}
 			creationNamePrev = creationName;
 		}
@@ -339,7 +350,7 @@ public class Gesture {
 			if (currButton.WithinRange(fingertipPos)) {
 
 				// Step 3. Change within-range button color based on vertical dis
-				// TODO: after selected when finger raise, don't show "hover" color (use flag to control?)
+				// later TODO: after selected when finger raise, don't show "hover" color (use flag to control?)
 				if (currButton.VerticalDis(fingertipPos) <= hoverThreshold &&
 					currButton.VerticalDis(fingertipPos) > touchThreshold) {
 					currButton.ChangeColor("hover");

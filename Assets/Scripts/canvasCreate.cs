@@ -32,7 +32,7 @@ public class canvasCreate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+		// later TODO: relate Canvas transform w.r.t. camera transform
     }
 
 	/// <summary>
