@@ -24,6 +24,7 @@ public class gestureTest : MonoBehaviour {
 	// For obj creation
 	string creationName = "";
 	string creationNamePrev = "";
+	Dictionary<string, ArrayList> palmTransform = new Dictionary<string, ArrayList>();
 
 	// Define design obj list
 	public GameObject designObjPrefab;
@@ -61,32 +62,38 @@ public class gestureTest : MonoBehaviour {
 		// Only allow gesture commands after buttonList is generated and obtained
 		else {
 			GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
-        }
+
+			// Act on GestureCommands
+			CreateObj();
+		}
 
 	}
 
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
 		// Grab (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
-			rightGesture.Grab();
+			palmTransform = rightGesture.Grab();
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
-			leftGesture.Grab();
-		}
+			palmTransform = leftGesture.Grab();
+		} else {
+			palmTransform = new Dictionary<string, ArrayList>();
+			palmTransform["position"] = new ArrayList { };
+			palmTransform["rotation"] = new ArrayList { };
+        }
 
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
 			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
-			CreateObj();
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
 			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
-			CreateObj();
 		} else {
 			// Reset buttonlist color
 			foreach (NameButton nameButton in buttonList) {
 				nameButton.ChangeColor("normal");
             }
+			creationName = "";
         }
 
 		// Gun (right hand prior to left)
@@ -129,12 +136,12 @@ public class gestureTest : MonoBehaviour {
 					Debug.Log(creationName);
                 } else {
 					// really actually create here
-					Debug.Log("Begin creating...");
+					Debug.Log("Begin creating " + creationName + "...");
 					CallCompiler(creationName, designCounter++);
                 }
 			}
-			creationNamePrev = creationName;
 		}
+		creationNamePrev = creationName;
 	}
 
 	// Call compiler and retrieve stl of the design obj
@@ -313,8 +320,28 @@ public class Gesture {
 
     #region Define gesture commands
 
-    public void Grab() {
-		//Debug.Log("Begin grabbing...");
+    public Dictionary<string, ArrayList> Grab() {
+		Dictionary<string, ArrayList> palmTransform = new Dictionary<string, ArrayList>();
+		if (currHand.IsLeft) {
+			try {
+				palmTransform["position"] = new ArrayList { GameObject.Find("L_Palm").transform.position };
+				palmTransform["rotation"] = new ArrayList { GameObject.Find("L_Palm").transform.rotation };
+
+			} catch {
+				Debug.Log("Fail to find left palm");
+				return null;
+            }
+        } else {
+			try {
+				palmTransform["position"] = new ArrayList { GameObject.Find("R_Palm").transform.position };
+				palmTransform["rotation"] = new ArrayList { GameObject.Find("R_Palm").transform.rotation };
+			} catch {
+				Debug.Log("Fail to find right palm");
+				return null;
+            }
+        }
+
+		return palmTransform;
 	}
 
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
@@ -334,6 +361,7 @@ public class Gesture {
 				fingertipPos = GameObject.Find("L_index_end").transform.position;
             } catch {
 				Debug.Log("Fail to find left fingertip position.");
+				return null;
             }
         } else {
 			try {
@@ -341,6 +369,7 @@ public class Gesture {
 			}
 			catch {
 				Debug.Log("Fail to find right fingertip position.");
+				return null;
 			}
 		}
 
