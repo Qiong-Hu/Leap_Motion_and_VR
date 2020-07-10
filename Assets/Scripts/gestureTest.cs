@@ -129,9 +129,8 @@ public class gestureTest : MonoBehaviour {
 		}
 	}
 
-	// Generate new design object
-	// creationName, creationNamePrev use global param
-	void CreateObj() {
+    #region Generate new design object
+    void CreateObj() {
 		if (creationName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (creationNamePrev.Equals(creationName + "-hover")) {
@@ -154,7 +153,7 @@ public class gestureTest : MonoBehaviour {
 		creationNamePrev = creationName;
 	}
 
-	// Call compiler, retrieve stl of the design obj, add to designList => used in CreateObj
+	// Call compiler, retrieve stl of the design obj, add to designList
 	void CallCompiler(string type, int id) {
 		GameObject gameobj;
 		gameobj = Instantiate(designObjPrefab) as GameObject;
@@ -165,34 +164,48 @@ public class gestureTest : MonoBehaviour {
 		designList.Add(designObj);
 		Debug.Log(designObj.GetFType() + " is created.");
 	}
+    #endregion
 
-	// Grab design object
-	void GrabObj() {
+    #region Grab design object
+    void GrabObj() {
 		// Begin grabbing
 		if (grabParams != null && grabParamsPrev == null) {
-			grabParamsInit = grabParams;
-			grabObj = GameObject.Find(grabParamsInit["colliderName"]);
-
-			grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["contactPosition"];
-			grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
-
-			grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
+			GrabInit();
 		}
 		// Update grabbing
 		else if (grabParams != null && grabParamsPrev != null){
-			grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
-			grabObj.transform.eulerAngles = grabParams["handRotation"] + grabParamsInit["rotationDifference"];
+			GrabUpdate();
         }
 		// End grabbing
 		else if (grabParams == null && grabParamsPrev != null) {
-			grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"] + 
-				grabParamsInit["contactPosition"] - grabParamsInit["handPosition"]; // To avoid collision after release grabbing
-			grabObj.transform.eulerAngles = grabParams["handRotation"] + grabParamsInit["rotationDifference"];
-
-			grabObj = null;
+			GrabEnd();
 		}
 		grabParamsPrev = grabParams;
     }
+
+	void GrabInit() {
+		grabParamsInit = grabParams;
+		grabObj = GameObject.Find(grabParamsInit["colliderName"]);
+
+		grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["contactPosition"];
+		grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+
+		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
+	}
+
+	void GrabUpdate() {
+		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
+		grabObj.transform.eulerAngles = grabParams["handRotation"] + grabParamsInit["rotationDifference"];
+	}
+
+	void GrabEnd() {
+		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"] +
+			grabParamsInit["contactPosition"] - grabParamsInit["handPosition"]; // To avoid collision after release grabbing
+		grabObj.transform.eulerAngles = grabParams["handRotation"] + grabParamsInit["rotationDifference"];
+
+		grabObj = null;
+	}
+	#endregion
 
 }
 
