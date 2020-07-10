@@ -88,9 +88,11 @@ public class gestureTest : MonoBehaviour {
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
 			grabParams = leftGesture.Grab();
-		} else {
+		}
+		else {
 			grabParams = null;
-        }
+			// TODO: reset collider info in handCollisionManager if not use OnCollisionExit
+		}
 
 		// Point (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
@@ -187,10 +189,8 @@ public class gestureTest : MonoBehaviour {
 		grabParamsInit = grabParams;
 		grabObj = GameObject.Find(grabParamsInit["colliderName"]);
 
-		grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["contactPosition"];
+		grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
 		grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
-
-		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
 	}
 
 	void GrabUpdate() {
@@ -199,8 +199,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void GrabEnd() {
-		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"] +
-			grabParamsInit["contactPosition"] - grabParamsInit["handPosition"]; // To avoid collision after release grabbing
+		grabObj.transform.position = grabParams["handPosition"] + grabParamsInit["positionDifference"];
 		grabObj.transform.eulerAngles = grabParams["handRotation"] + grabParamsInit["rotationDifference"];
 
 		grabObj = null;
@@ -387,10 +386,10 @@ public class Gesture {
 			try {
 				// Only detect collision between palm and object for now (finger colliders exist, unused)
 				GameObject palmCollider = GameObject.Find("L_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
+				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
 				if (colliderName != "") {
 					grabParams["colliderName"] = colliderName;
-					grabParams["contactPosition"] = palmCollider.GetComponent<handCollider>().ContactPosition;
+					grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
 				} else {
 					return null;
                 }
@@ -409,10 +408,10 @@ public class Gesture {
 			try {
 				// Only detect collision between palm and object for now (finger colliders exist, unused)
 				GameObject palmCollider = GameObject.Find("R_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
+				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
 				if (colliderName != "") {
 					grabParams["colliderName"] = colliderName;
-					grabParams["contactPosition"] = palmCollider.GetComponent<handCollider>().ContactPosition;
+					grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
 				} else {
 					return null;
                 }

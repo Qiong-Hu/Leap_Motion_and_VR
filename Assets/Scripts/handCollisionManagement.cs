@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class handCollider : MonoBehaviour {
+public class handCollisionManagement : MonoBehaviour {
 
 	string colliderName = "";
 	Vector3 contactPosition = new Vector3();
@@ -27,14 +27,18 @@ public class handCollider : MonoBehaviour {
 		set { contactPosition = value; }
     }
 
+	public void Init() {
+		colliderName = "";
+		contactPosition = new Vector3();
+    }
+
 	void OnCollisionEnter(Collision collision) {
 		//Debug.Log(this.name + " collides " + collision.gameObject.name);
 		colliderName = collision.gameObject.name;
 		contactPosition = collision.contacts[0].point;
     }
 
-	void OnCollisionExit(Collision collision) {
-		colliderName = "";
-		contactPosition = new Vector3();
-    }
+	//void OnCollisionExit(Collision collision) {
+	//	Init();
+    //}
 }
