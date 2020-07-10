@@ -24,7 +24,7 @@ public class gestureTest : MonoBehaviour {
 	// For obj creation
 	string creationName = "";
 	string creationNamePrev = "";
-	Dictionary<string, ArrayList> grabParams = new Dictionary<string, ArrayList>();
+	Dictionary<string, dynamic> grabParams = null;
 
 	// Define design obj list
 	public GameObject designObjPrefab;
@@ -82,7 +82,7 @@ public class gestureTest : MonoBehaviour {
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
 			grabParams = leftGesture.Grab();
 		} else {
-			grabParams = new Dictionary<string, ArrayList>();
+			grabParams = null;
         }
 
 		// Point (right hand prior to left)
@@ -161,12 +161,12 @@ public class gestureTest : MonoBehaviour {
 
 	// Grab design object
 	void GrabObj() {
-		if (grabParams != null &&
-			grabParams.ContainsKey("position") && 
-			grabParams.ContainsKey("rotation") &&
-			grabParams.ContainsKey("colliderName")) {
-			Debug.Log("Begin grabbing " + grabParams["colliderName"][0]);
-			Debug.Log("Contact pos: " + grabParams["contactPosition"][0]);
+		if (grabParams != null) {
+			//Debug.Log("Begin grabbing " + grabParams["colliderName"][0]);
+			//Debug.Log("Contact pos: " + grabParams["contactPosition"][0]);
+			Debug.Log("diff=(" + (grabParams["position"].x - grabParams["contactPosition"].x) +
+				", " + (grabParams["position"].y - grabParams["contactPosition"].y) +
+				", " + (grabParams["position"].z - grabParams["contactPosition"].z) + ")");
 		}
     }
 
@@ -337,12 +337,12 @@ public class Gesture {
 
     #region Define gesture commands
 
-    public Dictionary<string, ArrayList> Grab() {
-		Dictionary<string, ArrayList> grabParams = new Dictionary<string, ArrayList>();
+    public Dictionary<string, dynamic> Grab() {
+		Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
 		if (currHand.IsLeft) {
 			try {
-				grabParams["position"] = new ArrayList { GameObject.Find("L_Palm").transform.position };
-				grabParams["rotation"] = new ArrayList { GameObject.Find("L_Palm").transform.rotation };
+				grabParams["position"] = GameObject.Find("L_Palm").transform.position;
+				grabParams["rotation"] = GameObject.Find("L_Palm").transform.rotation;
 			} catch {
 				Debug.Log("Fail to find left palm");
 				return null;
@@ -352,8 +352,8 @@ public class Gesture {
 				GameObject palmCollider = GameObject.Find("L_Palm/palm");
 				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
 				if (colliderName != "") {
-					grabParams["colliderName"] = new ArrayList { colliderName };
-					grabParams["contactPosition"] = new ArrayList { palmCollider.GetComponent<handCollider>().ContactPosition };
+					grabParams["colliderName"] = colliderName;
+					grabParams["contactPosition"] = palmCollider.GetComponent<handCollider>().ContactPosition;
 				} else {
 					return null;
                 }
@@ -363,8 +363,8 @@ public class Gesture {
             }
         } else {
 			try {
-				grabParams["position"] = new ArrayList { GameObject.Find("R_Palm").transform.position };
-				grabParams["rotation"] = new ArrayList { GameObject.Find("R_Palm").transform.rotation };
+				grabParams["position"] = GameObject.Find("R_Palm").transform.position;
+				grabParams["rotation"] = GameObject.Find("R_Palm").transform.rotation;
 			} catch {
 				Debug.Log("Fail to find right palm");
 				return null;
@@ -374,8 +374,8 @@ public class Gesture {
 				GameObject palmCollider = GameObject.Find("R_Palm/palm");
 				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
 				if (colliderName != "") {
-					grabParams["colliderName"] = new ArrayList { colliderName };
-					grabParams["contactPosition"] = new ArrayList { palmCollider.GetComponent<handCollider>().ContactPosition };
+					grabParams["colliderName"] = colliderName;
+					grabParams["contactPosition"] = palmCollider.GetComponent<handCollider>().ContactPosition;
 				} else {
 					return null;
                 }
