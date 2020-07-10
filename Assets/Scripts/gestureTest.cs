@@ -24,7 +24,7 @@ public class gestureTest : MonoBehaviour {
 	// For obj creation
 	string creationName = "";
 	string creationNamePrev = "";
-	Dictionary<string, ArrayList> palmTransform = new Dictionary<string, ArrayList>();
+	Dictionary<string, ArrayList> grabParams = new Dictionary<string, ArrayList>();
 
 	// Define design obj list
 	public GameObject designObjPrefab;
@@ -69,8 +69,6 @@ public class gestureTest : MonoBehaviour {
 				CreateObj();
 				GrabObj();
 
-				// For test
-				FindCollision();
             }
 		}
 
@@ -79,12 +77,12 @@ public class gestureTest : MonoBehaviour {
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
 		// Grab (right hand prior to left)
 		if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
-			palmTransform = rightGesture.Grab();
+			grabParams = rightGesture.Grab();
 		}
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
-			palmTransform = leftGesture.Grab();
+			grabParams = leftGesture.Grab();
 		} else {
-			palmTransform = new Dictionary<string, ArrayList>();
+			grabParams = new Dictionary<string, ArrayList>();
         }
 
 		// Point (right hand prior to left)
@@ -163,22 +161,14 @@ public class gestureTest : MonoBehaviour {
 
 	// Grab design object
 	void GrabObj() {
-		if (palmTransform.ContainsKey("position") && palmTransform.ContainsKey("rotation")) {
-			Debug.Log("Begin grabbing...");//TODO: Detect physical collider between design object and hand model => for grab
+		if (grabParams != null &&
+			grabParams.ContainsKey("position") && 
+			grabParams.ContainsKey("rotation") &&
+			grabParams.ContainsKey("collider")) {
+			Debug.Log("Begin grabbing " + grabParams["collider"][0]);
         }
     }
 
-	void FindCollision() {
-		try { // For debug: only do it when hand(s) detected
-			GameObject palmCollider = GameObject.Find("palm");
-			string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
-			if (colliderName != "") {
-				Debug.Log(colliderName + " is touched");
-			}
-        } catch {
-
-        }
-    }
 }
 
 public class GestureListener
@@ -347,27 +337,52 @@ public class Gesture {
     #region Define gesture commands
 
     public Dictionary<string, ArrayList> Grab() {
-		Dictionary<string, ArrayList> palmTransform = new Dictionary<string, ArrayList>();
+		Dictionary<string, ArrayList> grabParams = new Dictionary<string, ArrayList>();
 		if (currHand.IsLeft) {
 			try {
-				palmTransform["position"] = new ArrayList { GameObject.Find("L_Palm").transform.position };
-				palmTransform["rotation"] = new ArrayList { GameObject.Find("L_Palm").transform.rotation };
-
+				grabParams["position"] = new ArrayList { GameObject.Find("L_Palm").transform.position };
+				grabParams["rotation"] = new ArrayList { GameObject.Find("L_Palm").transform.rotation };
 			} catch {
 				Debug.Log("Fail to find left palm");
 				return null;
             }
+			try {
+				// Only detect collision between palm and object for now (finger colliders exist, unused)
+				GameObject palmCollider = GameObject.Find("L_Palm/palm");
+				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
+				if (colliderName != "") {
+					grabParams["collider"] = new ArrayList { colliderName };
+				} else {
+					return null;
+                }
+			} catch {
+				Debug.Log("Fail to find left palm collider");
+				return null;
+            }
         } else {
 			try {
-				palmTransform["position"] = new ArrayList { GameObject.Find("R_Palm").transform.position };
-				palmTransform["rotation"] = new ArrayList { GameObject.Find("R_Palm").transform.rotation };
+				grabParams["position"] = new ArrayList { GameObject.Find("R_Palm").transform.position };
+				grabParams["rotation"] = new ArrayList { GameObject.Find("R_Palm").transform.rotation };
 			} catch {
 				Debug.Log("Fail to find right palm");
 				return null;
             }
+			try {
+				// Only detect collision between palm and object for now (finger colliders exist, unused)
+				GameObject palmCollider = GameObject.Find("R_Palm/palm");
+				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
+				if (colliderName != "") {
+					grabParams["collider"] = new ArrayList { colliderName };
+				} else {
+					return null;
+                }
+			} catch {
+				Debug.Log("Fail to find right palm collider");
+				return null;
+            }
         }
 
-		return palmTransform;
+		return grabParams;
 	}
 
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
