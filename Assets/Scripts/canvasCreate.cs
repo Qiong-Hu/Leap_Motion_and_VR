@@ -90,10 +90,10 @@ public class NameButton {
 	private GameObject canvas = GameObject.Find("Canvas");
 
 	public void Initialize(string currName, int count) {
+		name = currName;
 		button = new GameObject(currName, typeof(Button), typeof(RectTransform), typeof(Image));
 		Display(currName, count);
 		ChangeColor("normal");
-		name = currName;
 	}
 
 	/// <summary>
