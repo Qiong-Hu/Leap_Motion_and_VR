@@ -164,9 +164,10 @@ public class gestureTest : MonoBehaviour {
 		if (grabParams != null &&
 			grabParams.ContainsKey("position") && 
 			grabParams.ContainsKey("rotation") &&
-			grabParams.ContainsKey("collider")) {
-			Debug.Log("Begin grabbing " + grabParams["collider"][0]);
-        }
+			grabParams.ContainsKey("colliderName")) {
+			Debug.Log("Begin grabbing " + grabParams["colliderName"][0]);
+			Debug.Log("Contact pos: " + grabParams["contactPosition"][0]);
+		}
     }
 
 }
@@ -351,7 +352,8 @@ public class Gesture {
 				GameObject palmCollider = GameObject.Find("L_Palm/palm");
 				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
 				if (colliderName != "") {
-					grabParams["collider"] = new ArrayList { colliderName };
+					grabParams["colliderName"] = new ArrayList { colliderName };
+					grabParams["contactPosition"] = new ArrayList { palmCollider.GetComponent<handCollider>().ContactPosition };
 				} else {
 					return null;
                 }
@@ -372,7 +374,8 @@ public class Gesture {
 				GameObject palmCollider = GameObject.Find("R_Palm/palm");
 				string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
 				if (colliderName != "") {
-					grabParams["collider"] = new ArrayList { colliderName };
+					grabParams["colliderName"] = new ArrayList { colliderName };
+					grabParams["contactPosition"] = new ArrayList { palmCollider.GetComponent<handCollider>().ContactPosition };
 				} else {
 					return null;
                 }
