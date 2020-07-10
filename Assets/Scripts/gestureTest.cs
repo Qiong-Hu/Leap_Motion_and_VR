@@ -68,6 +68,9 @@ public class gestureTest : MonoBehaviour {
 				// Act on GestureCommands
 				CreateObj();
 				GrabObj();
+
+				// For test
+				FindCollision();
             }
 		}
 
@@ -162,6 +165,18 @@ public class gestureTest : MonoBehaviour {
 	void GrabObj() {
 		if (palmTransform.ContainsKey("position") && palmTransform.ContainsKey("rotation")) {
 			Debug.Log("Begin grabbing...");//TODO: Detect physical collider between design object and hand model => for grab
+        }
+    }
+
+	void FindCollision() {
+		try { // For debug: only do it when hand(s) detected
+			GameObject palmCollider = GameObject.Find("palm");
+			string colliderName = palmCollider.GetComponent<handCollider>().ColliderName;
+			if (colliderName != "") {
+				Debug.Log(colliderName + " is touched");
+			}
+        } catch {
+
         }
     }
 }
