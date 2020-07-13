@@ -38,7 +38,7 @@ public class handCollisionManagement : MonoBehaviour {
 		contactPosition = collision.contacts[0].point;
     }
 
-	//void OnCollisionExit(Collision collision) {
-	//	Init();
-    //}
+	void OnCollisionExit(Collision collision) {
+		Init();
+    }
 }
