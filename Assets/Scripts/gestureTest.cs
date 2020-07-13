@@ -22,15 +22,15 @@ public class gestureTest : MonoBehaviour {
 	GestureListener gestureListener = new GestureListener();
 
     #region params used during gesture commands
-	// For CreateObj()
+	// For CreateObj
     string creationName = "";
 	string creationNamePrev = "";
 
-	// For GrabObj()
+	// For GrabObj
 	Dictionary<string, dynamic> grabParams = null;
 	Dictionary<string, dynamic> grabParamsPrev = null;
-	Dictionary<string, dynamic> grabParamsInit = null;
 	GameObject grabObj = null;
+	GameObject contactPoint = null;
 	#endregion
 
 	// Define design obj list
@@ -43,7 +43,7 @@ public class gestureTest : MonoBehaviour {
 		controller.Connect += gestureListener.OnServiceConnect;
 		controller.Device += gestureListener.OnConnect;
 		controller.FrameReady += gestureListener.OnFrame;
-		Debug.Log("Gesture Test begins.");
+		Debug.Log("Gesture detection begins.");
 
 		Init();
 	}
@@ -90,17 +90,7 @@ public class gestureTest : MonoBehaviour {
 			grabParams = leftGesture.Grab();
 		}
 		else {
-			grabParams = null;
-			grabObj = null;
-			// Reset hand collider info in handCollisionManager if not use OnCollisionExit
-			try {
-				GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = true;
-			}
-			catch { }
-			try {
-				GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = true;
-			}
-			catch { }
+			//GrabReset();
 		}
 
 		// Point (right hand prior to left)
@@ -110,11 +100,7 @@ public class gestureTest : MonoBehaviour {
 		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
 			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
 		} else {
-			// Reset buttonlist color
-			foreach (NameButton nameButton in buttonList) {
-				nameButton.ChangeColor("normal");
-            }
-			creationName = "";
+			CreateReset();
         }
 
 		// Gun (right hand prior to left)
@@ -175,10 +161,18 @@ public class gestureTest : MonoBehaviour {
 		designList.Add(designObj);
 		Debug.Log(designObj.GetFType() + " is created.");
 	}
-    #endregion
 
-    #region Grab design object
-    void GrabObj() {
+	void CreateReset() {
+		// Reset buttonlist color
+		foreach (NameButton nameButton in buttonList) {
+			nameButton.ChangeColor("normal");
+		}
+		creationName = "";
+	}
+	#endregion
+
+	#region Grab design object
+	void GrabObj() {
 		// Begin grabbing
 		if (grabParams != null && grabParamsPrev == null && grabObj == null) {
 			GrabInit();
@@ -191,17 +185,27 @@ public class gestureTest : MonoBehaviour {
 		else if (grabParams == null && grabParamsPrev != null && grabObj != null) {
 			GrabEnd();
 		}
+		// Reset
+		else {
+			GrabReset();
+        }
+		
 		grabParamsPrev = grabParams;
     }
 
 	void GrabInit() {
-		grabParamsInit = grabParams;
+		//grabParamsInit = grabParams;
 
-		if (grabParamsInit["colliderName"] != "") {
-			grabObj = GameObject.Find(grabParamsInit["colliderName"]);
+		if (grabParams["colliderName"] != "") {
+			grabObj = GameObject.Find(grabParams["colliderName"]);
 
-			grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
-			grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+			//grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
+			//grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+
+			contactPoint = new GameObject("Contact Point");
+			contactPoint.transform.position = grabParams["handPosition"];
+			contactPoint.transform.eulerAngles = grabParams["handRotation"];
+			grabObj.transform.SetParent(contactPoint.transform);
 
 			try {
 				GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
@@ -217,15 +221,32 @@ public class gestureTest : MonoBehaviour {
 
 	void GrabUpdate() {
 		// TODO: update obj center pos so that contact pos unchanged
-		grabObj.transform.position = grabParams["handPosition"];// + grabParamsInit["positionDifference"];
-		grabObj.transform.eulerAngles = grabParams["handRotation"];// + grabParamsInit["rotationDifference"];
+		//grabObj.transform.position = grabParams["handPosition"];// + grabParamsInit["positionDifference"];
+		//grabObj.transform.eulerAngles = grabParams["handRotation"];// + grabParamsInit["rotationDifference"];
+
+		contactPoint.transform.position = grabParams["handPosition"];
+		contactPoint.transform.eulerAngles = grabParams["handRotation"];
 	}
 
 	void GrabEnd() {
-		grabObj.transform.position = grabParamsPrev["handPosition"];// + grabParamsInit["positionDifference"];
-		grabObj.transform.eulerAngles = grabParamsPrev["handRotation"];// + grabParamsInit["rotationDifference"];
+		contactPoint.transform.position = grabParamsPrev["handPosition"];
+		contactPoint.transform.eulerAngles = grabParamsPrev["handRotation"];
 
-		grabObj = null;
+		//grabObj.transform.position = grabParamsPrev["handPosition"];// + grabParamsInit["positionDifference"];
+		//grabObj.transform.eulerAngles = grabParamsPrev["handRotation"];// + grabParamsInit["rotationDifference"];
+
+	}
+
+	void GrabReset() {
+		if (grabObj != null) {
+ 			grabObj.transform.SetParent(null);
+			grabObj = null;
+       }
+		if (contactPoint != null) {
+			Destroy(contactPoint);
+			contactPoint = null;
+        }
+
 		try {
 			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = true;
 		}
@@ -234,7 +255,8 @@ public class gestureTest : MonoBehaviour {
 			GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = true;
 		}
 		catch { }
-	}
+
+    }
 	#endregion
 
 }
