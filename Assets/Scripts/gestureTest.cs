@@ -205,32 +205,35 @@ public class gestureTest : MonoBehaviour {
 
 			try {
 				GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
-			} catch { }
+			}
+			catch { }
 			try {
 				GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
-			} catch { }
+			}
+			catch { }
 
         }
 	}
 
 	void GrabUpdate() {
+		// TODO: update obj center pos so that contact pos unchanged
 		grabObj.transform.position = grabParams["handPosition"];// + grabParamsInit["positionDifference"];
 		grabObj.transform.eulerAngles = grabParams["handRotation"];// + grabParamsInit["rotationDifference"];
-
-		try {
-			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
-		}
-		catch { }
-		try {
-			GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
-		}
-		catch { }
 	}
 
 	void GrabEnd() {
 		grabObj.transform.position = grabParamsPrev["handPosition"];// + grabParamsInit["positionDifference"];
 		grabObj.transform.eulerAngles = grabParamsPrev["handRotation"];// + grabParamsInit["rotationDifference"];
+
 		grabObj = null;
+		try {
+			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = true;
+		}
+		catch { }
+		try {
+			GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = true;
+		}
+		catch { }
 	}
 	#endregion
 
