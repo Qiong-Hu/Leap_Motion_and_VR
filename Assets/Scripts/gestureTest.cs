@@ -180,7 +180,7 @@ public class gestureTest : MonoBehaviour {
     #region Grab design object
     void GrabObj() {
 		// Begin grabbing
-		if (grabParams != null && grabParamsPrev == null) {
+		if (grabParams != null && grabParamsPrev == null && grabObj == null) {
 			GrabInit();
 		}
 		// Update grabbing
@@ -196,18 +196,21 @@ public class gestureTest : MonoBehaviour {
 
 	void GrabInit() {
 		grabParamsInit = grabParams;
-		grabObj = GameObject.Find(grabParamsInit["colliderName"]);
 
-		//grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
-		//grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+		if (grabParamsInit["colliderName"] != "") {
+			grabObj = GameObject.Find(grabParamsInit["colliderName"]);
 
-		try {
-			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
-        } catch { }
-		try {
-			GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
-        } catch { }
-		
+			grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
+			grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+
+			try {
+				GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
+			} catch { }
+			try {
+				GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
+			} catch { }
+
+        }
 	}
 
 	void GrabUpdate() {
