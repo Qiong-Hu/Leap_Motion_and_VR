@@ -7,8 +7,9 @@ using FARVR.Design;
 
 public class gestureTest : MonoBehaviour {
 
-	// Obtain canvas obj
-	GameObject canvas;
+    #region For canvas
+    // Obtain canvas obj
+    GameObject canvas;
 	string url;
 	List<NameButton> buttonList = new List<NameButton>();
 	List<string> nameList = new List<string>();
@@ -16,9 +17,10 @@ public class gestureTest : MonoBehaviour {
 	// Button trigger params
 	float hoverThreshold;
 	float touchThreshold;
+    #endregion
 
-	// Obtain Leapmotion controller and add listener
-	Controller controller = new Controller();
+    // Obtain Leapmotion controller and add listener
+    Controller controller = new Controller();
 	GestureListener gestureListener = new GestureListener();
 
     #region params used during gesture commands
@@ -227,7 +229,6 @@ public class gestureTest : MonoBehaviour {
 		
 		grabObj.transform.position = contactPoint.transform.GetChild(0).position;
 		grabObj.transform.eulerAngles = contactPoint.transform.GetChild(0).eulerAngles;
-
 	}
 
 	void GrabEnd() {
@@ -258,6 +259,31 @@ public class gestureTest : MonoBehaviour {
 		catch { }
 
     }
+    #endregion
+
+    #region Select a design object to modify
+	GameObject SelectObj() {
+		// Steps:
+		// 1. if gesture = selectgesture: gesture draw ray
+		// 2. if ray hit obj, highlight the obj
+		// 3. return the highlighted selected obj
+
+		return null;
+    }
+
+    void DrawRay() {
+
+    }
+
+	void HighlightObj() {
+
+    }
+
+	// Will be used in ConfirmObj()
+	void DeHighlightObj() {
+
+    }
+	
 	#endregion
 
 }
