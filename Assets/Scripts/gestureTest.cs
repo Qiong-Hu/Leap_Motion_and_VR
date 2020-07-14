@@ -168,7 +168,7 @@ public class gestureTest : MonoBehaviour {
 					// TODO: auto save all stl; exit program
 					Debug.Log(creationName);
                 } else {
-					// really actually create here
+					// Really actually create here
 					Debug.Log("Begin creating " + creationName + "...");
 					CallCompiler(creationName, designCounter++);
                 }
@@ -341,7 +341,7 @@ public class GestureListener
     }
 
 	public void OnFrame (object sender, FrameEventArgs args) {
-		//Debug.Log("Leapmotin Frame Available");
+		//Debug.Log("Leapmotin Frame Available.");
 
 		// Get the most recent frame and report some basic information
 		Frame frame = args.frame;
@@ -489,6 +489,7 @@ public class Gesture {
 		// 4. send button name to CallCompiler 
 		// 5. set flag to avoid callcompiler repeatedly (only create when button state turn from "hover" to "select")
 		// 6. after created, reset all button color and flag
+		// (Step 5-6 in Update)
 
 		// Step 1. Find index fingertip pos
 		// Leapmotion's inbuilt tipPosition returns wrong pos
@@ -546,7 +547,7 @@ public class Gesture {
 				grabParams["handPosition"] = GameObject.Find("L_Palm").transform.position;
 				grabParams["handRotation"] = GameObject.Find("L_Palm").transform.eulerAngles;
 			} catch {
-				Debug.Log("Fail to find left palm");
+				Debug.Log("Fail to find left palm.");
 				return null;
             }
 			try {
@@ -556,7 +557,7 @@ public class Gesture {
 				grabParams["colliderName"] = colliderName;
 				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
 			} catch {
-				Debug.Log("Fail to find left palm collider");
+				Debug.Log("Fail to find left palm collider.");
 				return null;
             }
         } else {
@@ -564,7 +565,7 @@ public class Gesture {
 				grabParams["handPosition"] = GameObject.Find("R_Palm").transform.position;
 				grabParams["handRotation"] = GameObject.Find("R_Palm").transform.eulerAngles;
 			} catch {
-				Debug.Log("Fail to find right palm");
+				Debug.Log("Fail to find right palm.");
 				return null;
             }
 			try {
@@ -574,7 +575,7 @@ public class Gesture {
 				grabParams["colliderName"] = colliderName;
 				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
 			} catch {
-				Debug.Log("Fail to find right palm collider");
+				Debug.Log("Fail to find right palm collider.");
 				return null;
             }
         }
@@ -583,8 +584,14 @@ public class Gesture {
 	}
 
 	public Dictionary<string, dynamic> Select() {
+		Dictionary<string, dynamic> selectParams = new Dictionary<string, dynamic>();
+		if (currHand.IsLeft) {
 
-		return null;
+        } else {
+
+        }
+
+		return selectParams;
     }
 
 	public void Confirm() {
