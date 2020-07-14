@@ -23,9 +23,24 @@ public class gestureTest : MonoBehaviour {
     Controller controller = new Controller();
 	GestureListener gestureListener = new GestureListener();
 
-    #region params used during gesture commands
+	// Define design obj list
+	public GameObject designObjPrefab;
+	List<DesignObj> designList = new List<DesignObj>();
+	private int designCounter = 0;
+
+	#region Customized Gesture Determination
+	[Header("Customized Gesture Determination")]
+	public Gesture.GestureType createGesture = Gesture.GestureType.Gesture_Point;
+	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Grab;
+	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
+	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
+	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
+	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
+	#endregion
+
+	#region params used during gesture commands
 	// For CreateObj
-    string creationName = "";
+	string creationName = "";
 	string creationNamePrev = "";
 
 	// For GrabObj
@@ -33,12 +48,12 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, dynamic> grabParamsPrev = null;
 	GameObject grabObj = null;
 	GameObject contactPoint = null;
-	#endregion
 
-	// Define design obj list
-	public GameObject designObjPrefab;
-	List<DesignObj> designList = new List<DesignObj>();
-	private int designCounter = 0;
+	// For SelectObj
+	Dictionary<string, dynamic> selectParams = null;
+	Dictionary<string, dynamic> selectParamsPrev = null;
+	GameObject selectObj = null;
+	#endregion
 
 	// Use this for initialization
 	void Start () {
@@ -84,48 +99,58 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
-		// Grab (right hand prior to left)
-		if (rightGesture.Type == Gesture.GestureType.Gesture_Grab) {
-			grabParams = rightGesture.Grab();
+		// Create (right hand prior to left)
+		// TODO (bug info): if both hands == createGesture and try to use left hand to create, will fail (only detect right hand in this situation)
+		if (rightGesture.Type == createGesture) {
+			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
 		}
-		else if (leftGesture.Type == Gesture.GestureType.Gesture_Grab) {
+		else if (leftGesture.Type == createGesture) {
+			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
+		}
+		else {
+			CreateReset();
+        }
+
+		// Grab (right hand prior to left)
+		if (rightGesture.Type == grabGesture) {
+			grabParams = rightGesture.Grab();
+		} 
+		else if (leftGesture.Type == grabGesture) {
 			grabParams = leftGesture.Grab();
 		}
 		else {
 			GrabReset();
 		}
 
-		// Point (right hand prior to left)
-		if (rightGesture.Type == Gesture.GestureType.Gesture_Point) {
-			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
-		}
-		else if (leftGesture.Type == Gesture.GestureType.Gesture_Point) {
-			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
-		} else {
-			CreateReset();
-        }
-
-		// Gun (right hand prior to left)
-		if (rightGesture.Type == Gesture.GestureType.Gesture_Gun) {
+		// Select (right hand prior to left)
+		if (rightGesture.Type == selectGesture) {
 			rightGesture.Select();
 		}
-		else if (leftGesture.Type == Gesture.GestureType.Gesture_Gun) {
+		else if (leftGesture.Type == selectGesture) {
 			leftGesture.Select();
-		}
+		} 
+		else {
+			SelectReset();
+        }
 
 		// Confirm (right hand prior to left)
-		if (rightGesture.Type == Gesture.GestureType.Gesture_OK) {
+		if (rightGesture.Type == confirmGesture) {
 			rightGesture.Confirm();
 		}
-		else if (leftGesture.Type == Gesture.GestureType.Gesture_OK) {
+		else if (leftGesture.Type == confirmGesture) {
 			leftGesture.Confirm();
 		}
+		else {
+
+        }
 
 		// Stretch (both hands)
-		if (rightGesture.Type == Gesture.GestureType.Gesture_Palm &&
-			leftGesture.Type == Gesture.GestureType.Gesture_Palm) {
+		if (rightGesture.Type == stretchGestureRight && leftGesture.Type == stretchGestureLeft) {
 			rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
 		}
+		else {
+
+        }
 	}
 
     #region Generate new design object
@@ -281,6 +306,10 @@ public class gestureTest : MonoBehaviour {
 
 	// Will be used in ConfirmObj()
 	void DeHighlightObj() {
+
+    }
+
+	void SelectReset() {
 
     }
 	
@@ -452,50 +481,6 @@ public class Gesture {
 	}
 
     #region Define gesture commands
-
-    public Dictionary<string, dynamic> Grab() {
-		Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
-		if (currHand.IsLeft) {
-			try {
-				grabParams["handPosition"] = GameObject.Find("L_Palm").transform.position;
-				grabParams["handRotation"] = GameObject.Find("L_Palm").transform.eulerAngles;
-			} catch {
-				Debug.Log("Fail to find left palm");
-				return null;
-            }
-			try {
-				// Only detect collision between palm and object for now (finger colliders exist, unused)
-				GameObject palmCollider = GameObject.Find("L_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
-				grabParams["colliderName"] = colliderName;
-				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
-			} catch {
-				Debug.Log("Fail to find left palm collider");
-				return null;
-            }
-        } else {
-			try {
-				grabParams["handPosition"] = GameObject.Find("R_Palm").transform.position;
-				grabParams["handRotation"] = GameObject.Find("R_Palm").transform.eulerAngles;
-			} catch {
-				Debug.Log("Fail to find right palm");
-				return null;
-            }
-			try {
-				// Only detect collision between palm and object for now (finger colliders exist, unused)
-				GameObject palmCollider = GameObject.Find("R_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
-				grabParams["colliderName"] = colliderName;
-				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
-			} catch {
-				Debug.Log("Fail to find right palm collider");
-				return null;
-            }
-        }
-
-		return grabParams;
-	}
-
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
@@ -554,8 +539,52 @@ public class Gesture {
 		return creationName;
 	}
 
-	public void Select() {
-		//Debug.Log("Begin selecting...");
+    public Dictionary<string, dynamic> Grab() {
+		Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
+		if (currHand.IsLeft) {
+			try {
+				grabParams["handPosition"] = GameObject.Find("L_Palm").transform.position;
+				grabParams["handRotation"] = GameObject.Find("L_Palm").transform.eulerAngles;
+			} catch {
+				Debug.Log("Fail to find left palm");
+				return null;
+            }
+			try {
+				// Only detect collision between palm and object for now (finger colliders exist, unused)
+				GameObject palmCollider = GameObject.Find("L_Palm/palm");
+				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
+				grabParams["colliderName"] = colliderName;
+				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
+			} catch {
+				Debug.Log("Fail to find left palm collider");
+				return null;
+            }
+        } else {
+			try {
+				grabParams["handPosition"] = GameObject.Find("R_Palm").transform.position;
+				grabParams["handRotation"] = GameObject.Find("R_Palm").transform.eulerAngles;
+			} catch {
+				Debug.Log("Fail to find right palm");
+				return null;
+            }
+			try {
+				// Only detect collision between palm and object for now (finger colliders exist, unused)
+				GameObject palmCollider = GameObject.Find("R_Palm/palm");
+				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
+				grabParams["colliderName"] = colliderName;
+				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
+			} catch {
+				Debug.Log("Fail to find right palm collider");
+				return null;
+            }
+        }
+
+		return grabParams;
+	}
+
+	public Dictionary<string, dynamic> Select() {
+
+		return null;
     }
 
 	public void Confirm() {
