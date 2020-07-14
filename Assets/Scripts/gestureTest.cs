@@ -90,7 +90,8 @@ public class gestureTest : MonoBehaviour {
 			grabParams = leftGesture.Grab();
 		}
 		else {
-			//GrabReset();
+			GrabReset();
+			grabParams = null;
 		}
 
 		// Point (right hand prior to left)
@@ -156,7 +157,7 @@ public class gestureTest : MonoBehaviour {
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
 		designObj.RegisterNameList(nameList);
-		designObj.MakeDesign(url, type, id, new Vector3(0, 10, 0.5f * id), Vector3.one * 10);
+		designObj.MakeDesign(url, type, id, new Vector3(0, 10, 0), Vector3.one * 10);
 		
 		designList.Add(designObj);
 		Debug.Log(designObj.GetFType() + " is created.");
@@ -172,9 +173,11 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	#region Grab design object
+	// TODO (bug info 1): if hand disappear during grab, obj new init pos/rot = obj pos/rot when gesture reappear (init pos shouldn't change)
+	// TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
 	void GrabObj() {
 		// Begin grabbing
-		if (grabParams != null && grabParamsPrev == null && grabObj == null) {
+		if (grabParams != null && grabParamsPrev == null && grabObj == null && grabParams["colliderName"] != "") {
 			GrabInit();
 		}
 		// Update grabbing
@@ -184,6 +187,7 @@ public class gestureTest : MonoBehaviour {
 		// End grabbing
 		else if (grabParams == null && grabParamsPrev != null && grabObj != null) {
 			GrabEnd();
+			GrabReset();
 		}
 		// Reset
 		else {
@@ -194,55 +198,52 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void GrabInit() {
-		//grabParamsInit = grabParams;
+		grabObj = GameObject.Find(grabParams["colliderName"]);
 
-		if (grabParams["colliderName"] != "") {
-			grabObj = GameObject.Find(grabParams["colliderName"]);
+		contactPoint = new GameObject("Contact Point");
+		contactPoint.transform.position = grabParams["handPosition"];
+		contactPoint.transform.eulerAngles = grabParams["handRotation"];
 
-			//grabParamsInit["positionDifference"] = grabObj.transform.position - grabParamsInit["handPosition"];
-			//grabParamsInit["rotationDifference"] = grabObj.transform.eulerAngles - grabParamsInit["handRotation"];
+		// Record obj's ending pos/rot after grab and move
+		GameObject grabObjRepre = new GameObject("Grab obj represent");
+		grabObjRepre.transform.position = grabObj.transform.position;
+		grabObjRepre.transform.rotation = grabObj.transform.rotation;
+		grabObjRepre.transform.SetParent(contactPoint.transform);
 
-			contactPoint = new GameObject("Contact Point");
-			contactPoint.transform.position = grabParams["handPosition"];
-			contactPoint.transform.eulerAngles = grabParams["handRotation"];
-			grabObj.transform.SetParent(contactPoint.transform);
+		try {
+			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
+		}
+		catch { }
+		try {
+			GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
+		}
+		catch { }
 
-			try {
-				GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = false;
-			}
-			catch { }
-			try {
-				GameObject.Find("R_Palm/palm").GetComponent<Collider>().enabled = false;
-			}
-			catch { }
-
-        }
 	}
 
 	void GrabUpdate() {
-		// TODO: update obj center pos so that contact pos unchanged
-		//grabObj.transform.position = grabParams["handPosition"];// + grabParamsInit["positionDifference"];
-		//grabObj.transform.eulerAngles = grabParams["handRotation"];// + grabParamsInit["rotationDifference"];
-
 		contactPoint.transform.position = grabParams["handPosition"];
 		contactPoint.transform.eulerAngles = grabParams["handRotation"];
+		
+		grabObj.transform.position = contactPoint.transform.GetChild(0).position;
+		grabObj.transform.eulerAngles = contactPoint.transform.GetChild(0).eulerAngles;
+
 	}
 
 	void GrabEnd() {
 		contactPoint.transform.position = grabParamsPrev["handPosition"];
 		contactPoint.transform.eulerAngles = grabParamsPrev["handRotation"];
 
-		//grabObj.transform.position = grabParamsPrev["handPosition"];// + grabParamsInit["positionDifference"];
-		//grabObj.transform.eulerAngles = grabParamsPrev["handRotation"];// + grabParamsInit["rotationDifference"];
-
+		grabObj.transform.position = contactPoint.transform.GetChild(0).position;
+		grabObj.transform.eulerAngles = contactPoint.transform.GetChild(0).eulerAngles;
 	}
 
 	void GrabReset() {
 		if (grabObj != null) {
- 			grabObj.transform.SetParent(null);
 			grabObj = null;
        }
 		if (contactPoint != null) {
+			Destroy(contactPoint.transform.GetChild(0).gameObject);
 			Destroy(contactPoint);
 			contactPoint = null;
         }
