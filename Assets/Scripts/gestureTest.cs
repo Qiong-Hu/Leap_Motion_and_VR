@@ -124,10 +124,10 @@ public class gestureTest : MonoBehaviour {
 
 		// Select (right hand prior to left)
 		if (rightGesture.Type == selectGesture) {
-			rightGesture.Select();
+			selectParams = rightGesture.Select();
 		}
 		else if (leftGesture.Type == selectGesture) {
-			leftGesture.Select();
+			selectParams = leftGesture.Select();
 		} 
 		else {
 			SelectReset();
@@ -293,10 +293,14 @@ public class gestureTest : MonoBehaviour {
 		// 2. if ray hit obj, highlight the obj
 		// 3. return the highlighted selected obj
 
+		if (selectParams != null) {
+			DrawRay(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+        }
+
 		return null;
     }
 
-    void DrawRay() {
+    void DrawRay(Vector3 from, Vector3 to) {
 
     }
 
@@ -311,7 +315,8 @@ public class gestureTest : MonoBehaviour {
 
 	void SelectReset() {
 
-    }
+		selectParams = null;
+	}
 	
 	#endregion
 
@@ -586,10 +591,37 @@ public class Gesture {
 	public Dictionary<string, dynamic> Select() {
 		Dictionary<string, dynamic> selectParams = new Dictionary<string, dynamic>();
 		if (currHand.IsLeft) {
-
-        } else {
-
-        }
+			try {
+				selectParams["fingertipPos"] = GameObject.Find("L_index_end").transform.position;
+			}
+			catch {
+				Debug.Log("Fail to find left fingertip position.");
+				return null;
+			}
+			try {
+				selectParams["fingerbasePos"] = GameObject.Find("L_index_a").transform.position;
+			}
+			catch {
+				Debug.Log("Fail to find left fingerbase position.");
+				return null;
+			}
+		}
+		else {
+			try {
+				selectParams["fingertipPos"] = GameObject.Find("R_index_end").transform.position;
+			}
+			catch {
+				Debug.Log("Fail to find left fingertip position.");
+				return null;
+			}
+			try {
+				selectParams["fingerbasePos"] = GameObject.Find("R_index_a").transform.position;
+			}
+			catch {
+				Debug.Log("Fail to find left fingerbase position.");
+				return null;
+			}
+		}
 
 		return selectParams;
     }
