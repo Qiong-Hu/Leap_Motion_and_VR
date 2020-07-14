@@ -28,6 +28,8 @@ public class gestureTest : MonoBehaviour {
 	List<DesignObj> designList = new List<DesignObj>();
 	private int designCounter = 0;
 
+	public GameObject rayPrefab; // For selecting
+
 	#region Customized Gesture Determination
 	[Header("Customized Gesture Determination")]
 	public Gesture.GestureType createGesture = Gesture.GestureType.Gesture_Point;
@@ -53,6 +55,10 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, dynamic> selectParams = null;
 	Dictionary<string, dynamic> selectParamsPrev = null;
 	GameObject selectObj = null;
+	// For DrawRay when try to select
+	Ray ray;
+	GameObject lineObject = null;
+	LineRenderer lineRenderer = null;
 	#endregion
 
 	// Use this for initialization
@@ -92,7 +98,7 @@ public class gestureTest : MonoBehaviour {
 				// Act on GestureCommands
 				CreateObj();
 				GrabObj();
-
+				SelectObj();
             }
 		}
 
@@ -293,15 +299,52 @@ public class gestureTest : MonoBehaviour {
 		// 2. if ray hit obj, highlight the obj
 		// 3. return the highlighted selected obj
 
-		if (selectParams != null) {
-			DrawRay(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+		if (selectParams != null && selectParamsPrev == null) {
+			DrawRayInit(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+		} 
+		else if (selectParams != null && selectParamsPrev != null) {
+			DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+		}
+		else {
+			DrawRayReset();
         }
+
+		selectParamsPrev = selectParams;
 
 		return null;
     }
+	
+	void DrawRayInit(Vector3 originPos, Vector3 endPos) {
+		float lineWidth = 0.02f;
 
-    void DrawRay(Vector3 from, Vector3 to) {
+		lineObject = Instantiate(rayPrefab) as GameObject;
+		lineRenderer = lineObject.GetComponent<LineRenderer>();
+		lineRenderer.enabled = true;
 
+		lineRenderer.startWidth = lineWidth;
+		lineRenderer.endWidth = lineWidth;
+	}
+
+    void DrawRayUpdate(Vector3 originPos, Vector3 endPos) {
+		float farEndDistance = 100f;
+		
+		ray = new Ray(originPos, endPos - originPos);
+		RaycastHit hitInfo;
+
+		// For Test
+		lineRenderer.SetPositions(new Vector3[] { ray.origin, ray.origin + ray.direction * farEndDistance });
+		lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+	}
+
+	void DrawRayReset() {
+		if (lineObject != null) {
+			Destroy(lineRenderer);
+			Destroy(lineObject);
+			
+			lineObject = null;
+			lineRenderer = null;
+        }
     }
 
 	void HighlightObj() {

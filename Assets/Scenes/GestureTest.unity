@@ -2133,6 +2133,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   designObjPrefab: {fileID: 1263662565679986, guid: 06b2dff17a2c7a94b87b6dc049d6981f,
     type: 2}
+  rayPrefab: {fileID: 1422574023019504, guid: f208047a337d5ef4182fb30feaef3464, type: 2}
+  createGesture: 4
+  grabGesture: 0
+  selectGesture: 2
+  confirmGesture: 3
+  stretchGestureLeft: 1
+  stretchGestureRight: 1
 --- !u!114 &957221413
 MonoBehaviour:
   m_ObjectHideFlags: 0
