@@ -93,7 +93,6 @@ public class gestureTest : MonoBehaviour {
 		}
 		else {
 			GrabReset();
-			grabParams = null;
 		}
 
 		// Point (right hand prior to left)
@@ -248,6 +247,7 @@ public class gestureTest : MonoBehaviour {
 			Destroy(contactPoint);
 			contactPoint = null;
         }
+		grabParams = null;
 
 		try {
 			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = true;
