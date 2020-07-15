@@ -77,6 +77,14 @@ public class gestureTest : MonoBehaviour {
 		url = canvas.GetComponent<canvasCreate>().url;
 		hoverThreshold = canvas.GetComponent<canvasCreate>().hoverThreshold;
 		touchThreshold = canvas.GetComponent<canvasCreate>().touchThreshold;
+
+		// Load default prefabs if not assigned
+		if (designObjPrefab == null) {
+			designObjPrefab = Recources.Load("Prefabs/DesignObj");
+		}
+		if (rayPrefab == null) {
+			rayPrefab = Recources.Load("Prefabs/RayPrefab");
+		}
 	}
 
 
