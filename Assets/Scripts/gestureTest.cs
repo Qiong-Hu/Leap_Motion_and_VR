@@ -312,7 +312,7 @@ public class gestureTest : MonoBehaviour {
 		// 3. return the highlighted selected obj
 
 		if (selectParams != null && selectParamsPrev == null) {
-			DrawRayInit(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			DrawRayInit();
 			DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
 		} 
 		else if (selectParams != null && selectParamsPrev != null) {
@@ -324,10 +324,10 @@ public class gestureTest : MonoBehaviour {
 
 		selectParamsPrev = selectParams;
 
-		return null;
+		return selectObj;
     }
 	
-	void DrawRayInit(Vector3 originPos, Vector3 endPos) {
+	void DrawRayInit() {
 		float lineWidth = 0.02f;
 
 		lineObject = Instantiate(rayPrefab) as GameObject;
@@ -341,12 +341,21 @@ public class gestureTest : MonoBehaviour {
     void DrawRayUpdate(Vector3 originPos, Vector3 endPos) {
 		float farEndDistance = 100f;
 		
-		ray = new Ray(originPos, endPos - originPos);
+		ray = new Ray(endPos, endPos - originPos);
 		RaycastHit hitInfo;
 
-		// For Test
-		lineRenderer.SetPositions(new Vector3[] { ray.origin, ray.origin + ray.direction * farEndDistance });
-		lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+		if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity) && hitInfo.transform.gameObject.tag == "Design") {
+			lineRenderer.SetPositions(new Vector3[] { originPos, hitInfo.point });
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Green");
+		}
+		else if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity)) {
+			lineRenderer.SetPositions(new Vector3[] { originPos, hitInfo.point });
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+		}
+		else {
+			lineRenderer.SetPositions(new Vector3[] { originPos, originPos + ray.direction * farEndDistance });
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+		}
 	}
 
 	void DrawRayReset() {
