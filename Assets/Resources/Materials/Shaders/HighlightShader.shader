@@ -1,4 +1,4 @@
-﻿Shader "Custom/RimLighting" {
+﻿Shader "HighlightShader" {
 	Properties{
 		_Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
 		_MainTex("Albedo (RGB)", 2D) = "white" {}

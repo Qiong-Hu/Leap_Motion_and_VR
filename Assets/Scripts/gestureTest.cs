@@ -55,7 +55,7 @@ public class gestureTest : MonoBehaviour {
 	Color originalColor;
 	Shader originalShader;
 	Color highlightColor = new Color32(0, 255, 255, 255);
-	Shader highlightShader;
+	public Shader highlightShader;
 
 	#endregion
 
@@ -104,8 +104,15 @@ public class gestureTest : MonoBehaviour {
 			}
 		}
 
-		// Load highlight color and shader
-
+		// Load default highlight shader
+		if (highlightShader == null) {
+			try {
+				highlightShader = Shader.Find("Materials/Shaders/HighlightShader");
+            }
+			catch {
+				Debug.Log("Fail to find highlight shader.");
+            }
+        }
 	}
 
 
@@ -392,16 +399,24 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void HighlightObj(GameObject gameObject) {
+		Renderer objRender = gameObject.GetComponent<Renderer>();
+		originalColor = objRender.material.color;
+		originalShader = objRender.material.shader;
 
-    }
+		objRender.material.shader = highlightShader;
+		objRender.material.SetColor("_RimColor", highlightColor);
+		objRender.material.SetColor("_MainColor", originalColor);
+	}
 
-	// Will be used in ConfirmObj()
-	void DeHighlightObj() {
-
-    }
+	// Need debug
+	void DeHighlightObj(GameObject gameObject) {
+		gameObject.GetComponent<Renderer>().material.color = originalColor;
+		gameObject.GetComponent<Renderer>().material.shader = originalShader;
+	}
 
 	void SelectReset() {
 		DrawRayReset();
+
 		selectParams = null;
 	}
 	

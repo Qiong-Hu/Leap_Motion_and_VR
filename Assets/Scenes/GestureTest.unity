@@ -2134,6 +2134,7 @@ MonoBehaviour:
   designObjPrefab: {fileID: 1263662565679986, guid: 06b2dff17a2c7a94b87b6dc049d6981f,
     type: 2}
   rayPrefab: {fileID: 1422574023019504, guid: f208047a337d5ef4182fb30feaef3464, type: 2}
+  highlightShader: {fileID: 4800000, guid: 91a39d9b46480b840a95d618cc4542f9, type: 3}
   createGesture: 4
   grabGesture: 0
   selectGesture: 2
