@@ -80,10 +80,14 @@ public class gestureTest : MonoBehaviour {
 
 		// Load default prefabs if not assigned
 		if (designObjPrefab == null) {
-			designObjPrefab = Recources.Load("Prefabs/DesignObj");
+			try {
+				designObjPrefab = Resources.Load<GameObject>("Prefabs/DesignObj");
+            } catch { }
 		}
 		if (rayPrefab == null) {
-			rayPrefab = Recources.Load("Prefabs/RayPrefab");
+			try {
+				rayPrefab = Resources.Load<GameObject>("Prefabs/RayPrefab");
+            } catch { }
 		}
 	}
 
