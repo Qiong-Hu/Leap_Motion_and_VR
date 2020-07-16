@@ -62,7 +62,7 @@ public class gestureTest : MonoBehaviour {
 	#region Customized Gesture Determination
 	[Header("Customized Gesture Determination")]
 	public Gesture.GestureType createGesture = Gesture.GestureType.Gesture_Point;
-	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Grab;
+	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Fist;
 	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
 	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
@@ -487,7 +487,7 @@ public class GestureListener
 // TODO: "Gesture" class in a separate script
 public class Gesture {
 	public enum GestureType {
-		Gesture_Grab,
+		Gesture_Fist,
 		Gesture_Palm,
 		Gesture_Gun,
 		Gesture_OK,
@@ -506,7 +506,7 @@ public class Gesture {
 	// Pre-defined Gesture Parameters: {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
 	private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
 	public void RegisterGestureParams() { 
-		Dictionary<string, ArrayList> gesture_grab_param = new Dictionary<string, ArrayList>() {
+		Dictionary<string, ArrayList> gesture_fist_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { false, false, false, false, false } },
 			{ "GrabStrength", new ArrayList { 1f} }
 		};
@@ -528,7 +528,7 @@ public class Gesture {
 			{ "IsExtended", new ArrayList { true, false, false, false, false} }
 		};
 
-		gesture_param_list.Add(gesture_grab_param);
+		gesture_param_list.Add(gesture_fist_param);
 		gesture_param_list.Add(gesture_palm_param);
 		gesture_param_list.Add(gesture_gun_param);
 		gesture_param_list.Add(gesture_ok_param);
