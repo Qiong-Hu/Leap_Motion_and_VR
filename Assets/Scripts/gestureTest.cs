@@ -28,18 +28,6 @@ public class gestureTest : MonoBehaviour {
 	List<DesignObj> designList = new List<DesignObj>();
 	private int designCounter = 0;
 
-	public GameObject rayPrefab; // For selecting
-
-	#region Customized Gesture Determination
-	[Header("Customized Gesture Determination")]
-	public Gesture.GestureType createGesture = Gesture.GestureType.Gesture_Point;
-	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Grab;
-	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
-	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
-	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
-	#endregion
-
 	#region params used during gesture commands
 	// For CreateObj
 	string creationName = "";
@@ -55,12 +43,32 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, dynamic> selectParams = null;
 	Dictionary<string, dynamic> selectParamsPrev = null;
 	GameObject selectObj = null;
+	bool isSelected = false;
+
 	// For DrawRay when try to select
+	public GameObject rayPrefab;
 	Ray ray;
 	GameObject lineObject = null;
 	LineRenderer lineRenderer = null;
+
+	// For highlighting obj
+	Color originalColor;
+	Shader originalShader;
+	Color highlightColor = new Color32(0, 255, 255, 255);
+	Shader highlightShader;
+
 	#endregion
 
+	#region Customized Gesture Determination
+	[Header("Customized Gesture Determination")]
+	public Gesture.GestureType createGesture = Gesture.GestureType.Gesture_Point;
+	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Grab;
+	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
+	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
+	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
+	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
+	#endregion
+	
 	// Use this for initialization
 	void Start () {
 		controller.Connect += gestureListener.OnServiceConnect;
@@ -95,6 +103,9 @@ public class gestureTest : MonoBehaviour {
 				Debug.Log("Fail to find Ray Prefab.");
 			}
 		}
+
+		// Load highlight color and shader
+
 	}
 
 
@@ -311,27 +322,29 @@ public class gestureTest : MonoBehaviour {
     #endregion
 
     #region Select a design object to modify
-	GameObject SelectObj() {
+	void SelectObj() {
 		// Steps:
-		// 1. if gesture = selectGesture, then draw ray
+		// 1. if gesture = selectGesture, then draw ray, else not draw ray
 		// 2. if ray hit obj, then highlight the obj, change ray color
-		// 3. return the highlighted selected obj
-		// 4. if gesture = confirmGesture, then de-highlight obj, selectReset
+		// 3. return the highlighted selected obj (pass it through global variable)
+		// 4. if gesture = confirmGesture, then de-highlight obj, selectObj = null
 
 		if (selectParams != null && selectParamsPrev == null) {
 			DrawRayInit();
-			DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			selectObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
 		} 
 		else if (selectParams != null && selectParamsPrev != null) {
-			DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			selectObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
 		}
 		else {
 			DrawRayReset();
         }
 
-		selectParamsPrev = selectParams;
+		if (selectObj != null) {
+			HighlightObj(selectObj);
+        }
 
-		return selectObj;
+		selectParamsPrev = selectParams;
     }
 	
 	void DrawRayInit() {
@@ -345,7 +358,7 @@ public class gestureTest : MonoBehaviour {
 		lineRenderer.endWidth = lineWidth;
 	}
 
-    void DrawRayUpdate(Vector3 originPos, Vector3 endPos) {
+    GameObject DrawRayUpdate(Vector3 originPos, Vector3 endPos) {
 		float farEndDistance = 100f;
 		
 		ray = new Ray(endPos, endPos - originPos);
@@ -353,16 +366,19 @@ public class gestureTest : MonoBehaviour {
 
 		if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity) && hitInfo.transform.gameObject.tag == "Design") {
 			lineRenderer.SetPositions(new Vector3[] { originPos, hitInfo.point });
-			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Green");
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/LightGreen");
+			return hitInfo.transform.gameObject;
 		}
 		else if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity)) {
 			lineRenderer.SetPositions(new Vector3[] { originPos, hitInfo.point });
-			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/LightBlue");
 		}
 		else {
 			lineRenderer.SetPositions(new Vector3[] { originPos, originPos + ray.direction * farEndDistance });
-			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/Blue");
+			lineRenderer.material = Resources.Load<Material>("Materials/SimpleColors/LightBlue");
 		}
+
+		return null;
 	}
 
 	void DrawRayReset() {
@@ -375,7 +391,7 @@ public class gestureTest : MonoBehaviour {
         }
     }
 
-	void HighlightObj() {
+	void HighlightObj(GameObject gameObject) {
 
     }
 
@@ -385,7 +401,7 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void SelectReset() {
-
+		DrawRayReset();
 		selectParams = null;
 	}
 	
