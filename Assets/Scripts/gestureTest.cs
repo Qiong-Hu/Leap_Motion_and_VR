@@ -82,12 +82,18 @@ public class gestureTest : MonoBehaviour {
 		if (designObjPrefab == null) {
 			try {
 				designObjPrefab = Resources.Load<GameObject>("Prefabs/DesignObj");
-            } catch { }
+            }
+			catch {
+				Debug.Log("Fail to find Design Object Prefab.");
+			}
 		}
 		if (rayPrefab == null) {
 			try {
 				rayPrefab = Resources.Load<GameObject>("Prefabs/RayPrefab");
-            } catch { }
+            }
+			catch {
+				DebugLog("Fail to find Ray Prefab.");
+			}
 		}
 	}
 
@@ -307,9 +313,10 @@ public class gestureTest : MonoBehaviour {
     #region Select a design object to modify
 	GameObject SelectObj() {
 		// Steps:
-		// 1. if gesture = selectgesture: gesture draw ray
-		// 2. if ray hit obj, highlight the obj
+		// 1. if gesture = selectGesture, then draw ray
+		// 2. if ray hit obj, then highlight the obj, change ray color
 		// 3. return the highlighted selected obj
+		// 4. if gesture = confirmGesture, then de-highlight obj, selectReset
 
 		if (selectParams != null && selectParamsPrev == null) {
 			DrawRayInit();
