@@ -92,7 +92,7 @@ public class gestureTest : MonoBehaviour {
 				rayPrefab = Resources.Load<GameObject>("Prefabs/RayPrefab");
             }
 			catch {
-				DebugLog("Fail to find Ray Prefab.");
+				Debug.Log("Fail to find Ray Prefab.");
 			}
 		}
 	}
