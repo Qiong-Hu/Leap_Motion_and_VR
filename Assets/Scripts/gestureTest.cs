@@ -127,6 +127,7 @@ public class gestureTest : MonoBehaviour {
         } 
 		// Only allow gesture commands after buttonList is generated and obtained
 		else {
+			// Make changes only when at least one hand is in the scene
 			if (gestureListener.leftGesture.Type != Gesture.GestureType.Gesture_None ||
 				gestureListener.rightGesture.Type != Gesture.GestureType.Gesture_None) {
 				GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
@@ -176,11 +177,9 @@ public class gestureTest : MonoBehaviour {
 
 		// Confirm (right hand prior to left)
 		if (rightGesture.Type == confirmGesture) {
-			//rightGesture.Confirm();
 			isSelected = false;
 		}
 		else if (leftGesture.Type == confirmGesture) {
-			//leftGesture.Confirm();
 			isSelected = false;
 		}
 		else { }
@@ -355,7 +354,7 @@ public class gestureTest : MonoBehaviour {
 			isSelected = true;
 			HighlightObj(selectObj);
         }
-		else if (currObj != null && selectObj != null) {
+		else if (currObj != null && selectObj != currObj) {
 			DeHighlightObj(selectObj);
 
 			selectObj = currObj;
@@ -418,11 +417,15 @@ public class gestureTest : MonoBehaviour {
 		objRender.material.shader = highlightShader;
 		objRender.material.SetColor("_RimColor", highlightColor);
 		objRender.material.SetColor("_MainColor", originalColor);
+
+		Debug.Log(gameObject.name + " is selected.");
 	}
 
 	void DeHighlightObj(GameObject gameObject) {
 		gameObject.GetComponent<Renderer>().material.color = originalColor;
 		gameObject.GetComponent<Renderer>().material.shader = originalShader;
+
+		Debug.Log(gameObject.name + " is deselected.");
 	}
 
 	void SelectReset() {
@@ -749,10 +752,6 @@ public class Gesture {
 		}
 
 		return selectParams;
-    }
-
-	public void Confirm() {
-		//Debug.Log("Confirmed.");
     }
 
 	public void Stretch(Hand leftHand, Hand rightHand) {
