@@ -54,7 +54,7 @@ public class gestureTest : MonoBehaviour {
 	// For highlighting obj
 	Color originalColor;
 	Shader originalShader;
-	Color highlightColor = new Color32(0, 255, 255, 255);
+	Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
 	#endregion
@@ -137,7 +137,6 @@ public class gestureTest : MonoBehaviour {
 				SelectObj();
             }
 		}
-
 	}
 
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
@@ -170,21 +169,21 @@ public class gestureTest : MonoBehaviour {
 		}
 		else if (leftGesture.Type == selectGesture) {
 			selectParams = leftGesture.Select();
-		} 
+		}
 		else {
 			SelectReset();
         }
 
 		// Confirm (right hand prior to left)
 		if (rightGesture.Type == confirmGesture) {
-			rightGesture.Confirm();
+			//rightGesture.Confirm();
+			isSelected = false;
 		}
 		else if (leftGesture.Type == confirmGesture) {
-			leftGesture.Confirm();
+			//leftGesture.Confirm();
+			isSelected = false;
 		}
-		else {
-
-        }
+		else { }
 
 		// Stretch (both hands)
 		if (rightGesture.Type == stretchGestureRight && leftGesture.Type == stretchGestureLeft) {
@@ -225,7 +224,7 @@ public class gestureTest : MonoBehaviour {
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
 		designObj.RegisterNameList(nameList);
-		designObj.MakeDesign(url, type, id, new Vector3(0, 10, 0), Vector3.one * 10);
+		designObj.MakeDesign(url, type, id, new Vector3(0, 10, -0.2f), Vector3.one * 10);
 		
 		designList.Add(designObj);
 		Debug.Log(designObj.GetFType() + " is created.");
@@ -336,18 +335,31 @@ public class gestureTest : MonoBehaviour {
 		// 3. return the highlighted selected obj (pass it through global variable)
 		// 4. if gesture = confirmGesture, then de-highlight obj, selectObj = null
 
+		GameObject currObj = null;
+
+		// Update ray based on gesture
 		if (selectParams != null && selectParamsPrev == null) {
 			DrawRayInit();
-			selectObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			currObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
 		} 
 		else if (selectParams != null && selectParamsPrev != null) {
-			selectObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			currObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
 		}
 		else {
 			DrawRayReset();
         }
 
-		if (selectObj != null) {
+		// Update select info based on hit info
+		if (currObj != null && selectObj == null) {
+			selectObj = currObj;
+			isSelected = true;
+			HighlightObj(selectObj);
+        }
+		else if (currObj != null && selectObj != null) {
+			DeHighlightObj(selectObj);
+
+			selectObj = currObj;
+			isSelected = true;
 			HighlightObj(selectObj);
         }
 
@@ -408,7 +420,6 @@ public class gestureTest : MonoBehaviour {
 		objRender.material.SetColor("_MainColor", originalColor);
 	}
 
-	// Need debug
 	void DeHighlightObj(GameObject gameObject) {
 		gameObject.GetComponent<Renderer>().material.color = originalColor;
 		gameObject.GetComponent<Renderer>().material.shader = originalShader;
@@ -416,6 +427,11 @@ public class gestureTest : MonoBehaviour {
 
 	void SelectReset() {
 		DrawRayReset();
+
+		if (isSelected == false && selectObj != null) {
+			DeHighlightObj(selectObj);
+			selectObj = null;
+		}
 
 		selectParams = null;
 	}
@@ -493,7 +509,8 @@ public class Gesture {
 		Gesture_OK,
 		Gesture_Point,
 		Gesture_Thumbup,
-		Gesture_None
+		Gesture_None, 
+		Gesture_Unidentified
 	}
 
 	// Current gesture type
@@ -576,12 +593,18 @@ public class Gesture {
 	public GestureType DetectGestureType(Hand hand) {
 		GetGestureParams(hand);
 
+		bool isIdentified = false;
 		gestureType = GestureType.Gesture_None;
 		for (int i = 0; i < gesture_param_list.Count; i++) {
 			if (CompareDict(gesture_param, gesture_param_list[i])) {
 				gestureType = (GestureType)i;
+				isIdentified = true;
 				break;
             }
+        }
+
+		if (isIdentified == false) {
+			gestureType = GestureType.Gesture_Unidentified;
         }
 
 		return gestureType;
