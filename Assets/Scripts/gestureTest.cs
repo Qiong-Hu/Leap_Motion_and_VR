@@ -30,8 +30,8 @@ public class gestureTest : MonoBehaviour {
 
 	#region params used during gesture commands
 	// For CreateObj
-	string creationName = "";
-	string creationNamePrev = "";
+	string selectedButtonName = "";
+	string selectedButtonNamePrev = "";
 
 	// For GrabObj
 	Dictionary<string, dynamic> grabParams = null;
@@ -115,7 +115,6 @@ public class gestureTest : MonoBehaviour {
         }
 	}
 
-
 	// Update is called once per frame
 	void Update () {
 		// Obtain buttonList in Update() instead of Init() 
@@ -133,7 +132,7 @@ public class gestureTest : MonoBehaviour {
 				GestureCommands(gestureListener.leftGesture, gestureListener.rightGesture);
 
 				// Act on GestureCommands
-				CreateObj();
+				ButtonFunctions(); // = create + export + delete + exit
 				GrabObj();
 				SelectObj();
             }
@@ -144,10 +143,10 @@ public class gestureTest : MonoBehaviour {
 		// Create (right hand prior to left)
 		// TODO (bug info): if both hands == createGesture and try to use left hand to create, will fail (only detect right hand in this situation)
 		if (rightGesture.Type == createGesture) {
-			creationName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			selectedButtonName = rightGesture.Create(buttonList, hoverThreshold, touchThreshold);
 		}
 		else if (leftGesture.Type == createGesture) {
-			creationName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
+			selectedButtonName = leftGesture.Create(buttonList, hoverThreshold, touchThreshold);
 		}
 		else {
 			CreateReset();
@@ -194,39 +193,50 @@ public class gestureTest : MonoBehaviour {
 	}
 
     #region Generate new design object
-    void CreateObj() {
-		if (creationName != "") {
+	// Button functions include: create, export, delete, exit system
+    void ButtonFunctions() {
+		if (selectedButtonName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
-			if (creationNamePrev.Equals(creationName + "-hover")) {
-				if (creationName == "Export") {
+			if (selectedButtonNamePrev.Equals(selectedButtonName + "-hover")) {
+				if (selectedButtonName == "Export") {
 					// TODO: selectedObj.Export()
-					Debug.Log(creationName);
-                } else if (creationName == "Delete") {
-					// TODO: selectedObj.RemoveDesign()
-					Debug.Log(creationName);
-				} else if (creationName == "Exit") {
+					//Debug.Log(selectedButtonName);
+					selectObj.GetComponent<DesignObj>().Export();
+
+				} else if (selectedButtonName == "Delete") {
+					if (selectObj != null && isSelected == true) {
+						// TODO: Export then delete, in export file mark "auto saved"
+						DeleteObj(selectObj);
+
+						selectParams = null;
+						isSelected = false;
+						selectObj = null;
+					} else {
+						Debug.Log("No object is selected for deleting.");
+                    }
+				} else if (selectedButtonName == "Exit") {
 					// TODO: auto save all stl; exit program
-					Debug.Log(creationName);
+					Debug.Log(selectedButtonName);
                 } else {
-					// Really actually create here
-					Debug.Log("Begin creating " + creationName + "...");
-					CallCompiler(creationName, designCounter++);
+					// Really actually create new objects here
+					Debug.Log("Begin creating " + selectedButtonName + "...");
+					CreateObj(selectedButtonName, designCounter++);
                 }
 			}
 		}
-		creationNamePrev = creationName;
+		selectedButtonNamePrev = selectedButtonName;
 	}
 
 	// Call compiler, retrieve stl of the design obj, add to designList
-	void CallCompiler(string type, int id) {
+	void CreateObj(string type, int id) {
 		GameObject gameobj;
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
 		designObj.RegisterNameList(nameList);
-		designObj.MakeDesign(url, type, id, new Vector3(0, 10, -0.2f), Vector3.one * 10);
+		designObj.MakeDesign(url, type, id, new Vector3(0, 10, -0.1f), Vector3.one * 10);
 		
 		designList.Add(designObj);
-		Debug.Log(designObj.GetFType() + " is created.");
+		Debug.Log(designObj.GetName() + " is created.");
 	}
 
 	void CreateReset() {
@@ -234,14 +244,26 @@ public class gestureTest : MonoBehaviour {
 		foreach (NameButton nameButton in buttonList) {
 			nameButton.ChangeColor("normal");
 		}
-		creationName = "";
+		selectedButtonName = "";
 	}
-	#endregion
+    #endregion
 
-	#region Grab design object
-	// TODO (bug info 1): if hand disappear during grab, obj new init pos/rot = obj pos/rot when gesture reappear (init pos shouldn't change)
-	// TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
-	void GrabObj() {
+    #region Functional buttons
+	void ExportObj(GameObject gameObject) {
+
+    }
+
+	void DeleteObj(GameObject gameObject) {
+		Debug.Log(gameObject.name + " is deleted.");
+		gameObject.GetComponent<DesignObj>().RemoveDesign();
+	}
+
+    #endregion
+
+    #region Grab design object
+    // TODO (bug info 1): if hand disappear during grab, obj new init pos/rot = obj pos/rot when gesture reappear (init pos shouldn't change)
+    // TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
+    void GrabObj() {
 		// Begin grabbing
 		if (grabParams != null && grabParamsPrev == null && grabObj == null && grabParams["colliderName"] != "") {
 			GrabInit();
@@ -645,7 +667,7 @@ public class Gesture {
 		}
 
 		// Step 2. Find button within range
-		string creationName = "";
+		string selectedButtonName = "";
 		foreach (NameButton currButton in buttonList) {
 			if (currButton.WithinRange(fingertipPos)) {
 
@@ -654,12 +676,12 @@ public class Gesture {
 				if (currButton.VerticalDis(fingertipPos) <= hoverThreshold &&
 					currButton.VerticalDis(fingertipPos) > touchThreshold) {
 					currButton.ChangeColor("hover");
-					creationName = currButton.name + "-hover";
+					selectedButtonName = currButton.name + "-hover";
 				}
 				else if (currButton.VerticalDis(fingertipPos) <= touchThreshold &&
 					currButton.VerticalDis(fingertipPos) >= -touchThreshold) {
 					currButton.ChangeColor("select");
-					creationName = currButton.name;
+					selectedButtonName = currButton.name;
 				}
 				else {
 					currButton.ChangeColor("normal");
@@ -670,7 +692,7 @@ public class Gesture {
         }
 
 		// Step 4. send button name to CallCompiler (in Update)
-		return creationName;
+		return selectedButtonName;
 	}
 
     public Dictionary<string, dynamic> Grab() {

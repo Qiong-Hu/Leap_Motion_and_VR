@@ -416,19 +416,23 @@ namespace FARVR.Design {
             return gameObject.transform.rotation;
         }
 
+        public string GetFType()
+        {
+            return type;
+        }
+
         public string GetID()
         {
-            return (gameObject.name);
+            return ID.ToString();
+        }
+
+        public string GetName() {
+            return gameObject.name;
         }
 
         public Dictionary<string, float> GetParameters()
         {
             return parameters;
-        }
-
-        public string GetFType()
-        {
-            return type;
         }
 
         public Dictionary<string, float> GetDefaults(string ftype)
@@ -583,13 +587,13 @@ namespace FARVR.Design {
 
             if (pb_Stl_Exporter.Export(fileName, garr, FileType.Binary))
             {
+                Debug.Log(gameObject.name + " is exported to " + fileName);
                 return true;
             }
             else
             {
                 return false;
             }
-
         }
 
         // A function to read the bytes into design object
