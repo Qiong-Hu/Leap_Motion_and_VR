@@ -29,7 +29,7 @@ public class gestureTest : MonoBehaviour {
 	List<DesignObj> designList = new List<DesignObj>();
 	private int designCounter = 0;
 
-	#region params used during gesture commands
+	#region Variables used during gesture commands
 	// For CreateObj
 	string selectedButtonName = "";
 	string selectedButtonNamePrev = "";
@@ -61,6 +61,10 @@ public class gestureTest : MonoBehaviour {
 	Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
+	// For StretchObj
+	float palmToPalmThreshold = 160f; // Degree
+	float palmDis = 0;
+	float palmDisRef = 33f; // in cm, default value for natural reference palm dis
 	#endregion
 
 	#region Customized Gesture Determination
@@ -142,6 +146,10 @@ public class gestureTest : MonoBehaviour {
 				ButtonFunctions(); // = create + export + delete + exit
 				GrabObj();
 				SelectObj();
+				
+				if (selectObj != null && isSelected == true) {
+					StretchWholeObj(selectObj);
+				}
             }
 		}
 	}
@@ -188,14 +196,13 @@ public class gestureTest : MonoBehaviour {
 		else if (leftGesture.Type == confirmGesture) {
 			isSelected = false;
 		}
-		else { }
 
 		// Stretch (both hands)
 		if (rightGesture.Type == stretchGestureRight && leftGesture.Type == stretchGestureLeft) {
-			rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand);
+			palmDis = rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand, palmToPalmThreshold);
 		}
 		else {
-
+			palmDis = 0;
         }
 	}
 
@@ -404,7 +411,7 @@ public class gestureTest : MonoBehaviour {
     }
 #endregion
 
-#region Select a design object to modify
+	#region Select a design object to modify
 	void SelectObj() {
 		// Steps:
 		// 1. if gesture = selectGesture, then draw ray, else not draw ray
@@ -516,9 +523,17 @@ public class gestureTest : MonoBehaviour {
 
 		selectParams = null;
 	}
-	
-#endregion
 
+	#endregion
+
+	// Limitation info: limited range of scaling, because hands can't separate too distant before Leapmotion loses tracks
+	void StretchWholeObj(GameObject gameObject) {
+		if (palmDis != 0) {
+			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+			gameObject.transform.localScale = Vector3.one * palmDis / palmDisRef;
+			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+		}
+    }
 }
 
 public class GestureListener
@@ -691,7 +706,7 @@ public class Gesture {
 		return gestureType;
 	}
 
-#region Define gesture commands
+	#region Define gesture commands
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
@@ -832,11 +847,17 @@ public class Gesture {
 		return selectParams;
     }
 
-	public void Stretch(Hand leftHand, Hand rightHand) {
-		//Debug.Log("Begin stretching...");
-    }
+	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmThreshold) {
+		// If palm-to-palm, return palm pos dis
+		if (leftHand.PalmNormal.AngleTo(rightHand.PalmNormal) * Mathf.Rad2Deg >= palmToPalmThreshold) {
+			return leftHand.PalmPosition.DistanceTo(rightHand.PalmPosition); // in mm
+		}
+		else {
+			return 0;
+        }
+	}
 
-#endregion
+	#endregion
 
 	/// <summary>
     /// Compare curr ArrayList to ref ArrayList
