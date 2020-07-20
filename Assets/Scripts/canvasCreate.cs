@@ -22,7 +22,8 @@ public class canvasCreate : MonoBehaviour {
 	void Start () {
 		nameList = GetObjList(url);
 
-		// Add export, delete, exit
+		// Add functional buttons
+		nameList.Add("Reset");
 		nameList.Add("Export");
 		nameList.Add("Delete");
 		nameList.Add("Exit");
@@ -213,8 +214,8 @@ public class NameButton {
         } else if (choice == "select") {
 			ChangeColor(new Color32(108, 255, 108, 255));
 		} else if (choice == "normal") {
-			// normal create color = white, export = yellow, delete/exit = red
-			if (name == "Export") {
+			// normal create color = white, reset/export = yellow, delete/exit = red
+			if (name == "Reset" || name == "Export") {
 				ChangeColor(Color.yellow);
             } else if (name == "Delete" || name == "Exit") {
 				ChangeColor(new Color32(200, 0, 0, 175)); // reddish

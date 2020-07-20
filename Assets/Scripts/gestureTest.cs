@@ -33,6 +33,8 @@ public class gestureTest : MonoBehaviour {
 	// For CreateObj
 	string selectedButtonName = "";
 	string selectedButtonNamePrev = "";
+	Vector3 originalPos = new Vector3(0, 10, -0.1f);
+	Vector3 originalScale = Vector3.one * 10f;
 
 	// For ExportObj
 	string exportPath = "";
@@ -64,7 +66,7 @@ public class gestureTest : MonoBehaviour {
 	// For StretchObj
 	float palmToPalmThreshold = 160f; // Degree
 	float palmDis = 0;
-	float palmDisRef = 33f; // in cm, default value for natural reference palm dis
+	float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
 	#endregion
 
 	#region Customized Gesture Determination
@@ -212,18 +214,27 @@ public class gestureTest : MonoBehaviour {
 		if (selectedButtonName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (selectedButtonNamePrev.Equals(selectedButtonName + "-hover")) {
+				// Reset selected obj to default params, pos, rot, scale
+				if (selectedButtonName == "Reset") {
+					if (selectObj != null && isSelected == true) {
+						ExportObj(selectObj, selectObj.name + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm-ss") + "(auto_save_at_reset)");
+						ResetObj(selectObj);
+					} else {
+						Debug.Log("No object is selected for resetting.");
+                    }
+				}
 				// Export stl file, and save parameters to a text file
-				if (selectedButtonName == "Export") {
+				else if (selectedButtonName == "Export") {
 					if (selectObj != null && isSelected == true) {
 						ExportObj(selectObj);
                     } else {
-						Debug.Log("No object is selected for exporting");
+						Debug.Log("No object is selected for exporting.");
                     }
 				}
 				// Auto save selected obj before deleting
 				else if (selectedButtonName == "Delete") {
 					if (selectObj != null && isSelected == true) {
-						ExportObj(selectObj, selectObj.name + "(auto_save)");
+						ExportObj(selectObj, selectObj.name + "(auto_save_at_delete)"); // wouldn't repeat itself so no need to add time string
 						DeleteObj(selectObj);
 
 						selectParams = null;
@@ -238,8 +249,8 @@ public class gestureTest : MonoBehaviour {
 					Debug.Log("Auto save all objects and exit.");
 
 					foreach (DesignObj designObj in designList) {
-						ExportObj(designObj.GetGameobject(), designObj.GetName() + "(auto_save)");
-                    }
+						ExportObj(designObj.GetGameobject(), designObj.GetName() + "(auto_save_at_exit)"); // wouldn't repeat itself so no need to add time string
+					}
 
 					ExitSys();
 				}
@@ -259,7 +270,7 @@ public class gestureTest : MonoBehaviour {
 		gameobj = Instantiate(designObjPrefab) as GameObject;
 		DesignObj designObj = gameobj.GetComponent<DesignObj>();
 		designObj.RegisterNameList(nameList);
-		designObj.MakeDesign(url, type, id, new Vector3(0, 10, -0.1f), Vector3.one * 10);
+		designObj.MakeDesign(url, type, id, originalPos, originalScale);
 		
 		designList.Add(designObj);
 		Debug.Log(designObj.GetName() + " is created.");
@@ -299,6 +310,19 @@ public class gestureTest : MonoBehaviour {
 			Debug.Log("Fail to find export filefolder path.");
 		}
 	}
+
+	void ResetObj(GameObject gameObject) {
+		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+
+		gameObject.transform.position = originalPos;
+		gameObject.transform.rotation = Quaternion.identity;
+		gameObject.transform.localScale = originalScale;
+
+		// TODO: Reset all params to default values from compiler's xxx.json
+
+		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+		Debug.Log(gameObject.name + " is reset.");
+    }
 
 	void DeleteObj(GameObject gameObject) {
 		string objname = gameObject.name;
@@ -530,7 +554,7 @@ public class gestureTest : MonoBehaviour {
 	void StretchWholeObj(GameObject gameObject) {
 		if (palmDis != 0) {
 			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-			gameObject.transform.localScale = Vector3.one * palmDis / palmDisRef;
+			gameObject.transform.localScale = originalScale * palmDis / palmDisRef;
 			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		}
     }
