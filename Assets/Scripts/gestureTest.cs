@@ -226,10 +226,16 @@ public class gestureTest : MonoBehaviour {
 						Debug.Log("No object is selected for deleting.");
                     }
 				}
+				// Auto save all objs in scene and exit program
 				else if (selectedButtonName == "Exit") {
-					// TODO: auto save all stl; exit program
-					Debug.Log(selectedButtonName);
-                }
+					Debug.Log("Auto save all objects and exit.");
+
+					foreach (DesignObj designObj in designList) {
+						ExportObj(designObj.GetGameobject(), designObj.GetName() + "(auto_save)");
+                    }
+
+					ExitSys();
+				}
 				// Actually create new objects here
 				else {
 					Debug.Log("Begin creating " + selectedButtonName + "...");
@@ -288,20 +294,32 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void DeleteObj(GameObject gameObject) {
-		Debug.Log(gameObject.name + " is deleted.");
-		gameObject.GetComponent<DesignObj>().RemoveDesign();
+		string objname = gameObject.name;
+		try {
+			designList.Remove(gameObject.GetComponent<DesignObj>());
+			gameObject.GetComponent<DesignObj>().RemoveDesign();
+
+			Debug.Log(objname + " is deleted.");
+        }
+		catch {
+			Debug.Log("Fail to delete" + objname + ".");
+        } 
 	}
 
 	void ExitSys() {
+		#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+		#else
+			Application.Quit();
+		#endif
+	}
 
-    }
+	#endregion
 
-    #endregion
-
-    #region Grab design object
-    // TODO (bug info 1): if hand disappear during grab, obj new init pos/rot = obj pos/rot when gesture reappear (init pos shouldn't change)
-    // TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
-    void GrabObj() {
+	#region Grab design object
+	// TODO (bug info 1): if hand disappear during grab, obj new init pos/rot = obj pos/rot when gesture reappear (init pos shouldn't change)
+	// TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
+	void GrabObj() {
 		// Begin grabbing
 		if (grabParams != null && grabParamsPrev == null && grabObj == null && grabParams["colliderName"] != "") {
 			GrabInit();
@@ -384,9 +402,9 @@ public class gestureTest : MonoBehaviour {
 		catch { }
 
     }
-    #endregion
+#endregion
 
-    #region Select a design object to modify
+#region Select a design object to modify
 	void SelectObj() {
 		// Steps:
 		// 1. if gesture = selectGesture, then draw ray, else not draw ray
@@ -499,7 +517,7 @@ public class gestureTest : MonoBehaviour {
 		selectParams = null;
 	}
 	
-	#endregion
+#endregion
 
 }
 
@@ -673,7 +691,7 @@ public class Gesture {
 		return gestureType;
 	}
 
-    #region Define gesture commands
+#region Define gesture commands
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
@@ -818,7 +836,7 @@ public class Gesture {
 		//Debug.Log("Begin stretching...");
     }
 
-    #endregion
+#endregion
 
 	/// <summary>
     /// Compare curr ArrayList to ref ArrayList
