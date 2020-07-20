@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Windows;
 using System;
 using System.Text;
 using System.IO;
@@ -449,7 +450,7 @@ namespace FARVR.Design {
         /// <summary>
         /// Display all the data about the current design obj. For Debugging Purposes.
         /// </summary>
-        public void Display()
+        public void DebugParams()
         {
             // Log the type
             Debug.Log("Type: " + type);
@@ -465,22 +466,58 @@ namespace FARVR.Design {
             }
         }
 
-        // Save and export the STL File from the object
+        // Save and export the STL File and parameters from the object
+        // This should be the same for all of the children, which is why it should be modified here
         /// <summary>
         /// Export this instance.
         /// </summary>
         /// <returns>RETURN CODE: 0 = Successfully exported STL File; 1 = Failed to export STL file</returns>
-        public int Export()
-        {
-            // This should be the same for all of the children, which is why it should be modified here 
-            if (!ExportSTL())
-            {
+        public int Export(string filefolder, string filename) {
+            if (!ExportParams(filefolder, filename) || !ExportSTL(filefolder, filename)) {
                 return 1;
             }
-            else
-            {
+            else {
                 return 0;
             }
+        }
+
+        // Reload Export to default filename
+        public int Export(string filefolder) {
+            if ( !ExportParams(filefolder) || !ExportSTL(filefolder)) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+
+        // Save parameters to a text file
+        private bool ExportParams(string filefolder, string objname) {
+            string filePath = filefolder + "/ExportParams.txt";
+
+            try {
+                using (StreamWriter writer = new StreamWriter(filePath, true)) {
+                    writer.WriteLine(objname + ": ");
+                    foreach (KeyValuePair<string, float> entry in parameters) {
+                        writer.WriteLine(entry.Key + ": " + entry.Value.ToString());
+                    }
+                    writer.WriteLine();
+                }
+
+                Debug.Log("Export parameters to " + filePath + ".");
+                return true;
+            }
+            catch {
+                Debug.Log("Fail to export parameters of " + gameObject.name);
+                return false;
+            }
+        }
+
+        // Reload ExportParams to default name
+        // Used to distinguish whether an export is a auto save
+        private bool ExportParams(string filefolder) {
+            string objname = gameObject.name + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm-ss");
+            return ExportParams(filefolder, objname);
         }
 
         // Obsolete name: RemoveFurniture
@@ -577,23 +614,30 @@ namespace FARVR.Design {
         }
 
         // Exports STL into a .stl file for printing and manufacturing
-        private bool ExportSTL()
+        private bool ExportSTL(string filefolder, string filename)
         {
             GameObject[] garr = new GameObject[1];
 
             garr[0] = gameObject;
 
-            string fileName = Application.persistentDataPath + "/" + type + ID + ".stl";
+            string filePath = filefolder + "/" + filename + ".stl";
 
-            if (pb_Stl_Exporter.Export(fileName, garr, FileType.Binary))
+            if (pb_Stl_Exporter.Export(filePath, garr, FileType.Binary))
             {
-                Debug.Log(gameObject.name + " is exported to " + fileName);
+                Debug.Log(gameObject.name + " is exported to " + filePath + ".");
                 return true;
             }
             else
             {
+                Debug.Log("Fail to export " + gameObject.name + ".");
                 return false;
             }
+        }
+
+        // Reload ExportSTL with default file name
+        private bool ExportSTL(string filefolder) {
+            string filename = gameObject.name + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm-ss");
+            return ExportSTL(filefolder, filename);
         }
 
         // A function to read the bytes into design object

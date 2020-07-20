@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
 
@@ -32,6 +33,9 @@ public class gestureTest : MonoBehaviour {
 	// For CreateObj
 	string selectedButtonName = "";
 	string selectedButtonNamePrev = "";
+
+	// For ExportObj
+	string exportPath = "";
 
 	// For GrabObj
 	Dictionary<string, dynamic> grabParams = null;
@@ -113,6 +117,9 @@ public class gestureTest : MonoBehaviour {
 				Debug.Log("Fail to find highlight shader.");
             }
         }
+
+		// Init export filefolder name
+		exportPath = Application.persistentDataPath + "/Export_" + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 	}
 
 	// Update is called once per frame
@@ -192,20 +199,24 @@ public class gestureTest : MonoBehaviour {
         }
 	}
 
-    #region Generate new design object
-	// Button functions include: create, export, delete, exit system
-    void ButtonFunctions() {
+	#region Functional buttons
+	// Button functions include: create, export, delete, exit system (TODO: connect to photon server)
+	void ButtonFunctions() {
 		if (selectedButtonName != "") {
 			// if prev==sth+"-hover" and curr==sth, then create sth
 			if (selectedButtonNamePrev.Equals(selectedButtonName + "-hover")) {
+				// Export stl file, and save parameters to a text file
 				if (selectedButtonName == "Export") {
-					// TODO: selectedObj.Export()
-					//Debug.Log(selectedButtonName);
-					selectObj.GetComponent<DesignObj>().Export();
-
-				} else if (selectedButtonName == "Delete") {
 					if (selectObj != null && isSelected == true) {
-						// TODO: Export then delete, in export file mark "auto saved"
+						ExportObj(selectObj);
+                    } else {
+						Debug.Log("No object is selected for exporting");
+                    }
+				}
+				// Auto save selected obj before deleting
+				else if (selectedButtonName == "Delete") {
+					if (selectObj != null && isSelected == true) {
+						ExportObj(selectObj, selectObj.name + "(auto_save)");
 						DeleteObj(selectObj);
 
 						selectParams = null;
@@ -214,11 +225,13 @@ public class gestureTest : MonoBehaviour {
 					} else {
 						Debug.Log("No object is selected for deleting.");
                     }
-				} else if (selectedButtonName == "Exit") {
+				}
+				else if (selectedButtonName == "Exit") {
 					// TODO: auto save all stl; exit program
 					Debug.Log(selectedButtonName);
-                } else {
-					// Really actually create new objects here
+                }
+				// Actually create new objects here
+				else {
 					Debug.Log("Begin creating " + selectedButtonName + "...");
 					CreateObj(selectedButtonName, designCounter++);
                 }
@@ -246,17 +259,42 @@ public class gestureTest : MonoBehaviour {
 		}
 		selectedButtonName = "";
 	}
-    #endregion
 
-    #region Functional buttons
 	void ExportObj(GameObject gameObject) {
-
+		if (exportPath != "") {
+			if (!Directory.Exists(exportPath)) {
+				Directory.CreateDirectory(exportPath);
+            }
+			
+			gameObject.GetComponent<DesignObj>().Export(exportPath);
+		}
+		else {
+			Debug.Log("Fail to find export filefolder path.");
+        }
     }
+
+	// Reload ExportObj to distinguish whether an export is an auto save
+	void ExportObj(GameObject gameObject, string filename) {
+		if (exportPath != "") {
+			if (!Directory.Exists(exportPath)) {
+				Directory.CreateDirectory(exportPath);
+			}
+
+			gameObject.GetComponent<DesignObj>().Export(exportPath, filename);
+		}
+		else {
+			Debug.Log("Fail to find export filefolder path.");
+		}
+	}
 
 	void DeleteObj(GameObject gameObject) {
 		Debug.Log(gameObject.name + " is deleted.");
 		gameObject.GetComponent<DesignObj>().RemoveDesign();
 	}
+
+	void ExitSys() {
+
+    }
 
     #endregion
 
