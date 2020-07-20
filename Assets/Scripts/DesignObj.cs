@@ -499,8 +499,9 @@ namespace FARVR.Design {
                 using (StreamWriter writer = new StreamWriter(filePath, true)) {
                     writer.WriteLine(objname + ": ");
                     foreach (KeyValuePair<string, float> entry in parameters) {
-                        writer.WriteLine(entry.Key + ": " + entry.Value.ToString());
+                        writer.WriteLine(entry.Key + ": " + entry.Value.ToString("F3"));
                     }
+                    writer.WriteLine("scale: " + (gameObject.transform.localScale / 10f).ToString("F3"));
                     writer.WriteLine();
                 }
 
