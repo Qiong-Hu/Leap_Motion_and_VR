@@ -53,6 +53,11 @@ namespace FARVR.Design {
             }
         }
 
+        /// <summary>
+        /// The url link of backend compiler (passed by frontend during Create)
+        /// </summary>
+        private string urlLink = "";
+
         // TODO: auto gain from backend compiler
         /// <summary>
         /// The obj catalog. Contains all available furnitures in current class that users can generate
@@ -153,6 +158,7 @@ namespace FARVR.Design {
         // Obsolete name: MakeFurniture
         public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
+            urlLink = url;
             if (!VerifyDesign(ftype, localparameters))
             {
                 return 2;
@@ -185,7 +191,7 @@ namespace FARVR.Design {
                 gameObject.AddComponent<MeshCollider>();
                 gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().convex = true;
-                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
+                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Prefabs/DesignObjPhy") as PhysicMaterial;
                 gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.InflateConvexMesh;
                 Renderer rend = gameObject.GetComponent<Renderer>();
                 rend.material = MaterialPrefab;
@@ -240,6 +246,7 @@ namespace FARVR.Design {
         /// <param name="id">A unique ID for the design obj.</param>
         public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
+            urlLink = url;
             //Verify that the design obj is valid
             if (!VerifyDesign(ftype))
             {
@@ -273,7 +280,7 @@ namespace FARVR.Design {
                     gameObject.AddComponent<MeshCollider>();
                     gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                     gameObject.GetComponent<MeshCollider>().convex = true;
-                    gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
+                    gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Prefabs/DesignObjPhy") as PhysicMaterial;
                     gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.WeldColocatedVertices;
                     Renderer rend = gameObject.GetComponent<Renderer>();
                     rend.material = MaterialPrefab;
@@ -341,7 +348,7 @@ namespace FARVR.Design {
                 gameObject.GetComponent<MeshFilter>().mesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().sharedMesh = meshes[0];
                 gameObject.GetComponent<MeshCollider>().convex = true;
-                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Assets/Prefabs/CreationPhy") as PhysicMaterial;
+                gameObject.GetComponent<MeshCollider>().sharedMaterial = Resources.Load("Prefabs/DesignObjPhy") as PhysicMaterial;
                 gameObject.GetComponent<MeshCollider>().cookingOptions = MeshColliderCookingOptions.WeldColocatedVertices;
 
                 MeshRenderer rend = gameObject.GetComponent<MeshRenderer>();
@@ -481,7 +488,7 @@ namespace FARVR.Design {
             }
         }
 
-        // Reload Export to default filename
+        // Overload Export to default filename
         public int Export(string filefolder) {
             if ( !ExportParams(filefolder) || !ExportSTL(filefolder)) {
                 return 1;
@@ -514,7 +521,7 @@ namespace FARVR.Design {
             }
         }
 
-        // Reload ExportParams to default name
+        // Overload ExportParams to default name
         // Used to distinguish whether an export is a auto save
         private bool ExportParams(string filefolder) {
             string objname = gameObject.name + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm-ss");

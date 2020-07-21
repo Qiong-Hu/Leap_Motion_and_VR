@@ -258,11 +258,20 @@ public class gestureTest : MonoBehaviour {
 				else {
 					Debug.Log("Begin creating " + selectedButtonName + "...");
 					CreateObj(selectedButtonName, designCounter++);
+
+					FindParams(selectedButtonName); // For debug
                 }
 			}
 		}
 		selectedButtonNamePrev = selectedButtonName;
 	}
+
+	// For debug, test it here, implement it in DesignObj
+	// read from url's type.json, save as dictionary
+	// in order to remove "FurnitureCatalog"
+	void FindParams(string type) {
+
+    }
 
 	// Call compiler, retrieve stl of the design obj, add to designList
 	void CreateObj(string type, int id) {
@@ -321,6 +330,11 @@ public class gestureTest : MonoBehaviour {
 		// TODO: Reset all params to default values from compiler's xxx.json
 
 		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+		// De-select
+		isSelected = false;
+		SelectReset();
+
 		Debug.Log(gameObject.name + " is reset.");
     }
 
@@ -433,7 +447,7 @@ public class gestureTest : MonoBehaviour {
 		catch { }
 
     }
-#endregion
+	#endregion
 
 	#region Select a design object to modify
 	void SelectObj() {
