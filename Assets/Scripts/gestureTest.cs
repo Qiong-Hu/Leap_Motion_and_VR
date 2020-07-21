@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
+using SimpleJSON;
 
 public class gestureTest : MonoBehaviour {
 
@@ -258,20 +260,11 @@ public class gestureTest : MonoBehaviour {
 				else {
 					Debug.Log("Begin creating " + selectedButtonName + "...");
 					CreateObj(selectedButtonName, designCounter++);
-
-					FindParams(selectedButtonName); // For debug
                 }
 			}
 		}
 		selectedButtonNamePrev = selectedButtonName;
 	}
-
-	// For debug, test it here, implement it in DesignObj
-	// read from url's type.json, save as dictionary
-	// in order to remove "FurnitureCatalog"
-	void FindParams(string type) {
-
-    }
 
 	// Call compiler, retrieve stl of the design obj, add to designList
 	void CreateObj(string type, int id) {
@@ -323,11 +316,10 @@ public class gestureTest : MonoBehaviour {
 	void ResetObj(GameObject gameObject) {
 		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
-		gameObject.transform.position = originalPos;
-		gameObject.transform.rotation = Quaternion.identity;
-		gameObject.transform.localScale = originalScale;
-
-		// TODO: Reset all params to default values from compiler's xxx.json
+		// Reset all params to default values
+		DesignObj designObj = gameObject.GetComponent<DesignObj>();
+		designObj.TransformDesign(originalPos, Quaternion.identity, originalScale);
+		designObj.UpdateDesign(designObj.GetDefaultsCurr());
 
 		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 

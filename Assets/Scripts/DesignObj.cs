@@ -9,13 +9,18 @@ using System.Text;
 using System.IO;
 using STLImporter;
 using Parabox.STL;
+using SimpleJSON;
 
 namespace FARVR.Design {
     public class DesignObj : MonoBehaviour {
-        // A Material used to display on the Prefab Object
+        /// <summary>
+        /// A Material used to display on the Prefab Object
+        /// </summary>
         public Material MaterialPrefab;
 
-        // Text displayer prefab
+        /// <summary>
+        /// Text displayer prefab
+        /// </summary>
         public GameObject TextDisplayer;
 
         /// <summary>
@@ -31,15 +36,16 @@ namespace FARVR.Design {
         /// <summary>
         /// The parameters defining the generated obj
         /// </summary>
-        private Dictionary<string, float> parameters;
+        private Dictionary<string, dynamic> parameters;
+        private Dictionary<string, string> paramtypes = new Dictionary<string, string>();
 
         /// <summary>
         /// List to store the different text display objects
         /// </summary>
         private List<GameObject> texts = new List<GameObject>();
 
+        // For displaying parameter texts
         private string formatter = "{0}: {1}";
-
         private float linespacing = 0.08f;
 
         /// <summary>
@@ -58,96 +64,55 @@ namespace FARVR.Design {
         /// </summary>
         private string urlLink = "";
 
-        // TODO: auto gain from backend compiler
         /// <summary>
-        /// The obj catalog. Contains all available furnitures in current class that users can generate
+        /// Auto obtain parameters from backend compiler
+        /// To replace obsolete static FurnitureCatalog
         /// </summary>
-        public static Dictionary<string, Dictionary<string, float>> FurnitureCatalog = new Dictionary<string, Dictionary<string, float>>() {
-            {"Stool", new Dictionary<string, float>() {
-                    {"height", 80},
-                    {"legs", 3},
-                    {"radius", 20},
-                    {"angle", 60}
-                }},
-            {"SimpleTable", new Dictionary<string, float>() {
-                    {"height", 40},
-                    {"width", 50},
-                    {"length", 70},
-                    {"thickness", 10},
-                    {"taper", 0.5f}
-                }},
-            {"SimpleChair", new Dictionary<string, float>() {
-                    {"taper", 0.5f},
-                    {"recline", 110},
-                    {"height", 40},
-                    {"width", 70},
-                    {"depth", 50},
-                    {"gapheight", 20},
-                    {"backheight", 40},
-                    {"thickness", 10}
-                }},
-            {"RockerChair", new Dictionary<string, float>() {
-                    {"rocker", 10},
-                    {"recline", 110},
-                    {"height", 40},
-                    {"width", 70},
-                    {"depth", 50},
-                    {"gapheight", 20},
-                    {"backheight", 40},
-                    {"thickness", 10}
-                }},
-            {"Paperbot", new Dictionary<string, float>() {
-                    {"battery_thickness", 4.9f},
-                    {"battery_width", 60},
-                    {"robot_length", 80},
-                    {"wheel_radius", 25}
-                }},
-            {"BoatBase", new Dictionary<string, float>() {
-                    {"width", 50},
-                    {"length", 250},
-                    {"stern", 0f},
-                    {"depth", 20},
-                    {"bow", 45}
-                }},
-            {"Canoe", new Dictionary<string, float>() {
-                    {"width", 50},
-                    {"length", 250},
-                    {"stern", 0f},
-                    {"bow", 45},
-                    {"depth", 20},
-                    {"n", 3}
-                }},
-            {"Catamaran", new Dictionary<string, float>() {
-                    {"width", 60},
-                    {"depth", 50},
-                    {"length", 200},
-                    {"height", 30}
-            }},
-            {"Trimaran", new Dictionary<string, float>() {
-                    {"width", 50},
-                    {"length", 250},
-                    {"stern", 0f},
-                    {"bow", 45},
-                    {"spacing", 25},
-                    {"depth", 20},
-                    {"n", 6}
-            }},
-            {"CatFoil", new Dictionary<string, float>() {
-                    {"width", 60},
-                    {"length", 200},
-                    {"dl", 0.1f},
-                    {"depth", 50},
-                    {"height", 30}
-            }},
-            {"Tug", new Dictionary<string, float>() {
-                    {"width", 60},
-                    {"depth", 50},
-                    {"length", 200},
-                    {"height", 30}
-            }}
-        };
+        private Dictionary<string, dynamic> DefaultParameters(string url, string ftype) {
+            Dictionary<string, dynamic> defaultParams = new Dictionary<string, dynamic>();
 
-        // Creates a design object
+            string link = "{0}/{1}.json";
+            link = string.Format(link, url, ftype);
+
+            string jsonString = "";
+            using (UnityWebRequest www = UnityWebRequest.Get(link)) {
+                www.SendWebRequest();
+                while (!www.isDone) ;
+
+                if (www.isNetworkError || www.isHttpError) {
+                    Debug.Log(www.error);
+                }
+                else {
+                    jsonString = www.downloadHandler.text;
+                }
+            }
+
+            if (jsonString != "") {
+                JSONNode jsonNode = SimpleJSON.JSON.Parse(jsonString);
+
+                foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)jsonNode) {
+                    if (kvp.Value.Count == 1) {
+                        defaultParams[kvp.Key] = float.Parse(kvp.Value["default"].Value);
+                    }
+                    else {
+                        paramtypes[kvp.Key] = kvp.Value["paramtype"].Value;
+                        if (kvp.Value["paramtype"].Value == "count") {
+                            defaultParams[kvp.Key] = int.Parse(kvp.Value["default"].Value);
+                        }
+                        else {
+                            defaultParams[kvp.Key] = float.Parse(kvp.Value["default"].Value);
+                        }
+                    }
+                }
+                return defaultParams;
+            }
+            else {
+                Debug.Log("Fail to find json file for " + ftype + ".");
+                return null;
+            }
+        }
+
+        #region Creates a new design object
         /// <summary>
         /// Generates a design object by setting all the parameters in the object.
         /// </summary>
@@ -156,7 +121,7 @@ namespace FARVR.Design {
         /// <param name="ftype">The name of the design obj that we are to generate</param>
         /// <param name="id">A unique ID for the design obj.</param>
         // Obsolete name: MakeFurniture
-        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
+        public int MakeDesign(string url, Dictionary<string, dynamic> localparameters, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
             urlLink = url;
             if (!VerifyDesign(ftype, localparameters))
@@ -179,7 +144,7 @@ namespace FARVR.Design {
 
             // TODO: Add Physics collision to object
             // .gameObject.AddComponent<MeshCollider> ();
-            Mesh[] meshes = GetSTL(url);
+            Mesh[] meshes = GetSTL(url, ftype);
             if (meshes == null)
             {
                 Debug.Log("Failed to get mesh");
@@ -204,7 +169,7 @@ namespace FARVR.Design {
 
                 /* Add the text displays */
                 int Vcounter = 1;
-                foreach (KeyValuePair<string, float> entry in parameters)
+                foreach (KeyValuePair<string, dynamic> entry in parameters)
                 {
                     GameObject textobj = Instantiate(TextDisplayer) as GameObject;
                     textobj.GetComponent<TextMesh>().transform.position = gameObject.transform.position + gameObject.transform.up * linespacing * Vcounter++;
@@ -219,19 +184,19 @@ namespace FARVR.Design {
 
         // The following are overloaded functions that act as an alternative to default parameters
         // Optional rotation AND scale
-        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location)
+        public int MakeDesign(string url, Dictionary<string, dynamic> localparameters, string ftype, int id, Vector3 location)
         {
             return MakeDesign(url, localparameters, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
         }
 
         // Optional rotation
-        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Vector3 scale)
+        public int MakeDesign(string url, Dictionary<string, dynamic> localparameters, string ftype, int id, Vector3 location, Vector3 scale)
         {
             return MakeDesign(url, localparameters, ftype, id, location, Quaternion.identity, scale);
         }
 
         // Optional scale
-        public int MakeDesign(string url, Dictionary<string, float> localparameters, string ftype, int id, Vector3 location, Quaternion rotate)
+        public int MakeDesign(string url, Dictionary<string, dynamic> localparameters, string ftype, int id, Vector3 location, Quaternion rotate)
         {
             return MakeDesign(url, localparameters, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
         }
@@ -244,7 +209,7 @@ namespace FARVR.Design {
         /// <returns>Dictionary of the parameters that were used to generate the obj; NULL = Invalid parameters</returns>
         /// <param name="ftype">The name of the design obj that we are to generate</param>
         /// <param name="id">A unique ID for the design obj.</param>
-        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
+        public Dictionary<string, dynamic> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotation, Vector3 scale)
         {
             urlLink = url;
             //Verify that the design obj is valid
@@ -257,7 +222,7 @@ namespace FARVR.Design {
             {
 
                 //If the design obj is valid
-                parameters = FurnitureCatalog[ftype];
+                parameters = DefaultParameters(url, ftype);
 
                 type = ftype;
                 ID = id;
@@ -268,7 +233,7 @@ namespace FARVR.Design {
 
                 // TODO: Add Physics collision to object
                 // .gameObject.AddComponent<MeshCollider> ();
-                Mesh[] meshes = GetSTL(url);
+                Mesh[] meshes = GetSTL(url, ftype);
                 if (meshes == null)
                 {
                     Debug.Log("Failed to get mesh");
@@ -293,7 +258,7 @@ namespace FARVR.Design {
 
                     /* Add the text displays */
                     int Vcounter = 1;
-                    foreach (KeyValuePair<string, float> entry in parameters)
+                    foreach (KeyValuePair<string, dynamic> entry in parameters)
                     {
                         GameObject textobj = Instantiate(TextDisplayer) as GameObject;
                         textobj.GetComponent<TextMesh>().transform.position = gameObject.transform.position + gameObject.transform.up * linespacing * Vcounter++;
@@ -309,22 +274,23 @@ namespace FARVR.Design {
 
         // The following are overloaded functions that act as an alternative to default parameters
         // Optional rotation AND scale
-        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location)
+        public Dictionary<string, dynamic> MakeDesign(string url, string ftype, int id, Vector3 location)
         {
             return MakeDesign(url, ftype, id, location, Quaternion.identity, new Vector3(1f, 1f, 1f));
         }
 
         // Optional rotation
-        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Vector3 scale)
+        public Dictionary<string, dynamic> MakeDesign(string url, string ftype, int id, Vector3 location, Vector3 scale)
         {
             return MakeDesign(url, ftype, id, location, Quaternion.identity, scale);
         }
 
         // Optional scale
-        public Dictionary<string, float> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotate)
+        public Dictionary<string, dynamic> MakeDesign(string url, string ftype, int id, Vector3 location, Quaternion rotate)
         {
             return MakeDesign(url, ftype, id, location, rotate, new Vector3(1f, 1f, 1f));
         }
+        #endregion
 
         /// <summary>
         /// Updates the design obj. Return and update the corresponding mesh of the object.
@@ -332,11 +298,11 @@ namespace FARVR.Design {
         /// <returns>RETURN CODE: 0 = Successfully updated design obj; 1 = Failed to retrieve mesh</returns>
         /// <param name="localparameters">Local parameters of the given design obj.</param>
         // Obsolete name: UpdateFurniture
-        public int UpdateDesign(string url, Dictionary<string, float> localparameters)
+        public int UpdateDesign(Dictionary<string, dynamic> localparameters)
         {
             parameters = localparameters;
             // Assuming we need to update the design obj
-            Mesh[] meshes = GetSTL(url);
+            Mesh[] meshes = GetSTL(urlLink, type);
             meshes[0].RecalculateNormals();
             if (meshes == null)
             {
@@ -383,7 +349,7 @@ namespace FARVR.Design {
         /// <param name="rotate">Quarternion rotation for new object rotation.</param>
         /// <param name="scale">Vector3 for new object localscale.</param>
         // Obsolete name: TransformFurniture
-        public int TransformDesign(Vector3 translate, Quaternion rotate, Vector3 scale)
+        public void TransformDesign(Vector3 translate, Quaternion rotate, Vector3 scale)
         {
             if (translate != gameObject.transform.position)
             {
@@ -395,18 +361,13 @@ namespace FARVR.Design {
                 gameObject.transform.rotation = rotate;
             }
 
-            Vector3 scaler = new Vector3(scale.x, scale.y, scale.z);
-            //Vector3 scaler = new Vector3(0.01f * scale.x, 0.01f * scale.y, 0.01f * scale.z);
-
-            if (scaler != gameObject.transform.localScale)
+            if (scale != gameObject.transform.localScale)
             {
-                gameObject.transform.localScale = scaler;
+                gameObject.transform.localScale = scale;
             }
-
-            return 0;
         }
 
-        // To obtain transform info of design obj
+        #region Pass info of current design obj to outside
         public Vector3 GetPosition()
         {
             return gameObject.transform.position;
@@ -438,14 +399,18 @@ namespace FARVR.Design {
             return gameObject.name;
         }
 
-        public Dictionary<string, float> GetParameters()
+        public Dictionary<string, dynamic> GetParameters()
         {
             return parameters;
         }
 
-        public Dictionary<string, float> GetDefaults(string ftype)
+        public Dictionary<string, dynamic> GetDefaultsAny(string url, string ftype)
         {
-            return FurnitureCatalog[ftype];
+            return DefaultParameters(url, ftype);
+        }
+
+        public Dictionary<string, dynamic> GetDefaultsCurr() {
+            return GetDefaultsAny(urlLink, type);
         }
 
         // Obsolete name: GetFurniture
@@ -453,6 +418,7 @@ namespace FARVR.Design {
         {
             return gameObject;
         }
+        #endregion
 
         /// <summary>
         /// Display all the data about the current design obj. For Debugging Purposes.
@@ -467,7 +433,7 @@ namespace FARVR.Design {
 
             // Log the local param
             // Because we do not know the type of the design obj is beforehand, we can't simply call the key
-            foreach (KeyValuePair<string, float> entry in parameters)
+            foreach (KeyValuePair<string, dynamic> entry in parameters)
             {
                 Debug.Log("Local Parameter: " + entry.Key + " = " + entry.Value.ToString());
             }
@@ -505,7 +471,7 @@ namespace FARVR.Design {
             try {
                 using (StreamWriter writer = new StreamWriter(filePath, true)) {
                     writer.WriteLine(objname + ": ");
-                    foreach (KeyValuePair<string, float> entry in parameters) {
+                    foreach (KeyValuePair<string, dynamic> entry in parameters) {
                         writer.WriteLine(entry.Key + ": " + entry.Value.ToString("F3"));
                     }
                     writer.WriteLine("scale: " + (gameObject.transform.localScale / 10f).ToString("F3"));
@@ -535,71 +501,53 @@ namespace FARVR.Design {
         }
 
         // Verify design obj parameters via FurnitureCatalog
-        private bool VerifyDesign(string type, Dictionary<string, float> parameter)
-        {
-            foreach (KeyValuePair<string, Dictionary<string, float>> entry in FurnitureCatalog)
-            {
-                // Check if the type of the design obj exists
-                if (entry.Key == type)
-                {
-                    // If the type exists, we verify the parameters are valid
-                    // Search the dictionary from FurnitureCatalog and the parameters to find similarity
-                    foreach (KeyValuePair<string, float> requirement in entry.Value)
-                    {
-                        // To verify all parameters, we ensure we can find one of each value entry
-                        bool match = false;
-                        foreach (KeyValuePair<string, float> comparer in parameter)
-                        {
-                            //Once we find a match, we don't have to search exhaustively
-                            if (comparer.Key == requirement.Key)
-                            {
-                                match = true;
-                                break;
-                            }
-                        }
-
-                        // If we do not find a match after searching through all the parameters, then we can confirm that parameters are invalid
-                        if (!match)
-                        {
-                            return false;
-                        }
+        private bool VerifyDesign(string ftype, Dictionary<string, dynamic> parameter) {
+            bool match = true;
+            if (objectList.Contains(ftype)) {
+                Dictionary<string, dynamic> defaultParams = DefaultParameters(urlLink, ftype);
+                List<string> defaultKeyList = new List<string>(defaultParams.Keys);
+                foreach (string paramkey in parameter.Keys) {
+                    if (!defaultKeyList.Contains(paramkey)) {
+                        match = false;
+                        break;
                     }
-
-                    // If we search through entire parameter and all match, then it is valid
+                }
+                if (match) {
                     return true;
                 }
+                else {
+                    return false;
+                }
             }
-
-            // If we can't find the correct type, then it is invalid
-            return false;
+            else {
+                return false;
+            }
         }
 
         // Overloaded version of Verification that only takes type
-        private bool VerifyDesign(string type)
+        private bool VerifyDesign(string ftype)
         {
-            foreach (string objectName in objectList) {
-                if (objectName == type)
-                {
-                    return true;
-                }
+            if (objectList.Contains(ftype)) {
+                return true;
             }
-
-            return false;
+            else {
+                return false;
+            }
         }
 
         // The single function we will use to get an STL binary file
         // url = "http://ayeaye.ee.ucla.edu:5001", "https://roco.mehtank.com", "http://localhost:5001"
-        private Mesh[] GetSTL(string url)
+        private Mesh[] GetSTL(string url, string type)
         {
             //Store Mesh
             Mesh[] holder = null;
 
-            string link = "/{0}.stl?{1}";
+            string link = "{0}/{1}.stl?{2}";
 
             //Stage 1: Get the STL Binary from the server
             string param = LinkParam(parameters);
 
-            link = url + string.Format(link, type, param);
+            link = string.Format(link, url, type, param);
 
             using (UnityWebRequest www = UnityWebRequest.Get(link))
             {
@@ -674,11 +622,11 @@ namespace FARVR.Design {
         }
 
         // A function used to produce the strings for the parameters for the url
-        public string LinkParam(Dictionary<string, float> parameters)
+        public string LinkParam(Dictionary<string, dynamic> parameters)
         {
             string result = "";
 
-            foreach (KeyValuePair<string, float> entry in parameters)
+            foreach (KeyValuePair<string, dynamic> entry in parameters)
             {
                 // Case where we have to input a discrete value
                 if (entry.Key == "legs" || entry.Key == "angle")
