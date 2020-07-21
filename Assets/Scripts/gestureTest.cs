@@ -35,8 +35,8 @@ public class gestureTest : MonoBehaviour {
 	// For CreateObj
 	string selectedButtonName = "";
 	string selectedButtonNamePrev = "";
-	Vector3 originalPos = new Vector3(0, 10, -0.1f);
-	Vector3 originalScale = Vector3.one * 10f;
+	static Vector3 originalPos = new Vector3(0, 10, -0.1f);
+	static Vector3 originalScale = Vector3.one * 10f;
 
 	// For ExportObj
 	string exportPath = "";
@@ -62,13 +62,14 @@ public class gestureTest : MonoBehaviour {
 	// For highlighting obj
 	Color originalColor;
 	Shader originalShader;
-	Color highlightColor = new Color32(255, 0, 255, 255);
+	static Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
 	// For StretchObj
-	float palmToPalmThreshold = 160f; // Degree
+	static float palmToPalmNormTHLD = 160f; // Degree
+	static float palmToPalmRotTHLD = 10f; // Degree
 	float palmDis = 0;
-	float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
+	static float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
 	#endregion
 
 	#region Customized Gesture Determination
@@ -153,6 +154,7 @@ public class gestureTest : MonoBehaviour {
 				
 				if (selectObj != null && isSelected == true) {
 					StretchWholeObj(selectObj);
+					ChangeDiscreteParam(selectObj.GetComponent<DesignObj>());
 				}
             }
 		}
@@ -203,7 +205,7 @@ public class gestureTest : MonoBehaviour {
 
 		// Stretch (both hands)
 		if (rightGesture.Type == stretchGestureRight && leftGesture.Type == stretchGestureLeft) {
-			palmDis = rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand, palmToPalmThreshold);
+			palmDis = rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand, palmToPalmNormTHLD, palmToPalmRotTHLD);
 		}
 		else {
 			palmDis = 0;
@@ -564,6 +566,14 @@ public class gestureTest : MonoBehaviour {
 			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 		}
     }
+
+    #region Change discrete parameters
+
+	void ChangeDiscreteParam(DesignObj designObj) {
+
+    }
+
+    #endregion
 }
 
 public class GestureListener
@@ -877,9 +887,11 @@ public class Gesture {
 		return selectParams;
     }
 
-	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmThreshold) {
+	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmNormTHLD, float palmToPalmRotTHLD) {
 		// If palm-to-palm, return palm pos dis
-		if (leftHand.PalmNormal.AngleTo(rightHand.PalmNormal) * Mathf.Rad2Deg >= palmToPalmThreshold) {
+		// Palm-to-palm def: palm rot parallel, center of palms face-to-face
+		if (leftHand.PalmNormal.AngleTo(rightHand.PalmNormal) * Mathf.Rad2Deg >= palmToPalmNormTHLD && 
+			leftHand.Direction.AngleTo(rightHand.Direction) * Mathf.Rad2Deg <= palmToPalmRotTHLD) {
 			return leftHand.PalmPosition.DistanceTo(rightHand.PalmPosition); // in mm
 		}
 		else {

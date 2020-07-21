@@ -413,6 +413,10 @@ namespace FARVR.Design {
             return GetDefaultsAny(urlLink, type);
         }
 
+        public Dictionary<string, string> GetParamType() {
+            return paramtypes;
+        }
+
         // Obsolete name: GetFurniture
         public GameObject GetGameobject()
         {
