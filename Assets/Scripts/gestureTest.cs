@@ -588,15 +588,12 @@ public class GestureListener
 	public void OnConnect (object sender, DeviceEventArgs args) {
 		Debug.Log("Leapmotion Controller Connected.");
 		
-		GestureInit();
+		ListenerInit();
     }
 
-	public void GestureInit() {
-		leftGesture.RegisterGestureParams();
-		rightGesture.RegisterGestureParams();
-
-		leftGesture.Type = Gesture.GestureType.Gesture_None;
-		rightGesture.Type = Gesture.GestureType.Gesture_None;
+	public void ListenerInit() {
+		leftGesture.GestureInit();
+		rightGesture.GestureInit();
     }
 
 	public void OnFrame (object sender, FrameEventArgs args) {
@@ -645,7 +642,7 @@ public class Gesture {
 		Gesture_OK,
 		Gesture_Point,
 		Gesture_Thumbup,
-		Gesture_None, 
+		Gesture_None,
 		Gesture_Unidentified
 	}
 
@@ -656,9 +653,24 @@ public class Gesture {
 		set { gestureType = value; }
 	}
 
-	// Pre-defined Gesture Parameters: {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
-	private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
-	public void RegisterGestureParams() { 
+	// Current hand and gesture params
+	public Hand currHand = new Hand();
+	private Dictionary<string, ArrayList> gesture_param = new Dictionary<string, ArrayList>() {
+		{ "IsExtended", new ArrayList {null, null, null, null, null} },
+		{ "GrabStrength", new ArrayList { null} },
+		{ "PinchStrength", new ArrayList { null} }
+	};
+	private string handPolarity = "";
+
+	public void GestureInit() {
+		gestureType = GestureType.Gesture_None;
+		RegisterGestureParams();
+    }
+
+    #region For detecting gesture type
+    // Pre-defined Gesture Parameters: {IsExtended (5 bool/null), PinchStrength (0-1), GrabStrength (0-1)}
+    private List<Dictionary<string, ArrayList>> gesture_param_list = new List<Dictionary<string, ArrayList>>();
+	private void RegisterGestureParams() { 
 		Dictionary<string, ArrayList> gesture_fist_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { false, false, false, false, false } },
 			{ "GrabStrength", new ArrayList { 1f} }
@@ -689,14 +701,6 @@ public class Gesture {
 		gesture_param_list.Add(gesture_thumbup_param);
 	}
 
-	// Current gesture param
-	private Dictionary<string, ArrayList> gesture_param = new Dictionary<string, ArrayList>() {
-		{ "IsExtended", new ArrayList {null, null, null, null, null} },
-		{ "GrabStrength", new ArrayList { null} },
-		{ "PinchStrength", new ArrayList { null} }
-	};
-	public Hand currHand = new Hand();
-
 	private void GetGestureParams(Hand hand) {
 		List<Finger> fingers = hand.Fingers;
 		foreach (Finger finger in fingers) {
@@ -721,12 +725,18 @@ public class Gesture {
 		gesture_param["PinchStrength"][0] = hand.PinchStrength;
 
 		currHand = hand;
+		if (hand.IsLeft) {
+			handPolarity = "Left";
+        }
+		else {
+			handPolarity = "Right";
+        }
 	}
 
-	/// <summary>
+    /// <summary>
     /// Get current gesture type from hand
     /// </summary>
-	public GestureType DetectGestureType(Hand hand) {
+    public GestureType DetectGestureType(Hand hand) {
 		GetGestureParams(hand);
 
 		bool isIdentified = false;
@@ -745,6 +755,8 @@ public class Gesture {
 
 		return gestureType;
 	}
+    
+	#endregion
 
 	#region Define gesture commands
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
@@ -760,22 +772,13 @@ public class Gesture {
 		// Step 1. Find index fingertip pos
 		// Leapmotion's inbuilt tipPosition returns wrong pos
 		Vector3 fingertipPos = new Vector3();
-		if (currHand.IsLeft) {
-			try {
-				fingertipPos = GameObject.Find("L_index_end").transform.position;
-            } catch {
-				Debug.Log("Fail to find left fingertip position.");
-				return null;
-            }
-        } else {
-			try {
-				fingertipPos = GameObject.Find("R_index_end").transform.position;
-			}
-			catch {
-				Debug.Log("Fail to find right fingertip position.");
-				return null;
-			}
-		}
+
+		try {
+			fingertipPos = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
+        } catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " fingertip position.");
+			return null;
+        }
 
 		// Step 2. Find button within range
 		string selectedButtonName = "";
@@ -808,42 +811,23 @@ public class Gesture {
 
     public Dictionary<string, dynamic> Grab() {
 		Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
-		if (currHand.IsLeft) {
-			try {
-				grabParams["handPosition"] = GameObject.Find("L_Palm").transform.position;
-				grabParams["handRotation"] = GameObject.Find("L_Palm").transform.eulerAngles;
-			} catch {
-				Debug.Log("Fail to find left palm.");
-				return null;
-            }
-			try {
-				// Only detect collision between palm and object for now (finger colliders exist, unused)
-				GameObject palmCollider = GameObject.Find("L_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
-				grabParams["colliderName"] = colliderName;
-				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
-			} catch {
-				Debug.Log("Fail to find left palm collider.");
-				return null;
-            }
-        } else {
-			try {
-				grabParams["handPosition"] = GameObject.Find("R_Palm").transform.position;
-				grabParams["handRotation"] = GameObject.Find("R_Palm").transform.eulerAngles;
-			} catch {
-				Debug.Log("Fail to find right palm.");
-				return null;
-            }
-			try {
-				// Only detect collision between palm and object for now (finger colliders exist, unused)
-				GameObject palmCollider = GameObject.Find("R_Palm/palm");
-				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
-				grabParams["colliderName"] = colliderName;
-				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
-			} catch {
-				Debug.Log("Fail to find right palm collider.");
-				return null;
-            }
+
+		try {
+			grabParams["handPosition"] = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
+			grabParams["handRotation"] = GameObject.Find(handPolarity[0] + "_Palm").transform.eulerAngles;
+		} catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " palm.");
+			return null;
+        }
+		try {
+			// Only detect collision between palm and object for now (finger colliders exist, unused)
+			GameObject palmCollider = GameObject.Find(handPolarity[0] + "_Palm/palm");
+			string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
+			grabParams["colliderName"] = colliderName;
+			grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
+		} catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " palm collider.");
+			return null;
         }
 
 		return grabParams;
@@ -851,37 +835,20 @@ public class Gesture {
 
 	public Dictionary<string, dynamic> Select() {
 		Dictionary<string, dynamic> selectParams = new Dictionary<string, dynamic>();
-		if (currHand.IsLeft) {
-			try {
-				selectParams["fingertipPos"] = GameObject.Find("L_index_end").transform.position;
-			}
-			catch {
-				Debug.Log("Fail to find left fingertip position.");
-				return null;
-			}
-			try {
-				selectParams["fingerbasePos"] = GameObject.Find("L_index_a").transform.position;
-			}
-			catch {
-				Debug.Log("Fail to find left fingerbase position.");
-				return null;
-			}
+
+		try {
+			selectParams["fingertipPos"] = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
 		}
-		else {
-			try {
-				selectParams["fingertipPos"] = GameObject.Find("R_index_end").transform.position;
-			}
-			catch {
-				Debug.Log("Fail to find left fingertip position.");
-				return null;
-			}
-			try {
-				selectParams["fingerbasePos"] = GameObject.Find("R_index_a").transform.position;
-			}
-			catch {
-				Debug.Log("Fail to find left fingerbase position.");
-				return null;
-			}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " fingertip position.");
+			return null;
+		}
+		try {
+			selectParams["fingerbasePos"] = GameObject.Find(handPolarity[0] + "_index_a").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " fingerbase position.");
+			return null;
 		}
 
 		return selectParams;
@@ -898,6 +865,12 @@ public class Gesture {
 			return 0;
         }
 	}
+
+	public Dictionary<string, Vector3> ChangeDiscrete() {
+		Dictionary<string, Vector3> changeDiscreteParams = new Dictionary<string, Vector3>();
+
+		return changeDiscreteParams;
+    }
 
 	#endregion
 
