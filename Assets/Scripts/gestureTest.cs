@@ -70,6 +70,9 @@ public class gestureTest : MonoBehaviour {
 	static float palmToPalmRotTHLD = 10f; // Degree
 	float palmDis = 0;
 	static float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
+
+	// For changing discrete params
+	Dictionary<string, Vector3> changeDiscreteParams = null;
 	#endregion
 
 	#region Customized Gesture Determination
@@ -80,14 +83,15 @@ public class gestureTest : MonoBehaviour {
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
 	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
 	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
+	public Gesture.GestureType changeDiscreteGesture = Gesture.GestureType.Gesture_Thumbup;
 	#endregion
-	
+
 	// Use this for initialization
 	void Start () {
 		controller.Connect += gestureListener.OnServiceConnect;
 		controller.Device += gestureListener.OnConnect;
 		controller.FrameReady += gestureListener.OnFrame;
-		Debug.Log("Gesture detection begins.");
+		Debug.Log("Virtual design begins.");
 
 		Init();
 	}
@@ -160,6 +164,7 @@ public class gestureTest : MonoBehaviour {
 		}
 	}
 
+	// Register gestures to determined gesture commands
 	void GestureCommands (Gesture leftGesture, Gesture rightGesture) {
 		// Create (right hand prior to left)
 		// TODO (bug info): if both hands == createGesture and try to use left hand to create, will fail (only detect right hand in this situation)
@@ -210,6 +215,18 @@ public class gestureTest : MonoBehaviour {
 		else {
 			palmDis = 0;
         }
+
+		// Change discrete parameters (right hand prior to left)
+		if (rightGesture.Type == changeDiscreteGesture) {
+			changeDiscreteParams = rightGesture.ChangeDiscrete();
+        }
+		else if (leftGesture.Type == changeDiscreteGesture) {
+			changeDiscreteParams = leftGesture.ChangeDiscrete();
+        }
+		else {
+			// ChangeDiscreteParams Reset
+			changeDiscreteParams = null;
+		}
 	}
 
 	#region Functional buttons
@@ -868,6 +885,30 @@ public class Gesture {
 
 	public Dictionary<string, Vector3> ChangeDiscrete() {
 		Dictionary<string, Vector3> changeDiscreteParams = new Dictionary<string, Vector3>();
+		changeDiscreteParams["palmNormal"] = new Vector3(currHand.PalmNormal.x, currHand.PalmNormal.y, currHand.PalmNormal.z);
+		changeDiscreteParams["palmPosition"] = new Vector3(currHand.PalmPosition.x, currHand.PalmPosition.y, currHand.PalmPosition.z);
+
+		Quaternion palmRot = new Quaternion(currHand.Rotation.x, currHand.Rotation.y, currHand.Rotation.z, currHand.Rotation.w);
+		Debug.Log(palmRot.eulerAngles.ToString("F2")); // For debug
+
+		try {
+			changeDiscreteParams["thumbDirection"] = GameObject.Find(handPolarity[0] + "_thumb_end").transform.position - 
+				GameObject.Find(handPolarity[0] + "_thumb_meta").transform.position;
+			changeDiscreteParams["thumbBase"] = GameObject.Find(handPolarity[0] + "_thumb_meta").transform.position;
+
+			// For debug
+			//Debug.DrawRay(changeDiscreteParams["thumbBase"], changeDiscreteParams["thumbDirection"], Color.black, 1);
+			//Debug.Log("Thumb:" + Vector3.Angle(Vector3.up, changeDiscreteParams["thumbDirection"]).ToString("F2"));
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " thumb position");
+        }
+
+		// For debug
+		try {
+			//
+			//Debug.Log("Palm:" + Vector3.Angle(Vector3.up, changeDiscreteParams["palmNormal"]).ToString("F2"));
+		} catch { }
 
 		return changeDiscreteParams;
     }
