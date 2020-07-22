@@ -71,6 +71,9 @@ public class gestureTest : MonoBehaviour {
 	float palmDis = 0;
 	static float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
 
+	// For changing obj params
+	Dictionary<string, dynamic> currParams;
+
 	// For changing discrete params (leg num, boat n, etc)
 	Dictionary<string, float> tuneParams = null;
 	bool isTuned = false;
@@ -553,6 +556,7 @@ public class gestureTest : MonoBehaviour {
 		objRender.material.SetColor("_RimColor", highlightColor);
 		objRender.material.SetColor("_MainColor", originalColor);
 
+		currParams = gameObject.GetComponent<DesignObj>().GetParameters();
 		Debug.Log(gameObject.name + " is selected.");
 	}
 
@@ -571,6 +575,8 @@ public class gestureTest : MonoBehaviour {
 			DeHighlightObj(selectObj);
 			selectObj = null;
 
+			// Reset anything related to change obj params
+			currParams = null;
 			TuneReset();
 		}
 
@@ -597,21 +603,44 @@ public class gestureTest : MonoBehaviour {
 		// 2. When hand gesture point horizontal, trigger isChangeDiscrete
 		// 3. When hand gesture point upwards, integer + 1; downwards, integer - 1
 		// 4. Update obj; Reset isChangeDiscrete
-		// 5. Reset condition: finish add/minus, or detect confirm gesture (deselect)
+		// 5. TuneReset condition: finish add/minus, or detect confirm gesture (de-select)
 
-		int count;
-		// TODO: save the discrete value in obj's param
+		// Find obj's discrete param name according to paramtype
+		// Future bug info: what if obj has more than one discrete param?
+		string discreteParam = "";
+		Dictionary<string, string> paramtype = designObj.GetParamType();
+		if (paramtype.Count > 0) {
+			foreach (KeyValuePair<string, string> kvp in paramtype) {
+				if (kvp.Value == "count") {
+					discreteParam = kvp.Key;
+					break;
+                }
+            }
+        } else {
+			// No discrete param for tuning.
+        }
 
-		string action = "";
-		if (tuneParams != null) {
+		int action = 0;
+		if (tuneParams != null && discreteParam != "") {
 			TuneInit();
-			action = TuneUpdate();
+			action = TuneUpdate(); // action = 0, +1, -1
 
-			if (action != "") {
-				Debug.Log(action);
-				// TODO: update design obj here
+			if (isTuned == true && action != 0) {
+				// Update design obj here
+				currParams[discreteParam] = currParams[discreteParam] + action;
+
+				try {
+					designObj.UpdateDesign(currParams);
+					HighlightObj(designObj.gameObject);
+					Debug.Log("Modified " + discreteParam + " of " + designObj.GetName() + ".");
+                }
+				catch {
+					Debug.Log("Fail to modify " + discreteParam + " of " + designObj.GetName() + ".");
+                }
 
 				TuneReset();
+            } else {
+				// No tuning action is taken.
             }
 		}
     }
@@ -622,15 +651,15 @@ public class gestureTest : MonoBehaviour {
         }
     }
 
-	string TuneUpdate() {
-		// If point upwards, return "add"; if point downwards, return "minus"; else, return ""
-		string action = "";
+	int TuneUpdate() {
+		// If point upwards, return +1; if point downwards, return -1; else, return 0
+		int action = 0;
 
 		if (isTuned == true && tuneParams["palmAngle"] <= palmAngleTHLD) {
-			action = "add";
+			action = 1;
         }
 		else if (isTuned == true && tuneParams["palmAngle"] >= 180f - palmAngleTHLD) {
-			action = "minus";
+			action = -1;
         }
 		
 		return action;
@@ -639,7 +668,7 @@ public class gestureTest : MonoBehaviour {
 	void TuneReset() {
 		tuneParams = null;
 		isTuned = false;
-    }
+	}
 
     #endregion
 }
