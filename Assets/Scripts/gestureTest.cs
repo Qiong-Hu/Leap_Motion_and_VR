@@ -67,12 +67,14 @@ public class gestureTest : MonoBehaviour {
 
 	// For StretchObj
 	static float palmToPalmNormTHLD = 160f; // Degree
-	static float palmToPalmRotTHLD = 10f; // Degree
+	static float palmToPalmRotTHLD = 20f; // Degree
 	float palmDis = 0;
 	static float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
 
-	// For changing discrete params
-	Dictionary<string, Vector3> changeDiscreteParams = null;
+	// For changing discrete params (leg num, boat n, etc)
+	Dictionary<string, float> tuneParams = null;
+	bool isTuned = false;
+	static float palmAngleTHLD = 5f; // Degree
 	#endregion
 
 	#region Customized Gesture Determination
@@ -83,7 +85,7 @@ public class gestureTest : MonoBehaviour {
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
 	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
 	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType changeDiscreteGesture = Gesture.GestureType.Gesture_Thumbup;
+	public Gesture.GestureType tuneDiscreteGesture = Gesture.GestureType.Gesture_Thumbup;
 	#endregion
 
 	// Use this for initialization
@@ -155,10 +157,10 @@ public class gestureTest : MonoBehaviour {
 				ButtonFunctions(); // = create + export + delete + exit
 				GrabObj();
 				SelectObj();
-				
+
 				if (selectObj != null && isSelected == true) {
 					StretchWholeObj(selectObj);
-					ChangeDiscreteParam(selectObj.GetComponent<DesignObj>());
+					TuneObj(selectObj.GetComponent<DesignObj>());
 				}
             }
 		}
@@ -216,16 +218,15 @@ public class gestureTest : MonoBehaviour {
 			palmDis = 0;
         }
 
-		// Change discrete parameters (right hand prior to left)
-		if (rightGesture.Type == changeDiscreteGesture) {
-			changeDiscreteParams = rightGesture.ChangeDiscrete();
+		// Tune discrete parameters (right hand prior to left)
+		if (rightGesture.Type == tuneDiscreteGesture) {
+			tuneParams = rightGesture.TuneDiscrete();
         }
-		else if (leftGesture.Type == changeDiscreteGesture) {
-			changeDiscreteParams = leftGesture.ChangeDiscrete();
+		else if (leftGesture.Type == tuneDiscreteGesture) {
+			tuneParams = leftGesture.TuneDiscrete();
         }
 		else {
-			// ChangeDiscreteParams Reset
-			changeDiscreteParams = null;
+			TuneReset();
 		}
 	}
 
@@ -562,12 +563,15 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log(gameObject.name + " is deselected.");
 	}
 
+	// De-select, Confirm
 	void SelectReset() {
 		DrawRayReset();
 
 		if (isSelected == false && selectObj != null) {
 			DeHighlightObj(selectObj);
 			selectObj = null;
+
+			TuneReset();
 		}
 
 		selectParams = null;
@@ -584,10 +588,57 @@ public class gestureTest : MonoBehaviour {
 		}
     }
 
-    #region Change discrete parameters
+    #region Tune discrete parameters
 
-	void ChangeDiscreteParam(DesignObj designObj) {
+	void TuneObj(DesignObj designObj) {
+		// Steps:
+		// 0. find integer param
+		// 1. Detect hand gesture is thumb up
+		// 2. When hand gesture point horizontal, trigger isChangeDiscrete
+		// 3. When hand gesture point upwards, integer + 1; downwards, integer - 1
+		// 4. Update obj; Reset isChangeDiscrete
+		// 5. Reset condition: finish add/minus, or detect confirm gesture (deselect)
 
+		int count;
+		// TODO: save the discrete value in obj's param
+
+		string action = "";
+		if (tuneParams != null) {
+			TuneInit();
+			action = TuneUpdate();
+
+			if (action != "") {
+				Debug.Log(action);
+				// TODO: update design obj here
+
+				TuneReset();
+            }
+		}
+    }
+
+	void TuneInit() {
+		if (isTuned == false && Mathf.Abs(tuneParams["palmAngle"] - 90f) <= palmAngleTHLD) {
+			isTuned = true;
+        }
+    }
+
+	string TuneUpdate() {
+		// If point upwards, return "add"; if point downwards, return "minus"; else, return ""
+		string action = "";
+
+		if (isTuned == true && tuneParams["palmAngle"] <= palmAngleTHLD) {
+			action = "add";
+        }
+		else if (isTuned == true && tuneParams["palmAngle"] >= 180f - palmAngleTHLD) {
+			action = "minus";
+        }
+		
+		return action;
+    }
+
+	void TuneReset() {
+		tuneParams = null;
+		isTuned = false;
     }
 
     #endregion
@@ -883,34 +934,30 @@ public class Gesture {
         }
 	}
 
-	public Dictionary<string, Vector3> ChangeDiscrete() {
-		Dictionary<string, Vector3> changeDiscreteParams = new Dictionary<string, Vector3>();
-		changeDiscreteParams["palmNormal"] = new Vector3(currHand.PalmNormal.x, currHand.PalmNormal.y, currHand.PalmNormal.z);
-		changeDiscreteParams["palmPosition"] = new Vector3(currHand.PalmPosition.x, currHand.PalmPosition.y, currHand.PalmPosition.z);
-
+	public Dictionary<string, float> TuneDiscrete() {
+		Dictionary<string, float> tuneParams = new Dictionary<string, float>();
+		
+		// Palm rotation (in euler angle), angle to upwards in world coordinate
 		Quaternion palmRot = new Quaternion(currHand.Rotation.x, currHand.Rotation.y, currHand.Rotation.z, currHand.Rotation.w);
-		Debug.Log(palmRot.eulerAngles.ToString("F2")); // For debug
+		float angleUp = palmRot.eulerAngles.z;
+		if (angleUp > 180f) {
+			angleUp = 360f - angleUp;
+        }
+		//Debug.Log(angleUp);
+		tuneParams["palmAngle"] = angleUp;
 
+		// Thumb direction, angle to upwards in world coordinate
 		try {
-			changeDiscreteParams["thumbDirection"] = GameObject.Find(handPolarity[0] + "_thumb_end").transform.position - 
-				GameObject.Find(handPolarity[0] + "_thumb_meta").transform.position;
-			changeDiscreteParams["thumbBase"] = GameObject.Find(handPolarity[0] + "_thumb_meta").transform.position;
+			Vector3 thumbDir = GameObject.Find(handPolarity[0] + "_thumb_end").transform.position - 
+				GameObject.Find(handPolarity[0] + "_Palm").transform.position;
 
-			// For debug
-			//Debug.DrawRay(changeDiscreteParams["thumbBase"], changeDiscreteParams["thumbDirection"], Color.black, 1);
-			//Debug.Log("Thumb:" + Vector3.Angle(Vector3.up, changeDiscreteParams["thumbDirection"]).ToString("F2"));
+			tuneParams["thumbAngle"] = Vector3.Angle(Vector3.up, thumbDir);
 		}
 		catch {
 			Debug.Log("Fail to find " + handPolarity.ToLower() + " thumb position");
         }
 
-		// For debug
-		try {
-			//
-			//Debug.Log("Palm:" + Vector3.Angle(Vector3.up, changeDiscreteParams["palmNormal"]).ToString("F2"));
-		} catch { }
-
-		return changeDiscreteParams;
+		return tuneParams;
     }
 
 	#endregion
