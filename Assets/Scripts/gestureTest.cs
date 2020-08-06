@@ -86,9 +86,9 @@ public class gestureTest : MonoBehaviour {
 	public Gesture.GestureType grabGesture = Gesture.GestureType.Gesture_Fist;
 	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
-	public Gesture.GestureType stretchGestureLeft = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType stretchGestureRight = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType tuneDiscreteGesture = Gesture.GestureType.Gesture_Thumbup;
+	public Gesture.GestureType planeGesture = Gesture.GestureType.Gesture_Palm;
+	public Gesture.GestureType lineGesture = Gesture.GestureType.Gesture_None;//For debug
+	public Gesture.GestureType pointGesture = Gesture.GestureType.Gesture_None;//For debug
 	#endregion
 
 	// Use this for initialization
@@ -213,24 +213,29 @@ public class gestureTest : MonoBehaviour {
 			isSelected = false;
 		}
 
-		// Stretch (both hands)
-		if (rightGesture.Type == stretchGestureRight && leftGesture.Type == stretchGestureLeft) {
+		// TODO: working on it
+		// Modify plane
+		if (rightGesture.Type == planeGesture && leftGesture.Type == planeGesture) {
 			palmDis = rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand, palmToPalmNormTHLD, palmToPalmRotTHLD);
 		}
 		else {
 			palmDis = 0;
         }
 
-		// Tune discrete parameters (right hand prior to left)
-		if (rightGesture.Type == tuneDiscreteGesture) {
-			tuneParams = rightGesture.TuneDiscrete();
-        }
-		else if (leftGesture.Type == tuneDiscreteGesture) {
-			tuneParams = leftGesture.TuneDiscrete();
-        }
-		else {
-			TuneReset();
-		}
+
+		#region //TODO: Tune discrete parameters
+		//  (right hand prior to left)
+		//if (rightGesture.Type == tuneDiscreteGesture) {
+		//	tuneParams = rightGesture.TuneDiscrete();
+		//}
+		//else if (leftGesture.Type == tuneDiscreteGesture) {
+		//	tuneParams = leftGesture.TuneDiscrete();
+		//}
+		//else {
+		//	TuneReset();
+		//}
+		#endregion
+
 	}
 
 	#region Functional buttons
@@ -586,6 +591,7 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	// Limitation info: limited range of scaling, because hands can't separate too distant before Leapmotion loses tracks
+	// TODO: working on it
 	void StretchWholeObj(GameObject gameObject) {
 		if (palmDis != 0) {
 			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
@@ -595,7 +601,7 @@ public class gestureTest : MonoBehaviour {
     }
 
     #region Tune discrete parameters
-
+	// TODO: Edit in future work, more intuitive, extendible
 	void TuneObj(DesignObj designObj) {
 		// Steps:
 		// 0. find integer param
@@ -951,6 +957,7 @@ public class Gesture {
 		return selectParams;
     }
 
+	// TODO: working on it
 	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmNormTHLD, float palmToPalmRotTHLD) {
 		// If palm-to-palm, return palm pos dis
 		// Palm-to-palm def: palm rot parallel, center of palms face-to-face
@@ -963,6 +970,7 @@ public class Gesture {
         }
 	}
 
+	// TODO: Edit tune discrete param (future)
 	public Dictionary<string, float> TuneDiscrete() {
 		Dictionary<string, float> tuneParams = new Dictionary<string, float>();
 		
