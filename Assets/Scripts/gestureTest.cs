@@ -166,6 +166,9 @@ public class gestureTest : MonoBehaviour {
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
 				}
+
+				// For debug
+				CalcGestureGeo();
             }
 		}
 	}
@@ -633,6 +636,28 @@ public class gestureTest : MonoBehaviour {
 	//	}
     //}
 
+	// For debug
+	void CalcGestureGeo() {
+		// Plane
+		if (leftPlane != null && rightPlane != null) {
+			Debug.Log("plane-plane gesture is detected.");
+			Debug.Log("plane distance: " + Vector3.Distance(leftPlane["position"], rightPlane["position"]).ToString());
+			Debug.Log("plane forward dir diff: " + Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]).ToString());
+			Debug.Log("plane normal dir diff: " + Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]).ToString());
+        }
+
+		if (leftLine != null && rightLine != null) {
+			Debug.Log("line-line gesture is detected.");
+			Debug.Log("line distance: " + Vector3.Distance(leftLine["position"], rightLine["position"]).ToString());
+			Debug.Log("line direction diff: " + Vector3.Angle(leftLine["direction"], rightLine["direction"]).ToString());
+        }
+
+		if (leftPoint != null && rightPoint != null) {
+			Debug.Log("point-point gesture is detected.");
+			Debug.Log("point distance: " + Vector3.Distance(leftPoint["position"], rightPoint["position"]).ToString());
+        }
+    }
+
     #region Tune discrete parameters
 	// TODO: need improvement => more intuitive, extendible
 	void TuneObj(DesignObj designObj) {
@@ -1042,7 +1067,7 @@ public class Gesture {
 		}
 
 		planeParams["forwardDir"] = new Vector3(currHand.Direction.x, currHand.Direction.y, currHand.Direction.z);
-		planeParams["normalDir"] = new Vector3(currHand.PalmNormal.z, currHand.PalmNormal.y, currHand.PalmNormal.z);
+		planeParams["normalDir"] = new Vector3(currHand.PalmNormal.x, currHand.PalmNormal.y, currHand.PalmNormal.z);
 		
 		return planeParams;
 	}
