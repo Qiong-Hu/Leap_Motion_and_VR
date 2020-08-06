@@ -980,7 +980,7 @@ public class Gesture {
         }
 	}
 
-	// Pass params of palm plane to main Update()
+	// Pass params of plane (using palm) to main Update()
 	public Dictionary<string, Vector3> PlaneParams() {
 		Dictionary<string, Vector3> planeParams = new Dictionary<string, Vector3>();
 
@@ -994,6 +994,7 @@ public class Gesture {
 
 		planeParams["forwardDir"] = new Vector3(currHand.Direction.x, currHand.Direction.y, currHand.Direction.z);
 		planeParams["normalDir"] = new Vector3(currHand.PalmNormal.z, currHand.PalmNormal.y, currHand.PalmNormal.z);
+		
 		return planeParams;
 	}
 
@@ -1023,6 +1024,33 @@ public class Gesture {
 		lineParams["direction"] = (fingertipPos - fingerbasePos).normalized;
 
 		return lineParams;
+	}
+
+	// Pass params of point (using pinch) to main Update()
+	public Dictionary<string, Vector3> PointParams() {
+		Dictionary<string, Vector3> pointParams = new Dictionary<string, Vector3>();
+
+		Vector3 indexTipPos = new Vector3();
+		try {
+			indexTipPos = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " index fingertip position.");
+			return null;
+		}
+
+		Vector3 thumbTipPos = new Vector3();
+		try {
+			thumbTipPos = GameObject.Find(handPolarity[0] + "_thumb_end").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " thumb fingertip position.");
+			return null;
+		}
+
+		pointParams["position"] = (indexTipPos + thumbTipPos) / 2;
+
+		return pointParams;
 	}
 
 	// TODO: Edit tune discrete param (future)
