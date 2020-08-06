@@ -65,16 +65,18 @@ public class gestureTest : MonoBehaviour {
 	static Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
-	// For StretchObj
-	static float palmToPalmNormTHLD = 160f; // Degree
-	static float palmToPalmRotTHLD = 20f; // Degree
-	float palmDis = 0;
-	static float palmDisRef = 330f; // in mm, default value for natural palm dis as reference
-
 	// For changing obj params
 	Dictionary<string, dynamic> currParams;
 
-	// For changing discrete params (leg num, boat n, etc)
+	// For transformation gesture params
+	Dictionary<string, Vector3> leftPlane = new Dictionary<string, Vector3>();
+	Dictionary<string, Vector3> leftLine = new Dictionary<string, Vector3>();
+	Dictionary<string, Vector3> leftPoint = new Dictionary<string, Vector3>();
+	Dictionary<string, Vector3> rightPlane = new Dictionary<string, Vector3>();
+	Dictionary<string, Vector3> rightLine = new Dictionary<string, Vector3>();
+	Dictionary<string, Vector3> rightPoint = new Dictionary<string, Vector3>();
+
+	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Dictionary<string, float> tuneParams = null;
 	bool isTuned = false;
 	static float palmAngleTHLD = 5f; // Degree
@@ -87,8 +89,8 @@ public class gestureTest : MonoBehaviour {
 	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
 	public Gesture.GestureType planeGesture = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType lineGesture = Gesture.GestureType.Gesture_DoublePoint; // For test
-	public Gesture.GestureType pointGesture = Gesture.GestureType.Gesture_Pinch; // For test
+	public Gesture.GestureType lineGesture = Gesture.GestureType.Gesture_DoublePoint;
+	public Gesture.GestureType pointGesture = Gesture.GestureType.Gesture_Pinch;
 	#endregion
 
 	// Use this for initialization
@@ -222,7 +224,7 @@ public class gestureTest : MonoBehaviour {
 			palmDis = 0;
         }
 
-		#region //TODO: Tune discrete parameters
+		#region // Tune discrete parameters => TODO: need improvement
 		//  (right hand prior to left)
 		//if (rightGesture.Type == tuneDiscreteGesture) {
 		//	tuneParams = rightGesture.TuneDiscrete();
@@ -600,7 +602,7 @@ public class gestureTest : MonoBehaviour {
     }
 
     #region Tune discrete parameters
-	// TODO: Edit in future work, more intuitive, extendible
+	// TODO: need improvement => more intuitive, extendible
 	void TuneObj(DesignObj designObj) {
 		// Steps:
 		// 0. find integer param
@@ -872,6 +874,9 @@ public class Gesture {
 	#endregion
 
 	#region Define gesture commands
+	/// <summary>
+    /// Input buttonList, returns selected button name
+    /// </summary>
 	public string Create(List<NameButton> buttonList, float hoverThreshold, float touchThreshold) {
 		// Steps: 
 		// 1. find index fingertip pos
@@ -922,6 +927,9 @@ public class Gesture {
 		return selectedButtonName;
 	}
 
+	/// <summary>
+    /// Returns "handPosition", "handRotation", "colliderName", "contactPosition"
+    /// </summary>
     public Dictionary<string, dynamic> Grab() {
 		Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
 
@@ -946,6 +954,9 @@ public class Gesture {
 		return grabParams;
 	}
 
+	/// <summary>
+    /// Returns "fingertipPos", "fingerbasePos"
+    /// </summary>
 	public Dictionary<string, dynamic> Select() {
 		Dictionary<string, dynamic> selectParams = new Dictionary<string, dynamic>();
 
@@ -967,7 +978,10 @@ public class Gesture {
 		return selectParams;
     }
 
-	// Obsolete methods
+	/// <summary>
+    /// [Obsolete methods]
+    /// returns distance (in mm) between two parallel palms
+    /// </summary>
 	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmNormTHLD, float palmToPalmRotTHLD) {
 		// If palm-to-palm, return palm pos dis
 		// Palm-to-palm def: palm rot parallel, center of palms face-to-face
@@ -981,6 +995,9 @@ public class Gesture {
 	}
 
 	// Pass params of plane (using palm) to main Update()
+	/// <summary>
+    /// Returns "position", "forwardDir", "normalDir"
+    /// </summary>
 	public Dictionary<string, Vector3> PlaneParams() {
 		Dictionary<string, Vector3> planeParams = new Dictionary<string, Vector3>();
 
@@ -999,6 +1016,9 @@ public class Gesture {
 	}
 
 	// Pass params of line (using finger as representative) to main Update()
+	/// <summary>
+    /// Returns "position", "direction"
+    /// </summary>
 	public Dictionary<string, Vector3> LineParams() {
 		Dictionary<string, Vector3> lineParams = new Dictionary<string, Vector3>();
 
@@ -1027,6 +1047,9 @@ public class Gesture {
 	}
 
 	// Pass params of point (using pinch) to main Update()
+	/// <summary>
+    /// Returns "position"
+    /// </summary>
 	public Dictionary<string, Vector3> PointParams() {
 		Dictionary<string, Vector3> pointParams = new Dictionary<string, Vector3>();
 
@@ -1053,7 +1076,7 @@ public class Gesture {
 		return pointParams;
 	}
 
-	// TODO: Edit tune discrete param (future)
+	// Edit tune discrete param => TODO: need improvement
 	public Dictionary<string, float> TuneDiscrete() {
 		Dictionary<string, float> tuneParams = new Dictionary<string, float>();
 		
