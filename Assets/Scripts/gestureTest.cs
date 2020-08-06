@@ -980,8 +980,9 @@ public class Gesture {
         }
 	}
 
-	public Dictionary<string, dynamic> PlaneParams() {
-		Dictionary<string, dynamic> planeParams = new Dictionary<string, dynamic>();
+	// Pass params of palm plane to main Update()
+	public Dictionary<string, Vector3> PlaneParams() {
+		Dictionary<string, Vector3> planeParams = new Dictionary<string, Vector3>();
 
 		try {
 			planeParams["position"] = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
@@ -991,9 +992,37 @@ public class Gesture {
 			return null;
 		}
 
-		planeParams["forwardDir"] = currHand.Direction;
-		planeParams["normalDir"] = currHand.PalmNormal;
+		planeParams["forwardDir"] = new Vector3(currHand.Direction.x, currHand.Direction.y, currHand.Direction.z);
+		planeParams["normalDir"] = new Vector3(currHand.PalmNormal.z, currHand.PalmNormal.y, currHand.PalmNormal.z);
 		return planeParams;
+	}
+
+	// Pass params of line (using finger as representative) to main Update()
+	public Dictionary<string, Vector3> LineParams() {
+		Dictionary<string, Vector3> lineParams = new Dictionary<string, Vector3>();
+
+		Vector3 fingertipPos = new Vector3();
+		try {
+			fingertipPos = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " fingertip position.");
+			return null;
+		}
+
+		Vector3 fingerbasePos = new Vector3();
+		try {
+			fingerbasePos = GameObject.Find(handPolarity[0] + "_index_a").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " fingerbase position.");
+			return null;
+		}
+
+		lineParams["position"] = fingerbasePos;
+		lineParams["direction"] = (fingertipPos - fingerbasePos).normalized;
+
+		return lineParams;
 	}
 
 	// TODO: Edit tune discrete param (future)
