@@ -2139,9 +2139,9 @@ MonoBehaviour:
   grabGesture: 0
   selectGesture: 2
   confirmGesture: 3
-  stretchGestureLeft: 1
-  stretchGestureRight: 1
-  tuneDiscreteGesture: 5
+  planeGesture: 1
+  lineGesture: 5
+  pointGesture: 7
 --- !u!114 &957221413
 MonoBehaviour:
   m_ObjectHideFlags: 0

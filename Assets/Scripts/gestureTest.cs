@@ -967,7 +967,7 @@ public class Gesture {
 		return selectParams;
     }
 
-	// TODO: working on it
+	// Obsolete methods
 	public float Stretch(Hand leftHand, Hand rightHand, float palmToPalmNormTHLD, float palmToPalmRotTHLD) {
 		// If palm-to-palm, return palm pos dis
 		// Palm-to-palm def: palm rot parallel, center of palms face-to-face
@@ -978,6 +978,22 @@ public class Gesture {
 		else {
 			return 0;
         }
+	}
+
+	public Dictionary<string, dynamic> PlaneParams() {
+		Dictionary<string, dynamic> planeParams = new Dictionary<string, dynamic>();
+
+		try {
+			planeParams["position"] = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
+		}
+		catch {
+			Debug.Log("Fail to find " + handPolarity.ToLower() + " palm position.");
+			return null;
+		}
+
+		planeParams["forwardDir"] = currHand.Direction;
+		planeParams["normalDir"] = currHand.PalmNormal;
+		return planeParams;
 	}
 
 	// TODO: Edit tune discrete param (future)
