@@ -87,8 +87,8 @@ public class gestureTest : MonoBehaviour {
 	public Gesture.GestureType selectGesture = Gesture.GestureType.Gesture_Gun;
 	public Gesture.GestureType confirmGesture = Gesture.GestureType.Gesture_OK;
 	public Gesture.GestureType planeGesture = Gesture.GestureType.Gesture_Palm;
-	public Gesture.GestureType lineGesture = Gesture.GestureType.Gesture_None;//For debug
-	public Gesture.GestureType pointGesture = Gesture.GestureType.Gesture_None;//For debug
+	public Gesture.GestureType lineGesture = Gesture.GestureType.Gesture_DoublePoint; // For test
+	public Gesture.GestureType pointGesture = Gesture.GestureType.Gesture_Pinch; // For test
 	#endregion
 
 	// Use this for initialization
@@ -221,7 +221,6 @@ public class gestureTest : MonoBehaviour {
 		else {
 			palmDis = 0;
         }
-
 
 		#region //TODO: Tune discrete parameters
 		//  (right hand prior to left)
@@ -744,7 +743,9 @@ public class Gesture {
 		Gesture_Gun,
 		Gesture_OK,
 		Gesture_Point,
+		Gesture_DoublePoint,
 		Gesture_Thumbup,
+		Gesture_Pinch,
 		Gesture_None,
 		Gesture_Unidentified
 	}
@@ -792,8 +793,15 @@ public class Gesture {
 		Dictionary<string, ArrayList> gesture_point_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { false, true, false, false, false} }
 		};
+		Dictionary<string, ArrayList> gesture_double_point_param = new Dictionary<string, ArrayList>() {
+			{ "IsExtended", new ArrayList { false, true, true, false, false} }
+		}; // TODO: later if add "yes" gesture, careful might cause confusion, for now: didn't constraint two fingers to stay together
 		Dictionary<string, ArrayList> gesture_thumbup_param = new Dictionary<string, ArrayList>() {
 			{ "IsExtended", new ArrayList { true, false, false, false, false} }
+		};
+		Dictionary<string, ArrayList> gesture_pinch_param = new Dictionary<string, ArrayList>() {
+			{ "IsExtended", new ArrayList { null, null, false, false, false} },
+			{ "PinchStrength", new ArrayList { 1f} }
 		};
 
 		gesture_param_list.Add(gesture_fist_param);
@@ -801,7 +809,9 @@ public class Gesture {
 		gesture_param_list.Add(gesture_gun_param);
 		gesture_param_list.Add(gesture_ok_param);
 		gesture_param_list.Add(gesture_point_param);
+		gesture_param_list.Add(gesture_double_point_param);
 		gesture_param_list.Add(gesture_thumbup_param);
+		gesture_param_list.Add(gesture_pinch_param);
 	}
 
 	private void GetGestureParams(Hand hand) {
