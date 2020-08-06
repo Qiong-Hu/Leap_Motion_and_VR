@@ -68,13 +68,13 @@ public class gestureTest : MonoBehaviour {
 	// For changing obj params
 	Dictionary<string, dynamic> currParams;
 
-	// For transformation gesture params
-	Dictionary<string, Vector3> leftPlane = new Dictionary<string, Vector3>();
-	Dictionary<string, Vector3> leftLine = new Dictionary<string, Vector3>();
-	Dictionary<string, Vector3> leftPoint = new Dictionary<string, Vector3>();
-	Dictionary<string, Vector3> rightPlane = new Dictionary<string, Vector3>();
-	Dictionary<string, Vector3> rightLine = new Dictionary<string, Vector3>();
-	Dictionary<string, Vector3> rightPoint = new Dictionary<string, Vector3>();
+	// For storing gesture params on plane/line/point
+	Dictionary<string, Vector3> leftPlane = null;
+	Dictionary<string, Vector3> leftLine = null;
+	Dictionary<string, Vector3> leftPoint = null;
+	Dictionary<string, Vector3> rightPlane = null;
+	Dictionary<string, Vector3> rightLine = null;
+	Dictionary<string, Vector3> rightPoint = null;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Dictionary<string, float> tuneParams = null;
@@ -164,8 +164,7 @@ public class gestureTest : MonoBehaviour {
 				SelectObj();
 
 				if (selectObj != null && isSelected == true) {
-					StretchWholeObj(selectObj);
-					TuneObj(selectObj.GetComponent<DesignObj>());
+					//TuneObj(selectObj.GetComponent<DesignObj>());
 				}
             }
 		}
@@ -215,13 +214,46 @@ public class gestureTest : MonoBehaviour {
 			isSelected = false;
 		}
 
-		// TODO: working on it
 		// Modify plane
-		if (rightGesture.Type == planeGesture && leftGesture.Type == planeGesture) {
-			palmDis = rightGesture.Stretch(leftGesture.currHand, rightGesture.currHand, palmToPalmNormTHLD, palmToPalmRotTHLD);
+		if (leftGesture.Type == planeGesture) {
+			leftPlane = leftGesture.PlaneParams();
 		}
 		else {
-			palmDis = 0;
+			leftPlane = null;
+        }
+		if (rightGesture.Type == planeGesture) {
+			rightPlane = rightGesture.PlaneParams();
+        }
+		else {
+			rightPlane = null;
+        }
+
+		// Modify line
+		if (leftGesture.Type == lineGesture) {
+			leftLine = leftGesture.LineParams();
+        }
+		else {
+			leftLine = null;
+        }
+		if (rightGesture.Type == lineGesture) {
+			rightLine = rightGesture.LineParams();
+        }
+		else {
+			rightLine = null;
+        }
+
+		// Modify point
+		if (leftGesture.Type == pointGesture) {
+			leftPoint = leftGesture.PointParams();
+        }
+		else {
+			leftPoint = null;
+        }
+		if (rightGesture.Type == pointGesture) {
+			rightPoint = rightGesture.PointParams();
+        }
+		else {
+			rightPoint = null;
         }
 
 		#region // Tune discrete parameters => TODO: need improvement
@@ -593,13 +625,13 @@ public class gestureTest : MonoBehaviour {
 
 	// Limitation info: limited range of scaling, because hands can't separate too distant before Leapmotion loses tracks
 	// TODO: working on it
-	void StretchWholeObj(GameObject gameObject) {
-		if (palmDis != 0) {
-			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-			gameObject.transform.localScale = originalScale * palmDis / palmDisRef;
-			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-		}
-    }
+	//void StretchWholeObj(GameObject gameObject) {
+	//	if (palmDis != 0) {
+	//		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+	//		gameObject.transform.localScale = originalScale * palmDis / palmDisRef;
+	//		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+	//	}
+    //}
 
     #region Tune discrete parameters
 	// TODO: need improvement => more intuitive, extendible
