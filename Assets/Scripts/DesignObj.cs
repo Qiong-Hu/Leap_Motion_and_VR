@@ -7,8 +7,8 @@ using UnityEngine.Windows;
 using System;
 using System.Text;
 using System.IO;
-using STLImporter;
 using Parabox.STL;
+using STLImporter;
 using SimpleJSON;
 
 namespace FARVR.Design {
@@ -564,7 +564,7 @@ namespace FARVR.Design {
                 }
                 else
                 {
-                    // Or retrieve results as binary data
+                    // Retrieve raw data from compiler
                     byte[] results = www.downloadHandler.data;
 
                     holder = MakeMesh(results);
@@ -582,7 +582,7 @@ namespace FARVR.Design {
 
             string filePath = filefolder + "/" + filename + ".stl";
 
-            if (pb_Stl_Exporter.Export(filePath, garr, FileType.Binary))
+            if (pb_Stl_Exporter.Export(filePath, garr, FileType.Ascii))
             {
                 Debug.Log(gameObject.name + " is exported to " + filePath + ".");
                 return true;
@@ -600,13 +600,14 @@ namespace FARVR.Design {
             return ExportSTL(filefolder, filename);
         }
 
-        // A function to read the bytes into design object
+        // A function to read stl into design object
         private Mesh[] MakeMesh(byte[] data)
         {
             //Stage 2: Transform the STL into a working Mesh
             MemoryStream stream = new MemoryStream(data);
 
-            Mesh[] meshes = Importer.ImportBinary(stream);
+            Mesh[] meshes = Importer.ImportAscii(stream);
+            //Mesh[] meshes = Importer.ImportBinary(stream);
 
             Vector3[] vertices = meshes[0].vertices;
             Vector2[] UVArr = new Vector2[vertices.Length];
