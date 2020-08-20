@@ -32,6 +32,8 @@ namespace STLImporter
 
             using (BinaryReader br = new BinaryReader(stream, new ASCIIEncoding()))
             {
+                br.BaseStream.Seek(0, SeekOrigin.Begin);
+
                 // read header
                 byte[] header = br.ReadBytes(80);
                 uint facetCount = br.ReadUInt32();
@@ -50,12 +52,11 @@ namespace STLImporter
             using (StreamReader sr = new StreamReader(stream)) {
                 string line;
                 int state = EMPTY, vertex = 0;
-                Facet f = null;
+                Facet f = new Facet();
                 bool exit = false;
 
-                while (sr.Peek() > 0 && !exit) {
+                while (sr.Peek() > -1 && !exit) {
                     line = sr.ReadLine().Trim();
-                    int previousState = state;
                     state = ReadState(line);
 
                     switch (state) {
@@ -74,8 +75,8 @@ namespace STLImporter
                         case VERTEX:
                             // maintain counter-clockwise orientation of vertices:
                             if (vertex == 0) f.a = StringToVec3(line.Replace("vertex ", ""));
-                            else if (vertex == 2) f.c = StringToVec3(line.Replace("vertex ", ""));
-                            else if (vertex == 1) f.b = StringToVec3(line.Replace("vertex ", ""));
+                            else if (vertex == 1) f.c = StringToVec3(line.Replace("vertex ", ""));
+                            else if (vertex == 2) f.b = StringToVec3(line.Replace("vertex ", ""));
                             vertex++;
                             break;
 
@@ -167,7 +168,7 @@ namespace STLImporter
             float.TryParse(split[1], out v.y);
             float.TryParse(split[2], out v.z);
 
-                return v.UnityCoordTrafo(); 
+            return v.UnityCoordTrafo(); 
         }
 
         /**
