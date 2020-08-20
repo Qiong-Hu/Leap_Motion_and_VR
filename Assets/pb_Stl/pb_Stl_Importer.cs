@@ -159,8 +159,8 @@ namespace Parabox.STL
 						case VERTEX:
                             // maintain counter-clockwise orientation of vertices:
                             if (vertex == 0) f.a = StringToVec3(line.Replace("vertex ", ""));							
-							else if(vertex == 2) f.c = StringToVec3(line.Replace("vertex ", ""));
-                            else if (vertex == 1) f.b = StringToVec3(line.Replace("vertex ", ""));
+                            else if (vertex == 1) f.c = StringToVec3(line.Replace("vertex ", ""));
+							else if (vertex == 2) f.b = StringToVec3(line.Replace("vertex ", ""));
                             vertex++;
 						break;
 
