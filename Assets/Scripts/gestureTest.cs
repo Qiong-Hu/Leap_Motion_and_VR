@@ -10,6 +10,9 @@ using SimpleJSON;
 
 public class gestureTest : MonoBehaviour {
 
+	// For test
+	GameObject testObject;
+
     #region For canvas
     // Obtain canvas obj
     GameObject canvas;
@@ -102,6 +105,8 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log("Virtual design begins.");
 
 		Init();
+
+		testObject = GameObject.Find("Cube");// For test
 	}
 
 	void Init() {
@@ -657,10 +662,16 @@ public class gestureTest : MonoBehaviour {
 		GesturePlane();
 		GestureLine();
 		GesturePoint();
+
+		// For debug
+		try {
+			Debug.Log(rightPlane["normalDir"].ToString("F3"));
+        } catch { }
+		
     }
     #endregion
 
-    #region Calculate gesture plane geometry
+    #region Manipulate object plane geometry with gesture plane
     void GesturePlane() {
 		// if leftPlane, rightPlane exist, planeGeo exist
 		// if prev planeGeo not exist, curr planeGeo exist, call planeInit, begin to search for closest plane geo in obj
@@ -684,6 +695,14 @@ public class gestureTest : MonoBehaviour {
 
 	void GesturePlaneInit() {
 		Debug.Log("plane-plane gesture is detected.");
+		
+		gestureGeo["leftPlanePosInit"] = leftPlane["position"];
+		gestureGeo["rightPlanePosInit"] = rightPlane["position"];
+		gestureGeo["leftPlaneForwardDirInit"] = leftPlane["forwardDir"];
+		gestureGeo["rightPlaneForwardDirInit"] = rightPlane["forwardDir"];
+		gestureGeo["leftPlaneNormalDirInit"] = leftPlane["normalDir"];
+		gestureGeo["rightPlaneNormalDirInit"] = rightPlane["normalDir"];
+
 		gestureGeo["planePosInit"] = leftPlane["position"] - rightPlane["position"];
 		gestureGeo["planeForwardDirInit"] = Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]);
 		gestureGeo["planeNormalDirInit"] = Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]);
@@ -693,6 +712,11 @@ public class gestureTest : MonoBehaviour {
 		gestureGeo["planePos"] = leftPlane["position"] - rightPlane["position"];
 		gestureGeo["planeForwardDir"] = Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]);
 		gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]);
+    }
+
+	// For test object Cube
+	void GetCubePlane(GameObject testObject) {
+		
     }
 
 	#endregion
