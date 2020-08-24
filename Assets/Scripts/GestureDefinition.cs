@@ -198,30 +198,39 @@ namespace GestureDefinition {
 			return selectedButtonName;
 		}
 
+		public struct GrabParams {
+			public Vector3 handPosition;
+			public Vector3 handRotation;
+			public string colliderName;
+			public Vector3 contactPosition;
+			public bool isEmpty;
+        }
+
 		/// <summary>
 		/// Returns "handPosition", "handRotation", "colliderName", "contactPosition"
 		/// </summary>
-		public Dictionary<string, dynamic> Grab() {
-			Dictionary<string, dynamic> grabParams = new Dictionary<string, dynamic>();
+		public GrabParams Grab() {
+			GrabParams grabParams = new GrabParams();
+			grabParams.isEmpty = true;
 
 			try {
-				grabParams["handPosition"] = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
-				grabParams["handRotation"] = GameObject.Find(handPolarity[0] + "_Palm").transform.eulerAngles;
+				grabParams.handPosition = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
+				grabParams.handRotation = GameObject.Find(handPolarity[0] + "_Palm").transform.eulerAngles;
+				grabParams.isEmpty = false;
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " palm.");
-				return null;
 			}
 			try {
 				// Only detect collision between palm and object for now (finger colliders exist, unused)
 				GameObject palmCollider = GameObject.Find(handPolarity[0] + "_Palm/palm");
 				string colliderName = palmCollider.GetComponent<handCollisionManagement>().ColliderName;
-				grabParams["colliderName"] = colliderName;
-				grabParams["contactPosition"] = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
+				grabParams.colliderName = colliderName;
+				grabParams.contactPosition = palmCollider.GetComponent<handCollisionManagement>().ContactPosition;
+				grabParams.isEmpty = false;
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " palm collider.");
-				return null;
 			}
 
 			return grabParams;

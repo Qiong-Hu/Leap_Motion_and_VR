@@ -46,8 +46,8 @@ public class gestureTest : MonoBehaviour {
 	string exportPath = "";
 
 	// For GrabObj
-	Dictionary<string, dynamic> grabParams = null;
-	Dictionary<string, dynamic> grabParamsPrev = null;
+	Gesture.GrabParams grabParams = new Gesture.GrabParams();
+	Gesture.GrabParams grabParamsPrev = new Gesture.GrabParams();
 	GameObject grabObj = null;
 	GameObject contactPoint = null;
 
@@ -434,15 +434,15 @@ public class gestureTest : MonoBehaviour {
 	// TODO (bug info 2): if after grab and move, obj collider are below ground, when grab release, obj will be blown away (should detect collision before grab release)
 	void GrabObj() {
 		// Begin grabbing
-		if (grabParams != null && grabParamsPrev == null && grabObj == null && grabParams["colliderName"] != "") {
+		if (grabParams.isEmpty != true && grabParamsPrev.isEmpty == true && grabObj == null && grabParams.colliderName != "") {
 			GrabInit();
 		}
 		// Update grabbing
-		else if (grabParams != null && grabParamsPrev != null && grabObj != null){
+		else if (grabParams.isEmpty != true && grabParamsPrev.isEmpty != true && grabObj != null){
 			GrabUpdate();
         }
 		// End grabbing
-		else if (grabParams == null && grabParamsPrev != null && grabObj != null) {
+		else if (grabParams.isEmpty == true && grabParamsPrev.isEmpty != true && grabObj != null) {
 			GrabEnd();
 			GrabReset();
 		}
@@ -455,11 +455,11 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void GrabInit() {
-		grabObj = GameObject.Find(grabParams["colliderName"]);
+		grabObj = GameObject.Find(grabParams.colliderName);
 
 		contactPoint = new GameObject("Contact Point");
-		contactPoint.transform.position = grabParams["handPosition"];
-		contactPoint.transform.eulerAngles = grabParams["handRotation"];
+		contactPoint.transform.position = grabParams.handPosition;
+		contactPoint.transform.eulerAngles = grabParams.handRotation;
 
 		// Record obj's ending pos/rot after grab and move
 		GameObject grabObjRepre = new GameObject("Grab obj represent");
@@ -479,16 +479,16 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void GrabUpdate() {
-		contactPoint.transform.position = grabParams["handPosition"];
-		contactPoint.transform.eulerAngles = grabParams["handRotation"];
+		contactPoint.transform.position = grabParams.handPosition;
+		contactPoint.transform.eulerAngles = grabParams.handRotation;
 		
 		grabObj.transform.position = contactPoint.transform.GetChild(0).position;
 		grabObj.transform.eulerAngles = contactPoint.transform.GetChild(0).eulerAngles;
 	}
 
 	void GrabEnd() {
-		contactPoint.transform.position = grabParamsPrev["handPosition"];
-		contactPoint.transform.eulerAngles = grabParamsPrev["handRotation"];
+		contactPoint.transform.position = grabParamsPrev.handPosition;
+		contactPoint.transform.eulerAngles = grabParamsPrev.handRotation;
 
 		grabObj.transform.position = contactPoint.transform.GetChild(0).position;
 		grabObj.transform.eulerAngles = contactPoint.transform.GetChild(0).eulerAngles;
@@ -503,7 +503,7 @@ public class gestureTest : MonoBehaviour {
 			Destroy(contactPoint);
 			contactPoint = null;
         }
-		grabParams = null;
+		grabParams.isEmpty = true;
 
 		try {
 			GameObject.Find("L_Palm/palm").GetComponent<Collider>().enabled = true;
