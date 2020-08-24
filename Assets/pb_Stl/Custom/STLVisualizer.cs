@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 namespace STLImporter
 {
@@ -157,7 +158,6 @@ namespace STLImporter
             else
                 return EMPTY;
         }
-
 
         private static Vector3 StringToVec3(string str)
         {

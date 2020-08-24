@@ -65,9 +65,6 @@ public class gestureTest : MonoBehaviour {
 	static Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
-	// For changing obj params
-	Dictionary<string, dynamic> currParams;
-
 	// For storing gesture params on plane/line/point
 	Dictionary<string, Vector3> leftPlane = null;
 	Dictionary<string, Vector3> leftLine = null;
@@ -75,6 +72,10 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, Vector3> rightPlane = null;
 	Dictionary<string, Vector3> rightLine = null;
 	Dictionary<string, Vector3> rightPoint = null;
+
+	// For changing obj params
+	Dictionary<string, dynamic> currParams;
+	Dictionary<string, dynamic> gestureGeo;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Dictionary<string, float> tuneParams = null;
@@ -165,10 +166,9 @@ public class gestureTest : MonoBehaviour {
 
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
+					CalcGestureGeo();
 				}
 
-				// For debug
-				CalcGestureGeo();
             }
 		}
 	}
@@ -624,43 +624,83 @@ public class gestureTest : MonoBehaviour {
 		selectParams = null;
 	}
 
-	#endregion
+    #endregion
 
-	// Limitation info: limited range of scaling, because hands can't separate too distant before Leapmotion loses tracks
-	// TODO: working on it
-	//void StretchWholeObj(GameObject gameObject) {
-	//	if (palmDis != 0) {
-	//		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-	//		gameObject.transform.localScale = originalScale * palmDis / palmDisRef;
-	//		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-	//	}
+    #region [Obsolete] Stretch whole obj
+    // Limitation info: limited range of scaling, because hands can't separate too distant before Leapmotion loses tracks
+    //void StretchWholeObj(GameObject gameObject) {
+    //	if (palmDis != 0) {
+    //		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+    //		gameObject.transform.localScale = originalScale * palmDis / palmDisRef;
+    //		gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+    //	}
     //}
+    #endregion
 
-	// For debug
-	void CalcGestureGeo() {
-		// Plane
+	void GestureGeo() {
+
+    }
+
+	#region Calculate gesture plane geometry
+	void GesturePlane() {
 		if (leftPlane != null && rightPlane != null) {
 			Debug.Log("plane-plane gesture is detected.");
 			Debug.Log("plane distance: " + Vector3.Distance(leftPlane["position"], rightPlane["position"]).ToString());
 			Debug.Log("plane forward dir diff: " + Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]).ToString());
 			Debug.Log("plane normal dir diff: " + Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]).ToString());
-        }
+		}
+	}
 
+	void GesturePlaneInit() {
+		gestureGeo["plane"] = false;
+	}
+
+	void GesturePlaneUpdate() {
+
+    }
+
+	#endregion
+
+    #region Calculate gesture line geometry
+	void GestureLine() {
 		if (leftLine != null && rightLine != null) {
 			Debug.Log("line-line gesture is detected.");
 			Debug.Log("line distance: " + Vector3.Distance(leftLine["position"], rightLine["position"]).ToString());
 			Debug.Log("line direction diff: " + Vector3.Angle(leftLine["direction"], rightLine["direction"]).ToString());
-        }
+		}
+	}
 
+	void GestureLineInit() {
+		gestureGeo["line"] = false;
+	}
+
+	void GestureLineUpdate() {
+
+    }
+
+    #endregion
+
+    #region Calculate gesture point geometry
+	void GesturePoint() {
 		if (leftPoint != null && rightPoint != null) {
 			Debug.Log("point-point gesture is detected.");
 			Debug.Log("point distance: " + Vector3.Distance(leftPoint["position"], rightPoint["position"]).ToString());
-        }
+		}
+	}
+
+	void GesturePointInit() {
+		gestureGeo["point"] = false;
+	}
+
+	void GesturePointUpdate() {
+
     }
 
+    #endregion
+
     #region Tune discrete parameters
-	// TODO: need improvement => more intuitive, extendible
-	void TuneObj(DesignObj designObj) {
+    // TODO: need improvement => more intuitive, extendible
+    void TuneObj(DesignObj designObj) {
 		// Steps:
 		// 0. find integer param
 		// 1. Detect hand gesture is thumb up

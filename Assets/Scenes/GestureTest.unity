@@ -3118,7 +3118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db7589e8638daf8499753addb3ee4131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  url: http://localhost:5001
+  url: http://localhost:5001/
   nameList: []
   hoverThreshold: 0.04
   touchThreshold: 0.005
