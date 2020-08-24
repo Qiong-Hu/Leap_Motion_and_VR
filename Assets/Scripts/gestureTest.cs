@@ -74,8 +74,8 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, Vector3> rightPoint = null;
 
 	// For changing obj params
-	Dictionary<string, dynamic> currParams;
-	Dictionary<string, dynamic> gestureGeo;
+	Dictionary<string, dynamic> currParams = null;
+	Dictionary<string, dynamic> gestureGeo = new Dictionary<string, dynamic>();
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Dictionary<string, float> tuneParams = null;
@@ -141,6 +141,9 @@ public class gestureTest : MonoBehaviour {
 
 		// Init export filefolder name
 		exportPath = Application.persistentDataPath + "/Export_" + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
+		// Init gesture geo param
+		GestureGeoInit();
 	}
 
 	// Update is called once per frame
@@ -166,8 +169,11 @@ public class gestureTest : MonoBehaviour {
 
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
-					CalcGestureGeo();
+					//GestureGeo();
 				}
+
+				// For debug
+				CalcGestureGeo();
 
             }
 		}
@@ -637,26 +643,56 @@ public class gestureTest : MonoBehaviour {
     //}
     #endregion
 
-	void GestureGeo() {
+    #region Calculate gesture geometry
+    void GestureGeoInit() {
+		gestureGeo["plane"] = false;
+		gestureGeo["planePrev"] = false;
+		gestureGeo["line"] = false;
+		gestureGeo["linePrev"] = false;
+		gestureGeo["point"] = false;
+		gestureGeo["pointPrev"] = false;
+	}
 
+	void CalcGestureGeo() {
+		GesturePlane();
+		GestureLine();
+		GesturePoint();
     }
+    #endregion
 
-	#region Calculate gesture plane geometry
-	void GesturePlane() {
+    #region Calculate gesture plane geometry
+    void GesturePlane() {
+		// if leftPlane, rightPlane exist, planeGeo exist
+		// if prev planeGeo not exist, curr planeGeo exist, call planeInit, begin to search for closest plane geo in obj
+		// if prev planeFro exist, curr planeGeo exist, call planeUpdate; if closest obj planeGeo exist, update targeted obj planeGeo, pass to obj
+
 		if (leftPlane != null && rightPlane != null) {
-			Debug.Log("plane-plane gesture is detected.");
-			Debug.Log("plane distance: " + Vector3.Distance(leftPlane["position"], rightPlane["position"]).ToString());
-			Debug.Log("plane forward dir diff: " + Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]).ToString());
-			Debug.Log("plane normal dir diff: " + Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]).ToString());
-		}
+			gestureGeo["plane"] = true;
+        } else {
+			gestureGeo["plane"] = false;
+        }
+
+		if (gestureGeo["plane"] == true && gestureGeo["planePrev"] == false) {
+			GesturePlaneInit();
+        }
+		else if (gestureGeo["plane"] == true && gestureGeo["planePrev"] == true) {
+			GesturePlaneUpdate();
+        }
+
+		gestureGeo["planePrev"] = gestureGeo["plane"];
 	}
 
 	void GesturePlaneInit() {
-		gestureGeo["plane"] = false;
+		Debug.Log("plane-plane gesture is detected.");
+		gestureGeo["planePosInit"] = leftPlane["position"] - rightPlane["position"];
+		gestureGeo["planeForwardDirInit"] = Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]);
+		gestureGeo["planeNormalDirInit"] = Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]);
 	}
 
 	void GesturePlaneUpdate() {
-
+		gestureGeo["planePos"] = leftPlane["position"] - rightPlane["position"];
+		gestureGeo["planeForwardDir"] = Vector3.Angle(leftPlane["forwardDir"], rightPlane["forwardDir"]);
+		gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane["normalDir"], rightPlane["normalDir"]);
     }
 
 	#endregion
@@ -671,7 +707,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void GestureLineInit() {
-		gestureGeo["line"] = false;
+		
 	}
 
 	void GestureLineUpdate() {
@@ -689,7 +725,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	void GesturePointInit() {
-		gestureGeo["point"] = false;
+		
 	}
 
 	void GesturePointUpdate() {
