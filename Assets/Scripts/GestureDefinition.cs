@@ -353,11 +353,17 @@ namespace GestureDefinition {
 		}
 
 		// Pass params of point (using pinch) to main Update()
+		public struct PointParams {
+			public Vector3 position;
+			public bool isEmpty;
+        }
+
 		/// <summary>
 		/// Returns "position"
 		/// </summary>
-		public Dictionary<string, Vector3> PointParams() {
-			Dictionary<string, Vector3> pointParams = new Dictionary<string, Vector3>();
+		public PointParams FindPointParams() {
+			PointParams pointParams = new PointParams();
+			pointParams.isEmpty = true;
 
 			Vector3 indexTipPos = new Vector3();
 			try {
@@ -365,7 +371,7 @@ namespace GestureDefinition {
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " index fingertip position.");
-				return null;
+				return pointParams;
 			}
 
 			Vector3 thumbTipPos = new Vector3();
@@ -374,10 +380,11 @@ namespace GestureDefinition {
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " thumb fingertip position.");
-				return null;
+				return pointParams;
 			}
 
-			pointParams["position"] = (indexTipPos + thumbTipPos) / 2;
+			pointParams.position = (indexTipPos + thumbTipPos) / 2;
+			pointParams.isEmpty = false;
 
 			return pointParams;
 		}

@@ -74,8 +74,8 @@ public class gestureTest : MonoBehaviour {
 	Gesture.PlaneParams rightPlane = new Gesture.PlaneParams();
 	Gesture.LineParams leftLine = new Gesture.LineParams();
 	Gesture.LineParams rightLine = new Gesture.LineParams();
-	Dictionary<string, Vector3> leftPoint = null;
-	Dictionary<string, Vector3> rightPoint = null;
+	Gesture.PointParams leftPoint = new Gesture.PointParams();
+	Gesture.PointParams rightPoint = new Gesture.PointParams();
 
 	// For changing obj params
 	Dictionary<string, dynamic> currParams = null;
@@ -259,16 +259,16 @@ public class gestureTest : MonoBehaviour {
 
 		// Modify point
 		if (leftGesture.Type == pointGesture) {
-			leftPoint = leftGesture.PointParams();
+			leftPoint = leftGesture.FindPointParams();
         }
 		else {
-			leftPoint = null;
+			leftPoint.isEmpty = true;
         }
 		if (rightGesture.Type == pointGesture) {
-			rightPoint = rightGesture.PointParams();
+			rightPoint = rightGesture.FindPointParams();
         }
 		else {
-			rightPoint = null;
+			rightPoint.isEmpty = true;
         }
 
 		#region // Tune discrete parameters => TODO: need improvement
@@ -733,9 +733,9 @@ public class gestureTest : MonoBehaviour {
 
     #region Calculate gesture point geometry
 	void GesturePoint() {
-		if (leftPoint != null && rightPoint != null) {
+		if (leftPoint.isEmpty != true && rightPoint.isEmpty != true) {
 			Debug.Log("point-point gesture is detected.");
-			Debug.Log("point distance: " + Vector3.Distance(leftPoint["position"], rightPoint["position"]).ToString());
+			Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
 		}
 	}
 
