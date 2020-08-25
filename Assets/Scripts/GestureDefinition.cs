@@ -198,7 +198,7 @@ namespace GestureDefinition {
 			return selectedButtonName;
 		}
 
-		// For grab
+		// Pass params of grab to main Update()
 		public struct GrabParams {
 			public Vector3 handPosition;
 			public Vector3 handRotation;
@@ -237,7 +237,7 @@ namespace GestureDefinition {
 			return grabParams;
 		}
 
-		// For select
+		// Pass params of select to main Update()
 		public struct SelectParams {
 			public Vector3 fingertipPos;
 			public Vector3 fingerbasePos;
@@ -286,22 +286,29 @@ namespace GestureDefinition {
 		}
 
 		// Pass params of plane (using palm) to main Update()
+		public struct PlaneParams {
+			public Vector3 position;
+			public Vector3 forwardDir;
+			public Vector3 normalDir;
+			public bool isEmpty;
+        }
+
 		/// <summary>
 		/// Returns "position", "forwardDir", "normalDir"
 		/// </summary>
-		public Dictionary<string, Vector3> PlaneParams() {
-			Dictionary<string, Vector3> planeParams = new Dictionary<string, Vector3>();
+		public PlaneParams FindPlaneParams() {
+			PlaneParams planeParams = new PlaneParams();
+			planeParams.isEmpty = true;
 
 			try {
-				planeParams["position"] = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
+				planeParams.position = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
+				planeParams.forwardDir = new Vector3(currHand.Direction.x, currHand.Direction.y, currHand.Direction.z);
+				planeParams.normalDir = new Vector3(currHand.PalmNormal.x, currHand.PalmNormal.y, currHand.PalmNormal.z);
+				planeParams.isEmpty = false;
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " palm position.");
-				return null;
 			}
-
-			planeParams["forwardDir"] = new Vector3(currHand.Direction.x, currHand.Direction.y, currHand.Direction.z);
-			planeParams["normalDir"] = new Vector3(currHand.PalmNormal.x, currHand.PalmNormal.y, currHand.PalmNormal.z);
 
 			return planeParams;
 		}
