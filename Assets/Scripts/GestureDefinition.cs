@@ -389,9 +389,17 @@ namespace GestureDefinition {
 			return pointParams;
 		}
 
+		// Pass params of tune to main Update()
+		public struct TuneParams {
+			public float palmAngle;
+			public float thumbAngle;
+			public bool isEmpty;
+        }
+
 		// Edit tune discrete param => TODO: need improvement
-		public Dictionary<string, float> TuneDiscrete() {
-			Dictionary<string, float> tuneParams = new Dictionary<string, float>();
+		public TuneParams TuneDiscrete() {
+			TuneParams tuneParams = new TuneParams();
+			tuneParams.isEmpty = true;
 
 			// Palm rotation (in euler angle), angle to upwards in world coordinate
 			Quaternion palmRot = new Quaternion(currHand.Rotation.x, currHand.Rotation.y, currHand.Rotation.z, currHand.Rotation.w);
@@ -400,14 +408,15 @@ namespace GestureDefinition {
 				angleUp = 360f - angleUp;
 			}
 			//Debug.Log(angleUp);
-			tuneParams["palmAngle"] = angleUp;
+			tuneParams.palmAngle = angleUp;
+			tuneParams.isEmpty = false;
 
 			// Thumb direction, angle to upwards in world coordinate
 			try {
 				Vector3 thumbDir = GameObject.Find(handPolarity[0] + "_thumb_end").transform.position -
 					GameObject.Find(handPolarity[0] + "_Palm").transform.position;
 
-				tuneParams["thumbAngle"] = Vector3.Angle(Vector3.up, thumbDir);
+				tuneParams.thumbAngle = Vector3.Angle(Vector3.up, thumbDir);
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " thumb position");

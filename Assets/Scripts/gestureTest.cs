@@ -82,7 +82,7 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, dynamic> gestureGeo = new Dictionary<string, dynamic>();
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
-	Dictionary<string, float> tuneParams = null;
+	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
 	bool isTuned = false;
 	static float palmAngleTHLD = 5f; // Degree
 	#endregion
@@ -776,7 +776,7 @@ public class gestureTest : MonoBehaviour {
         }
 
 		int action = 0;
-		if (tuneParams != null && discreteParam != "") {
+		if (tuneParams.isEmpty != true && discreteParam != "") {
 			TuneInit();
 			action = TuneUpdate(); // action = 0, +1, -1
 
@@ -801,7 +801,7 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void TuneInit() {
-		if (isTuned == false && Mathf.Abs(tuneParams["palmAngle"] - 90f) <= palmAngleTHLD) {
+		if (isTuned == false && Mathf.Abs(tuneParams.palmAngle - 90f) <= palmAngleTHLD) {
 			isTuned = true;
         }
     }
@@ -810,10 +810,10 @@ public class gestureTest : MonoBehaviour {
 		// If point upwards, return +1; if point downwards, return -1; else, return 0
 		int action = 0;
 
-		if (isTuned == true && tuneParams["palmAngle"] <= palmAngleTHLD) {
+		if (isTuned == true && tuneParams.palmAngle <= palmAngleTHLD) {
 			action = 1;
         }
-		else if (isTuned == true && tuneParams["palmAngle"] >= 180f - palmAngleTHLD) {
+		else if (isTuned == true && tuneParams.palmAngle >= 180f - palmAngleTHLD) {
 			action = -1;
         }
 		
@@ -821,7 +821,7 @@ public class gestureTest : MonoBehaviour {
     }
 
 	void TuneReset() {
-		tuneParams = null;
+		tuneParams.isEmpty = true;
 		isTuned = false;
 	}
 
