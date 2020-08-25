@@ -52,8 +52,8 @@ public class gestureTest : MonoBehaviour {
 	GameObject contactPoint = null;
 
 	// For SelectObj
-	Dictionary<string, dynamic> selectParams = null;
-	Dictionary<string, dynamic> selectParamsPrev = null;
+	Gesture.SelectParams selectParams = new Gesture.SelectParams();
+	Gesture.SelectParams selectParamsPrev = new Gesture.SelectParams();
 	GameObject selectObj = null;
 	bool isSelected = false;
 
@@ -315,7 +315,7 @@ public class gestureTest : MonoBehaviour {
 						ExportObj(selectObj, selectObj.name + "(auto_save_at_delete)"); // wouldn't repeat itself so no need to add time string
 						DeleteObj(selectObj);
 
-						selectParams = null;
+						selectParams.isEmpty = true;
 						isSelected = false;
 						selectObj = null;
 					} else {
@@ -528,12 +528,12 @@ public class gestureTest : MonoBehaviour {
 		GameObject currObj = null;
 
 		// Update ray based on gesture
-		if (selectParams != null && selectParamsPrev == null) {
+		if (selectParams.isEmpty != true && selectParamsPrev.isEmpty == true) {
 			DrawRayInit();
-			currObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+			currObj = DrawRayUpdate(selectParams.fingerbasePos, selectParams.fingertipPos);
 		} 
-		else if (selectParams != null && selectParamsPrev != null) {
-			currObj = DrawRayUpdate(selectParams["fingerbasePos"], selectParams["fingertipPos"]);
+		else if (selectParams.isEmpty != true && selectParamsPrev.isEmpty != true) {
+			currObj = DrawRayUpdate(selectParams.fingerbasePos, selectParams.fingertipPos);
 		}
 		else {
 			DrawRayReset();
@@ -633,7 +633,7 @@ public class gestureTest : MonoBehaviour {
 			TuneReset();
 		}
 
-		selectParams = null;
+		selectParams.isEmpty = true;
 	}
 
     #endregion
@@ -663,12 +663,6 @@ public class gestureTest : MonoBehaviour {
 		GesturePlane();
 		GestureLine();
 		GesturePoint();
-
-		// For debug
-		try {
-			Debug.Log(rightPlane["normalDir"].ToString("F3"));
-        } catch { }
-		
     }
     #endregion
 

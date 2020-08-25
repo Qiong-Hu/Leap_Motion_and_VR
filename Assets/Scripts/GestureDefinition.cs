@@ -198,6 +198,7 @@ namespace GestureDefinition {
 			return selectedButtonName;
 		}
 
+		// For grab
 		public struct GrabParams {
 			public Vector3 handPosition;
 			public Vector3 handRotation;
@@ -236,25 +237,33 @@ namespace GestureDefinition {
 			return grabParams;
 		}
 
+		// For select
+		public struct SelectParams {
+			public Vector3 fingertipPos;
+			public Vector3 fingerbasePos;
+			public bool isEmpty;
+        }
+
 		/// <summary>
 		/// Returns "fingertipPos", "fingerbasePos"
 		/// </summary>
-		public Dictionary<string, dynamic> Select() {
-			Dictionary<string, dynamic> selectParams = new Dictionary<string, dynamic>();
+		public SelectParams Select() {
+			SelectParams selectParams = new SelectParams();
+			selectParams.isEmpty = true;
 
 			try {
-				selectParams["fingertipPos"] = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
+				selectParams.fingertipPos = GameObject.Find(handPolarity[0] + "_index_end").transform.position;
+				selectParams.isEmpty = false;
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " fingertip position.");
-				return null;
 			}
 			try {
-				selectParams["fingerbasePos"] = GameObject.Find(handPolarity[0] + "_index_a").transform.position;
+				selectParams.fingerbasePos = GameObject.Find(handPolarity[0] + "_index_a").transform.position;
+				selectParams.isEmpty = false;
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " fingerbase position.");
-				return null;
 			}
 
 			return selectParams;
