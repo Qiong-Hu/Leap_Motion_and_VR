@@ -69,6 +69,9 @@ public class gestureTest : MonoBehaviour {
 	static Color highlightColor = new Color32(255, 0, 255, 255);
 	public Shader highlightShader;
 
+	// For changing obj params
+	Dictionary<string, dynamic> currParams = null;
+
 	// For storing gesture params on plane/line/point
 	Gesture.PlaneParams leftPlane = new Gesture.PlaneParams();
 	Gesture.PlaneParams rightPlane = new Gesture.PlaneParams();
@@ -77,9 +80,21 @@ public class gestureTest : MonoBehaviour {
 	Gesture.PointParams leftPoint = new Gesture.PointParams();
 	Gesture.PointParams rightPoint = new Gesture.PointParams();
 
-	// For changing obj params
-	Dictionary<string, dynamic> currParams = null;
-	Dictionary<string, dynamic> gestureGeo = new Dictionary<string, dynamic>();
+	// For storing gesture geos together
+	struct GestureGeo {
+		public bool planeDetected;
+		public Gesture.PlaneParams leftPlane;
+		public Gesture.PlaneParams rightPlane;
+		public bool lineDetected;
+		public Gesture.LineParams leftLine;
+		public Gesture.LineParams rightLine;
+		public bool pointDetected;
+		public Gesture.PointParams leftPoint;
+		public Gesture.PointParams rightPoint;
+	}
+	GestureGeo gestureGeo = new GestureGeo();
+	GestureGeo gestureGeoPrev = new GestureGeo();
+	GestureGeo gestureGeoInit = new GestureGeo();
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
@@ -651,12 +666,12 @@ public class gestureTest : MonoBehaviour {
 
     #region Calculate gesture geometry
     void GestureGeoInit() {
-		gestureGeo["plane"] = false;
-		gestureGeo["planePrev"] = false;
-		gestureGeo["line"] = false;
-		gestureGeo["linePrev"] = false;
-		gestureGeo["point"] = false;
-		gestureGeo["pointPrev"] = false;
+		gestureGeo.planeDetected = false;
+		gestureGeo.lineDetected = false;
+		gestureGeo.pointDetected = false;
+		
+		gestureGeoPrev = gestureGeo;
+		gestureGeoInit = gestureGeo;
 	}
 
 	void CalcGestureGeo() {
@@ -673,36 +688,45 @@ public class gestureTest : MonoBehaviour {
 		// if prev planeFro exist, curr planeGeo exist, call planeUpdate; if closest obj planeGeo exist, update targeted obj planeGeo, pass to obj
 
 		if (leftPlane.isEmpty != true && rightPlane.isEmpty != true) {
-			gestureGeo["plane"] = true;
+			gestureGeo.planeDetected = true;
         } else {
-			gestureGeo["plane"] = false;
+			gestureGeo.planeDetected = false;
         }
 
-		if (gestureGeo["plane"] == true && gestureGeo["planePrev"] == false) {
+		if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == false) {
 			GesturePlaneInit();
         }
-		else if (gestureGeo["plane"] == true && gestureGeo["planePrev"] == true) {
+		else if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == true) {
 			GesturePlaneUpdate();
         }
 
-		gestureGeo["planePrev"] = gestureGeo["plane"];
+		gestureGeoPrev.planeDetected = gestureGeo.planeDetected;
+		gestureGeoPrev.leftPlane = gestureGeo.leftPlane;
+		gestureGeoPrev.rightPlane = gestureGeo.rightPlane;
 	}
 
 	void GesturePlaneInit() {
 		Debug.Log("plane-plane gesture is detected.");
 
-		Gesture.PlaneParams leftPlaneInit = leftPlane;
-		Gesture.PlaneParams rightPlaneInit = rightPlane;
+		gestureGeoInit.leftPlane = leftPlane;
+		gestureGeoInit.rightPlane = rightPlane;
+		gestureGeoInit.planeDetected = true;
 
-		gestureGeo["planePosInit"] = leftPlane.position - rightPlane.position;
-		gestureGeo["planeForwardDirInit"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
-		gestureGeo["planeNormalDirInit"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
+		gestureGeo.leftPlane = leftPlane;
+		gestureGeo.rightPlane = rightPlane;
+
+		//gestureGeo["planePosInit"] = leftPlane.position - rightPlane.position;
+		//gestureGeo["planeForwardDirInit"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
+		//gestureGeo["planeNormalDirInit"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
 	}
 
 	void GesturePlaneUpdate() {
-		gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
-		gestureGeo["planeForwardDir"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
-		gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
+		gestureGeo.leftPlane = leftPlane;
+		gestureGeo.rightPlane = rightPlane;
+
+		//gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
+		//gestureGeo["planeForwardDir"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
+		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
     }
 
 	// For test object Cube
