@@ -72,9 +72,9 @@ public class gestureTest : MonoBehaviour {
 	// For storing gesture params on plane/line/point
 	Gesture.PlaneParams leftPlane = new Gesture.PlaneParams();
 	Gesture.PlaneParams rightPlane = new Gesture.PlaneParams();
-	Dictionary<string, Vector3> leftLine = null;
+	Gesture.LineParams leftLine = new Gesture.LineParams();
+	Gesture.LineParams rightLine = new Gesture.LineParams();
 	Dictionary<string, Vector3> leftPoint = null;
-	Dictionary<string, Vector3> rightLine = null;
 	Dictionary<string, Vector3> rightPoint = null;
 
 	// For changing obj params
@@ -245,16 +245,16 @@ public class gestureTest : MonoBehaviour {
 
 		// Modify line
 		if (leftGesture.Type == lineGesture) {
-			leftLine = leftGesture.LineParams();
+			leftLine = leftGesture.FindLineParams();
         }
 		else {
-			leftLine = null;
+			leftLine.isEmpty = true;
         }
 		if (rightGesture.Type == lineGesture) {
-			rightLine = rightGesture.LineParams();
+			rightLine = rightGesture.FindLineParams();
         }
 		else {
-			rightLine = null;
+			rightLine.isEmpty = true;
         }
 
 		// Modify point
@@ -714,10 +714,10 @@ public class gestureTest : MonoBehaviour {
 
     #region Calculate gesture line geometry
 	void GestureLine() {
-		if (leftLine != null && rightLine != null) {
+		if (leftLine.isEmpty != true && rightLine.isEmpty != true) {
 			Debug.Log("line-line gesture is detected.");
-			Debug.Log("line distance: " + Vector3.Distance(leftLine["position"], rightLine["position"]).ToString());
-			Debug.Log("line direction diff: " + Vector3.Angle(leftLine["direction"], rightLine["direction"]).ToString());
+			Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
+			Debug.Log("line direction diff: " + Vector3.Angle(leftLine.direction, rightLine.direction).ToString());
 		}
 	}
 

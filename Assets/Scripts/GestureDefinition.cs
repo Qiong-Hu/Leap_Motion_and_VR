@@ -314,11 +314,18 @@ namespace GestureDefinition {
 		}
 
 		// Pass params of line (using finger as representative) to main Update()
+		public struct LineParams {
+			public Vector3 position;
+			public Vector3 direction;
+			public bool isEmpty;
+        }
+
 		/// <summary>
 		/// Returns "position", "direction"
 		/// </summary>
-		public Dictionary<string, Vector3> LineParams() {
-			Dictionary<string, Vector3> lineParams = new Dictionary<string, Vector3>();
+		public LineParams FindLineParams() {
+			LineParams lineParams = new LineParams();
+			lineParams.isEmpty = true;
 
 			Vector3 fingertipPos = new Vector3();
 			try {
@@ -326,7 +333,7 @@ namespace GestureDefinition {
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " fingertip position.");
-				return null;
+				return lineParams;
 			}
 
 			Vector3 fingerbasePos = new Vector3();
@@ -335,11 +342,12 @@ namespace GestureDefinition {
 			}
 			catch {
 				Debug.Log("Fail to find " + handPolarity.ToLower() + " fingerbase position.");
-				return null;
+				return lineParams;
 			}
 
-			lineParams["position"] = fingerbasePos;
-			lineParams["direction"] = (fingertipPos - fingerbasePos).normalized;
+			lineParams.position = fingerbasePos;
+			lineParams.direction = (fingertipPos - fingerbasePos).normalized;
+			lineParams.isEmpty = false;
 
 			return lineParams;
 		}
