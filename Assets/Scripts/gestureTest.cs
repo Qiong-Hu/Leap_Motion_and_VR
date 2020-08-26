@@ -96,6 +96,9 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoPrev = new GestureGeo();
 	GestureGeo gestureGeoInit = new GestureGeo();
 
+	// For searching targeted object plane
+	static float planeDirPosRatio = 0.8f;
+
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
 	bool isTuned = false;
@@ -123,7 +126,6 @@ public class gestureTest : MonoBehaviour {
 		Init();
 
 		testObject = GameObject.Find("Cube");// For test
-		GetCubePlane(testObject);// For test
 	}
 
 	void Init() {
@@ -191,7 +193,7 @@ public class gestureTest : MonoBehaviour {
 
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
-					//GestureGeo();
+					//CalcGestureGeo();
 				}
 
 				// For debug
@@ -696,7 +698,7 @@ public class gestureTest : MonoBehaviour {
 
 		if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == false) {
 			GesturePlaneInit();
-			//GetCubePlane(testObject);// For test
+			SearchPlanePair(testObject, gestureGeoInit);// For test
         }
 		else if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == true) {
 			GesturePlaneUpdate();
@@ -705,6 +707,12 @@ public class gestureTest : MonoBehaviour {
 		gestureGeoPrev.planeDetected = gestureGeo.planeDetected;
 		gestureGeoPrev.leftPlane = gestureGeo.leftPlane;
 		gestureGeoPrev.rightPlane = gestureGeo.rightPlane;
+
+		// For debug
+		if (rightPlane.isEmpty != true) {
+			List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
+			SortPlanes(planeList, rightPlane);
+		}
 	}
 
 	void GesturePlaneInit() {
@@ -732,7 +740,7 @@ public class gestureTest : MonoBehaviour {
     }
 
 	// For testing object Cube
-	List<Gesture.PlaneParams> GetCubePlane(GameObject testObject) {
+	List<Gesture.PlaneParams> GetCubePlanes(GameObject testObject) {
 		Vector3 center = testObject.transform.position;
 		List<Gesture.PlaneParams> planes = new List<Gesture.PlaneParams>();
 
@@ -773,11 +781,37 @@ public class gestureTest : MonoBehaviour {
 		plane.normalDir = -testObject.transform.forward;
 		planes.Add(plane);
 
-		foreach (Gesture.PlaneParams currPlane in planes) {
-			Debug.Log(currPlane.name + " is added to plane list");
-        }
-
 		return planes;
+	}
+
+	List<Gesture.PlaneParams> SortPlanes(List<Gesture.PlaneParams> planeList, Gesture.PlaneParams targetPlane) {
+		List<Gesture.PlaneParams> planeListNew;
+		List<float> scores;  //planeDirPosRatio
+
+		float score;
+		foreach (Gesture.PlaneParams currPlane in planeList) {
+			score = Vector3.Angle(currPlane.normalDir, targetPlane.normalDir) / 180f * planeDirPosRatio +
+				Vector3.Distance(currPlane.position, targetPlane.position) * (1 - planeDirPosRatio);
+			Debug.Log(currPlane.name + ": " + score.ToString("F2"));
+        }
+		
+		return planeList; //For debug
+	}
+
+	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, GestureGeo gestureGeo) {
+		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
+
+		List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
+		if (gestureGeo.planeDetected == true) {
+			if (gestureGeo.leftPlane.isEmpty != true) {
+				selectedPlanePair.Add(SortPlanes(planeList, gestureGeo.leftPlane)[0]);
+			}
+			if (gestureGeo.rightPlane.isEmpty != true) {
+				selectedPlanePair.Add(SortPlanes(planeList, gestureGeo.rightPlane)[0]);
+			}
+		}
+
+		return selectedPlanePair;
 	}
 
 	#endregion
