@@ -123,6 +123,7 @@ public class gestureTest : MonoBehaviour {
 		Init();
 
 		testObject = GameObject.Find("Cube");// For test
+		GetCubePlane(testObject);// For test
 	}
 
 	void Init() {
@@ -695,6 +696,7 @@ public class gestureTest : MonoBehaviour {
 
 		if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == false) {
 			GesturePlaneInit();
+			//GetCubePlane(testObject);// For test
         }
 		else if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == true) {
 			GesturePlaneUpdate();
@@ -729,10 +731,54 @@ public class gestureTest : MonoBehaviour {
 		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
     }
 
-	// For test object Cube
-	void GetCubePlane(GameObject testObject) {
-		
-    }
+	// For testing object Cube
+	List<Gesture.PlaneParams> GetCubePlane(GameObject testObject) {
+		Vector3 center = testObject.transform.position;
+		List<Gesture.PlaneParams> planes = new List<Gesture.PlaneParams>();
+
+		Gesture.PlaneParams plane = new Gesture.PlaneParams();
+		plane.name = "x+";
+		plane.index = 1;
+		plane.position = center + testObject.transform.right * testObject.transform.localScale.x;
+		plane.normalDir = testObject.transform.right;
+		planes.Add(plane);
+
+		plane.name = "x-";
+		plane.index = 2;
+		plane.position = center - testObject.transform.right * testObject.transform.localScale.x;
+		plane.normalDir = -testObject.transform.right;
+		planes.Add(plane);
+
+		plane.name = "y+";
+		plane.index = 3;
+		plane.position = center + testObject.transform.up * testObject.transform.localScale.y;
+		plane.normalDir = testObject.transform.up;
+		planes.Add(plane);
+
+		plane.name = "y-";
+		plane.index = 4;
+		plane.position = center - testObject.transform.up * testObject.transform.localScale.y;
+		plane.normalDir = -testObject.transform.up;
+		planes.Add(plane);
+
+		plane.name = "z+";
+		plane.index = 5;
+		plane.position = center + testObject.transform.forward * testObject.transform.localScale.z;
+		plane.normalDir = testObject.transform.forward;
+		planes.Add(plane);
+
+		plane.name = "z-";
+		plane.index = 6;
+		plane.position = center - testObject.transform.forward * testObject.transform.localScale.z;
+		plane.normalDir = -testObject.transform.forward;
+		planes.Add(plane);
+
+		foreach (Gesture.PlaneParams currPlane in planes) {
+			Debug.Log(currPlane.name + " is added to plane list");
+        }
+
+		return planes;
+	}
 
 	#endregion
 

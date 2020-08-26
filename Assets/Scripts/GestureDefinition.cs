@@ -287,6 +287,8 @@ namespace GestureDefinition {
 
 		// Pass params of plane (using palm) to main Update()
 		public struct PlaneParams {
+			public string name;
+			public int index;
 			public Vector3 position;
 			public Vector3 forwardDir;
 			public Vector3 normalDir;
@@ -315,6 +317,8 @@ namespace GestureDefinition {
 
 		// Pass params of line (using finger as representative) to main Update()
 		public struct LineParams {
+			public string name;
+			public int index;
 			public Vector3 position;
 			public Vector3 direction;
 			public bool isEmpty;
@@ -354,6 +358,8 @@ namespace GestureDefinition {
 
 		// Pass params of point (using pinch) to main Update()
 		public struct PointParams {
+			public string name;
+			public int index;
 			public Vector3 position;
 			public bool isEmpty;
         }
