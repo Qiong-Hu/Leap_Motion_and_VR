@@ -792,7 +792,7 @@ public class gestureTest : MonoBehaviour {
 		float score;
 		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For normalization
 		foreach (Gesture.PlaneParams currPlane in planeList) {
-			score = Vector3.Angle(currPlane.normalDir, targetPlane.normalDir) / 180f * planeDirPosRatio +
+			score = Mathf.Abs(Vector3.Angle(currPlane.normalDir, targetPlane.normalDir)) / 180f * planeDirPosRatio +
 				Vector3.Distance(currPlane.position, targetPlane.position) / centerDis * (1 - planeDirPosRatio);
 			scores.Add(score);
         }
@@ -800,8 +800,10 @@ public class gestureTest : MonoBehaviour {
 		// Add planes from planeList to planeListNew in the order of score value from small to large
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
 		System.Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
-		Debug.Log("Most likely: " + planeList[scoreIdx[0]].name + ", " + planeList[scoreIdx[1]].name);// For debug
 
+		for (int i = 0; i < scores.Count; i++) {
+			planeListNew.Add(planeList[scoreIdx[i]]);
+		}
 		
 		return planeListNew;
 	}
