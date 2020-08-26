@@ -1,6 +1,7 @@
 ﻿// This script is attached to Leap Rig
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Windows;
@@ -789,16 +790,17 @@ public class gestureTest : MonoBehaviour {
 		List<float> scores = new List<float>();
 
 		float score;
+		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For normalization
 		foreach (Gesture.PlaneParams currPlane in planeList) {
 			score = Vector3.Angle(currPlane.normalDir, targetPlane.normalDir) / 180f * planeDirPosRatio +
-				Vector3.Distance(currPlane.position, targetPlane.position) / 1f * (1 - planeDirPosRatio);
+				Vector3.Distance(currPlane.position, targetPlane.position) / centerDis * (1 - planeDirPosRatio);
 			scores.Add(score);
-
-			Debug.Log(currPlane.name + ": " + score.ToString("F2"));
         }
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
-		
+		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
+		System.Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+		Debug.Log("Most likely: " + planeList[scoreIdx[0]].name + ", " + planeList[scoreIdx[1]].name);// For debug
 
 		
 		return planeListNew;
