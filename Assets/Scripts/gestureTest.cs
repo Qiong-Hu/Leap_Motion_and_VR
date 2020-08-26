@@ -711,7 +711,7 @@ public class gestureTest : MonoBehaviour {
 		// For debug
 		if (rightPlane.isEmpty != true) {
 			List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
-			SortPlanes(planeList, rightPlane);
+			SortPlanes(testObject, planeList, rightPlane);
 		}
 	}
 
@@ -740,76 +740,96 @@ public class gestureTest : MonoBehaviour {
     }
 
 	// For testing object Cube
-	List<Gesture.PlaneParams> GetCubePlanes(GameObject testObject) {
-		Vector3 center = testObject.transform.position;
+	List<Gesture.PlaneParams> GetCubePlanes(GameObject gameObject) {
+		Vector3 center = gameObject.transform.position;
 		List<Gesture.PlaneParams> planes = new List<Gesture.PlaneParams>();
 
 		Gesture.PlaneParams plane = new Gesture.PlaneParams();
 		plane.name = "x+";
 		plane.index = 1;
-		plane.position = center + testObject.transform.right * testObject.transform.localScale.x;
-		plane.normalDir = testObject.transform.right;
+		plane.position = center + gameObject.transform.right * gameObject.transform.localScale.x;
+		plane.normalDir = gameObject.transform.right;
 		planes.Add(plane);
 
 		plane.name = "x-";
 		plane.index = 2;
-		plane.position = center - testObject.transform.right * testObject.transform.localScale.x;
-		plane.normalDir = -testObject.transform.right;
+		plane.position = center - gameObject.transform.right * gameObject.transform.localScale.x;
+		plane.normalDir = -gameObject.transform.right;
 		planes.Add(plane);
 
 		plane.name = "y+";
 		plane.index = 3;
-		plane.position = center + testObject.transform.up * testObject.transform.localScale.y;
-		plane.normalDir = testObject.transform.up;
+		plane.position = center + gameObject.transform.up * gameObject.transform.localScale.y;
+		plane.normalDir = gameObject.transform.up;
 		planes.Add(plane);
 
 		plane.name = "y-";
 		plane.index = 4;
-		plane.position = center - testObject.transform.up * testObject.transform.localScale.y;
-		plane.normalDir = -testObject.transform.up;
+		plane.position = center - gameObject.transform.up * gameObject.transform.localScale.y;
+		plane.normalDir = -gameObject.transform.up;
 		planes.Add(plane);
 
 		plane.name = "z+";
 		plane.index = 5;
-		plane.position = center + testObject.transform.forward * testObject.transform.localScale.z;
-		plane.normalDir = testObject.transform.forward;
+		plane.position = center + gameObject.transform.forward * gameObject.transform.localScale.z;
+		plane.normalDir = gameObject.transform.forward;
 		planes.Add(plane);
 
 		plane.name = "z-";
 		plane.index = 6;
-		plane.position = center - testObject.transform.forward * testObject.transform.localScale.z;
-		plane.normalDir = -testObject.transform.forward;
+		plane.position = center - gameObject.transform.forward * gameObject.transform.localScale.z;
+		plane.normalDir = -gameObject.transform.forward;
 		planes.Add(plane);
 
 		return planes;
 	}
 
-	List<Gesture.PlaneParams> SortPlanes(List<Gesture.PlaneParams> planeList, Gesture.PlaneParams targetPlane) {
-		List<Gesture.PlaneParams> planeListNew;
-		List<float> scores;  //planeDirPosRatio
+	List<Gesture.PlaneParams> SortPlanes(GameObject gameObject, List<Gesture.PlaneParams> planeList, Gesture.PlaneParams targetPlane) {
+		List<Gesture.PlaneParams> planeListNew = new List<Gesture.PlaneParams>();
+		List<float> scores = new List<float>();
 
 		float score;
 		foreach (Gesture.PlaneParams currPlane in planeList) {
 			score = Vector3.Angle(currPlane.normalDir, targetPlane.normalDir) / 180f * planeDirPosRatio +
-				Vector3.Distance(currPlane.position, targetPlane.position) * (1 - planeDirPosRatio);
+				Vector3.Distance(currPlane.position, targetPlane.position) / 1f * (1 - planeDirPosRatio);
+			scores.Add(score);
+
 			Debug.Log(currPlane.name + ": " + score.ToString("F2"));
         }
+
+		// Add planes from planeList to planeListNew in the order of score value from small to large
 		
-		return planeList; //For debug
+
+		
+		return planeListNew;
 	}
 
 	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, GestureGeo gestureGeo) {
 		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
 
+		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
+		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
+
 		List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
 		if (gestureGeo.planeDetected == true) {
 			if (gestureGeo.leftPlane.isEmpty != true) {
-				selectedPlanePair.Add(SortPlanes(planeList, gestureGeo.leftPlane)[0]);
+				sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
 			}
+			else {
+				Debug.Log("Fail to access left gesture plane for searching obj plane.");
+            }
 			if (gestureGeo.rightPlane.isEmpty != true) {
-				selectedPlanePair.Add(SortPlanes(planeList, gestureGeo.rightPlane)[0]);
+				sortedPlaneListRight = SortPlanes(gameObject, planeList, gestureGeo.rightPlane);
 			}
+			else {
+				Debug.Log("Fail to access right gesture plane for seaching obj plane.");
+            }
 		}
+		else {
+			Debug.Log("Fail to access gesture plane geo for searching obj planes.");
+        }
+		
+		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
 
 		return selectedPlanePair;
 	}
