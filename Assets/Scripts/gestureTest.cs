@@ -8,8 +8,8 @@ using UnityEngine.Networking;
 using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
+using FARVR.GestureDefinition;
 using SimpleJSON;
-using GestureDefinition;
 
 public class gestureTest : MonoBehaviour {
 
@@ -957,7 +957,7 @@ public class gestureTest : MonoBehaviour {
     #endregion
 
 	/// <summary>
-    /// Simple permutation of int list {0~n} in order of their sum from small to large
+    /// Simple permutation of int list {0~n} in the order that their sum from small to large
     /// </summary>
     /// eg: num=5, return {(0,0),(0,1),(1,0),(0,2),(1,1),(2,0),(0,3),(1,2),...}
 	public static List<Vector2> Permutation(int n) {

@@ -6,7 +6,7 @@ using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
 
-namespace GestureDefinition {
+namespace FARVR.GestureDefinition {
 	public class Gesture {
 		public enum GestureType {
 			Gesture_Fist,
