@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
+using FARVR.MathUtils;
 
 namespace FARVR.GestureDefinition {
 	public class Gesture {
@@ -126,7 +127,7 @@ namespace FARVR.GestureDefinition {
 			bool isIdentified = false;
 			gestureType = GestureType.Gesture_None;
 			for (int i = 0; i < gesture_param_list.Count; i++) {
-				if (CompareDict(gesture_param, gesture_param_list[i])) {
+				if (mathUtils.CompareDict(gesture_param, gesture_param_list[i])) {
 					gestureType = (GestureType)i;
 					isIdentified = true;
 					break;
@@ -432,44 +433,5 @@ namespace FARVR.GestureDefinition {
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Compare curr ArrayList to ref ArrayList
-		/// </summary>
-		/// <param name="list1"> current ArrayList </param>
-		/// <param name="list2"> reference ArrayList </param>
-		private static bool CompareArrayList(ArrayList list1, ArrayList list2) {
-			if (list1.Count != list2.Count) {
-				return false;
-			}
-			else {
-				for (int i = 0; i < list1.Count; i++) {
-					if (Object.Equals(list2[i], null)) {
-						continue;
-					}
-					if (!Object.Equals(list1[i], list2[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-
-		/// <summary>
-		/// Compare curr Dict to ref Dict
-		/// </summary>
-		/// <param name="dict1"> current gesture param dict </param>
-		/// <param name="dict2"> reference gesture param dict </param>
-		private static bool CompareDict(Dictionary<string, ArrayList> dict1, Dictionary<string, ArrayList> dict2) {
-			bool flag = true;
-			foreach (string key in dict2.Keys) {
-				if (!CompareArrayList(dict1[key], dict2[key])) {
-					flag = false;
-					break;
-				}
-			}
-			return flag;
-		}
-
 	}
 }
