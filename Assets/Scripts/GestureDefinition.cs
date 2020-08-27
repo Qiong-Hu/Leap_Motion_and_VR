@@ -438,7 +438,7 @@ namespace GestureDefinition {
 		/// </summary>
 		/// <param name="list1"> current ArrayList </param>
 		/// <param name="list2"> reference ArrayList </param>
-		private bool CompareArrayList(ArrayList list1, ArrayList list2) {
+		private static bool CompareArrayList(ArrayList list1, ArrayList list2) {
 			if (list1.Count != list2.Count) {
 				return false;
 			}
@@ -460,7 +460,7 @@ namespace GestureDefinition {
 		/// </summary>
 		/// <param name="dict1"> current gesture param dict </param>
 		/// <param name="dict2"> reference gesture param dict </param>
-		private bool CompareDict(Dictionary<string, ArrayList> dict1, Dictionary<string, ArrayList> dict2) {
+		private static bool CompareDict(Dictionary<string, ArrayList> dict1, Dictionary<string, ArrayList> dict2) {
 			bool flag = true;
 			foreach (string key in dict2.Keys) {
 				if (!CompareArrayList(dict1[key], dict2[key])) {

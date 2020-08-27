@@ -1,4 +1,5 @@
 ﻿// This script is attached to Leap Rig
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,6 +100,7 @@ public class gestureTest : MonoBehaviour {
 
 	// For searching targeted object plane
 	static float planeDirPosRatio = 0.8f;
+	static int geoSearchPatchSize = 5;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
@@ -198,7 +200,7 @@ public class gestureTest : MonoBehaviour {
 				}
 
 				// For debug
-				CalcGestureGeo();
+				CalcGestureGeo(testObject);
 
             }
 		}
@@ -678,15 +680,15 @@ public class gestureTest : MonoBehaviour {
 		gestureGeoInit = gestureGeo;
 	}
 
-	void CalcGestureGeo() {
-		GesturePlane();
-		GestureLine();
-		GesturePoint();
+	void CalcGestureGeo(GameObject gameObject) {
+		GesturePlane(gameObject);
+		GestureLine(gameObject);
+		GesturePoint(gameObject);
     }
     #endregion
 
     #region Manipulate object plane geometry with gesture plane
-    void GesturePlane() {
+    void GesturePlane(GameObject gameObject) {
 		// if leftPlane, rightPlane exist, planeGeo exist
 		// if prev planeGeo not exist, curr planeGeo exist, call planeInit, begin to search for closest plane geo in obj
 		// if prev planeFro exist, curr planeGeo exist, call planeUpdate; if closest obj planeGeo exist, update targeted obj planeGeo, pass to obj
@@ -699,7 +701,7 @@ public class gestureTest : MonoBehaviour {
 
 		if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == false) {
 			GesturePlaneInit();
-			SearchPlanePair(testObject, gestureGeoInit);// For test
+			SearchPlanePair(gameObject, gestureGeoInit);
         }
 		else if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == true) {
 			GesturePlaneUpdate();
@@ -708,12 +710,6 @@ public class gestureTest : MonoBehaviour {
 		gestureGeoPrev.planeDetected = gestureGeo.planeDetected;
 		gestureGeoPrev.leftPlane = gestureGeo.leftPlane;
 		gestureGeoPrev.rightPlane = gestureGeo.rightPlane;
-
-		// For debug
-		if (rightPlane.isEmpty != true) {
-			List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
-			SortPlanes(testObject, planeList, rightPlane);
-		}
 	}
 
 	void GesturePlaneInit() {
@@ -799,7 +795,7 @@ public class gestureTest : MonoBehaviour {
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
-		System.Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
 		for (int i = 0; i < scores.Count; i++) {
 			planeListNew.Add(planeList[scoreIdx[i]]);
@@ -814,26 +810,31 @@ public class gestureTest : MonoBehaviour {
 		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
 		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
 
-		List<Gesture.PlaneParams> planeList = GetCubePlanes(testObject);
+		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
 		if (gestureGeo.planeDetected == true) {
 			if (gestureGeo.leftPlane.isEmpty != true) {
 				sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
 			}
 			else {
 				Debug.Log("Fail to access left gesture plane for searching obj plane.");
+				return selectedPlanePair;
             }
 			if (gestureGeo.rightPlane.isEmpty != true) {
 				sortedPlaneListRight = SortPlanes(gameObject, planeList, gestureGeo.rightPlane);
 			}
 			else {
 				Debug.Log("Fail to access right gesture plane for seaching obj plane.");
+				return selectedPlanePair;
             }
 		}
 		else {
 			Debug.Log("Fail to access gesture plane geo for searching obj planes.");
         }
-		
+
 		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
+		int patchNum = Mathf.RoundToInt(planeList.Count / geoSearchPatchSize);
+
+
 
 		return selectedPlanePair;
 	}
@@ -841,7 +842,7 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
     #region Calculate gesture line geometry
-	void GestureLine() {
+	void GestureLine(GameObject gameObject) {
 		if (leftLine.isEmpty != true && rightLine.isEmpty != true) {
 			Debug.Log("line-line gesture is detected.");
 			Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
@@ -860,7 +861,7 @@ public class gestureTest : MonoBehaviour {
     #endregion
 
     #region Calculate gesture point geometry
-	void GesturePoint() {
+	void GesturePoint(GameObject gameObject) {
 		if (leftPoint.isEmpty != true && rightPoint.isEmpty != true) {
 			Debug.Log("point-point gesture is detected.");
 			Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
@@ -954,6 +955,26 @@ public class gestureTest : MonoBehaviour {
 	}
 
     #endregion
+
+	/// <summary>
+    /// Simple permutation of int list {0~n} in order of their sum from small to large
+    /// </summary>
+    /// eg: num=5, return {(0,0),(0,1),(1,0),(0,2),(1,1),(2,0),(0,3),(1,2),...}
+	public static List<Vector2> Permutation(int n) {
+		List<Vector2> results = new List<Vector2>();
+
+		for(int currSum = 0; currSum <= 2 * n; currSum++) {
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i + j == currSum) {
+						results.Add(new Vector2(i, j));
+                    }
+                }
+            }
+        }
+
+		return results;
+	}
 }
 
 public class GestureListener
