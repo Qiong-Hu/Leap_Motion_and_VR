@@ -783,21 +783,32 @@ public class gestureTest : MonoBehaviour {
 
     #region Search object line geometry with gesture line geometry
 	void GestureLineUpdate() {
-		if (leftLine.isEmpty != true && rightLine.isEmpty != true) {
-			Debug.Log("line-line gesture is detected.");
-			Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
-			Debug.Log("line direction diff: " + Vector3.Angle(leftLine.direction, rightLine.direction).ToString());
+		gestureGeo.leftLine = leftLine;
+		if (gestureGeo.leftLine.isEmpty != true && gestureGeoPrev.leftLine.isEmpty == true) {
+			gestureGeoInit.leftLine = leftLine;
+			Debug.Log("Left line is initialized.");
 		}
+		if (gestureGeo.leftLine.isEmpty == true && gestureGeoPrev.leftLine.isEmpty != true) {
+			gestureGeoInit.leftLine.isEmpty = true;
+		}
+		gestureGeoPrev.leftLine = leftLine;
+
+		gestureGeo.rightLine = rightLine;
+		if (gestureGeo.rightLine.isEmpty != true && gestureGeoPrev.rightLine.isEmpty == true) {
+			gestureGeoInit.rightLine = rightLine;
+			Debug.Log("Right line is initialized.");
+		}
+		if (gestureGeo.rightLine.isEmpty == true && gestureGeoPrev.rightLine.isEmpty != true) {
+			gestureGeoInit.rightLine.isEmpty = true;
+		}
+		gestureGeoPrev.rightLine = rightLine;
 	}
 
     #endregion
 
     #region Search object point geometry with gesture point geometry
 	void GesturePointUpdate() {
-		if (leftPoint.isEmpty != true && rightPoint.isEmpty != true) {
-			Debug.Log("point-point gesture is detected.");
-			Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
-		}
+
 	}
 
 	#endregion
@@ -835,6 +846,22 @@ public class gestureTest : MonoBehaviour {
 		return selectedPlanePair;
 	}
 
+	List<Gesture.LineParams> SearchLinePair() {
+		List<Gesture.LineParams> selectedLinePair = new List<Gesture.LineParams>();
+		//Debug.Log("line-line gesture is detected.");
+		//Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
+		//Debug.Log("line direction diff: " + Vector3.Angle(leftLine.direction, rightLine.direction).ToString());
+
+		return selectedLinePair;
+	}
+
+	List<Gesture.PointParams> SearchPointPair() {
+		List<Gesture.PointParams> selectedPointPair = new List<Gesture.PointParams>();
+		//Debug.Log("point-point gesture is detected.");
+		//Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
+
+		return selectedPointPair;
+	}
 
 	#endregion
 
