@@ -808,7 +808,25 @@ public class gestureTest : MonoBehaviour {
 
     #region Search object point geometry with gesture point geometry
 	void GesturePointUpdate() {
+		gestureGeo.leftPoint = leftPoint;
+		if (gestureGeo.leftPoint.isEmpty != true && gestureGeoPrev.leftPoint.isEmpty == true) {
+			gestureGeoInit.leftPoint = leftPoint;
+			Debug.Log("Left point is initialized.");
+		}
+		if (gestureGeo.leftPoint.isEmpty == true && gestureGeoPrev.leftPoint.isEmpty != true) {
+			gestureGeoInit.leftPoint.isEmpty = true;
+		}
+		gestureGeoPrev.leftPoint = leftPoint;
 
+		gestureGeo.rightPoint = rightPoint;
+		if (gestureGeo.rightPoint.isEmpty != true && gestureGeoPrev.rightPoint.isEmpty == true) {
+			gestureGeoInit.rightPoint = rightPoint;
+			Debug.Log("Right point is initialized.");
+		}
+		if (gestureGeo.rightPoint.isEmpty == true && gestureGeoPrev.rightPoint.isEmpty != true) {
+			gestureGeoInit.rightPoint.isEmpty = true;
+		}
+		gestureGeoPrev.rightPoint = rightPoint;
 	}
 
 	#endregion
