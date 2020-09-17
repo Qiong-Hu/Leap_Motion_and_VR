@@ -85,13 +85,10 @@ public class gestureTest : MonoBehaviour {
 
 	// For storing gesture geos together
 	struct GestureGeo {
-		public bool planeDetected;
 		public Gesture.PlaneParams leftPlane;
 		public Gesture.PlaneParams rightPlane;
-		public bool lineDetected;
 		public Gesture.LineParams leftLine;
 		public Gesture.LineParams rightLine;
-		public bool pointDetected;
 		public Gesture.PointParams leftPoint;
 		public Gesture.PointParams rightPoint;
 	}
