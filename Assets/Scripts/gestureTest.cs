@@ -711,7 +711,7 @@ public class gestureTest : MonoBehaviour {
 		gestureGeoPrev.rightPlane = rightPlane;
     }
 
-	// For testing object Cube
+	// Get line geo from testing object "Cube"
 	List<Gesture.PlaneParams> GetCubePlanes(GameObject gameObject) {
 		Vector3 center = gameObject.transform.position;
 		List<Gesture.PlaneParams> planes = new List<Gesture.PlaneParams>();
@@ -804,9 +804,19 @@ public class gestureTest : MonoBehaviour {
 		gestureGeoPrev.rightLine = rightLine;
 	}
 
-    #endregion
+	// Get line geo from testing object "Cube"
+	List<Gesture.LineParams> GetCubeLines(GameObject gameObject) {
+		Vector3 center = gameObject.transform.position;
+		List<Gesture.LineParams> lines = new List<Gesture.LineParams>();
 
-    #region Search object point geometry with gesture point geometry
+		Gesture.LineParams line = new Gesture.LineParams();
+
+		return lines;
+	}
+
+	#endregion
+
+	#region Search object point geometry with gesture point geometry
 	void GesturePointUpdate() {
 		gestureGeo.leftPoint = leftPoint;
 		if (gestureGeo.leftPoint.isEmpty != true && gestureGeoPrev.leftPoint.isEmpty == true) {
@@ -827,6 +837,71 @@ public class gestureTest : MonoBehaviour {
 			gestureGeoInit.rightPoint.isEmpty = true;
 		}
 		gestureGeoPrev.rightPoint = rightPoint;
+	}
+
+	// Get point geo from testing object "Cube"
+	List<Gesture.PointParams> GetCubePoints(GameObject gameObject) {
+		Vector3 center = gameObject.transform.position;
+		List<Gesture.PointParams> points = new List<Gesture.PointParams>();
+
+		Gesture.PointParams point = new Gesture.PointParams();
+		point.index = 1;
+		point.position = center 
+			- gameObject.transform.right * gameObject.transform.localScale.x
+			- gameObject.transform.up * gameObject.transform.localScale.y
+			- gameObject.transform.forward* gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 2;
+		point.position = center
+			+ gameObject.transform.right * gameObject.transform.localScale.x
+			- gameObject.transform.up * gameObject.transform.localScale.y
+			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 3;
+		point.position = center
+			+ gameObject.transform.right * gameObject.transform.localScale.x
+			- gameObject.transform.up * gameObject.transform.localScale.y
+			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 4;
+		point.position = center
+			- gameObject.transform.right * gameObject.transform.localScale.x
+			- gameObject.transform.up * gameObject.transform.localScale.y
+			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 5;
+		point.position = center
+			- gameObject.transform.right * gameObject.transform.localScale.x
+			+ gameObject.transform.up * gameObject.transform.localScale.y
+			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 6;
+		point.position = center
+			+ gameObject.transform.right * gameObject.transform.localScale.x
+			+ gameObject.transform.up * gameObject.transform.localScale.y
+			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 7;
+		point.position = center
+			+ gameObject.transform.right * gameObject.transform.localScale.x
+			+ gameObject.transform.up * gameObject.transform.localScale.y
+			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		point.index = 8;
+		point.position = center
+			- gameObject.transform.right * gameObject.transform.localScale.x
+			+ gameObject.transform.up * gameObject.transform.localScale.y
+			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
+		points.Add(point);
+
+		return points;
 	}
 
 	#endregion
