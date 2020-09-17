@@ -810,6 +810,65 @@ public class gestureTest : MonoBehaviour {
 		List<Gesture.LineParams> lines = new List<Gesture.LineParams>();
 
 		Gesture.LineParams line = new Gesture.LineParams();
+		line.name = "y-z-";
+		line.position = center - gameObject.transform.up * gameObject.transform.localScale.y - gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
+		lines.Add(line);
+
+		line.name = "y-z+";
+		line.position = center - gameObject.transform.up * gameObject.transform.localScale.y + gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
+		lines.Add(line);
+
+		line.name = "y+z-";
+		line.position = center + gameObject.transform.up * gameObject.transform.localScale.y - gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
+		lines.Add(line);
+
+		line.name = "y+z+";
+		line.position = center + gameObject.transform.up * gameObject.transform.localScale.y + gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
+		lines.Add(line);
+
+		line.name = "x+y-";
+		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.up * gameObject.transform.localScale.y;
+		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
+		lines.Add(line);
+
+		line.name = "x-y-";
+		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.up * gameObject.transform.localScale.y;
+		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
+		lines.Add(line);
+
+		line.name = "x+y+";
+		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.up * gameObject.transform.localScale.y;
+		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
+		lines.Add(line);
+
+		line.name = "x-y+";
+		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.up * gameObject.transform.localScale.y;
+		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
+		lines.Add(line);
+
+		line.name = "x-z-";
+		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
+		lines.Add(line);
+
+		line.name = "x+z-";
+		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
+		lines.Add(line);
+
+		line.name = "x+z+";
+		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
+		lines.Add(line);
+
+		line.name = "x-z+";
+		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.forward * gameObject.transform.localScale.z;
+		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
+		lines.Add(line);
 
 		return lines;
 	}
