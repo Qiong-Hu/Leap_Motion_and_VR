@@ -1000,6 +1000,27 @@ public class gestureTest : MonoBehaviour {
 		return points;
 	}
 
+	List<Gesture.PointParams> SortPoints(GameObject gameObject, List<Gesture.PointParams> pointList, Gesture.PointParams targetPoint) {
+		List<Gesture.PointParams> pointListNew = new List<Gesture.PointParams>();
+		List<float> scores = new List<float>();
+
+		float score;
+		foreach (Gesture.PointParams currPoint in pointList) {
+			score = Vector3.Distance(currPoint.position, targetPoint.position);
+			scores.Add(score);
+		}
+
+		// Add planes from planeList to planeListNew in the order of score value from small to large
+		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
+		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+
+		for (int i = 0; i < scores.Count; i++) {
+			pointListNew.Add(pointList[scoreIdx[i]]);
+		}
+
+		return pointListNew;
+	}
+
 	#endregion
 
 	#region Search object geometry in pairs
