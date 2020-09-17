@@ -670,68 +670,45 @@ public class gestureTest : MonoBehaviour {
 
     #region Calculate gesture geometry
     void GestureGeoInit() {
-		gestureGeo.planeDetected = false;
-		gestureGeo.lineDetected = false;
-		gestureGeo.pointDetected = false;
-		
+		gestureGeo.leftPlane.isEmpty = true;
+		gestureGeo.rightPlane.isEmpty = true;
+		gestureGeo.leftLine.isEmpty = true;
+		gestureGeo.rightLine.isEmpty = true;
+		gestureGeo.leftPoint.isEmpty = true;
+		gestureGeo.rightPoint.isEmpty = true;
+
 		gestureGeoPrev = gestureGeo;
 		gestureGeoInit = gestureGeo;
 	}
 
 	void CalcGestureGeo(GameObject gameObject) {
-		GesturePlane(gameObject);
-		GestureLine(gameObject);
-		GesturePoint(gameObject);
+		GesturePlaneUpdate();
+		GestureLineUpdate();
+		GesturePointUpdate();
     }
     #endregion
 
-    #region Manipulate object plane geometry with gesture plane
-    void GesturePlane(GameObject gameObject) {
-		// if leftPlane, rightPlane exist, planeGeo exist
-		// if prev planeGeo not exist, curr planeGeo exist, call planeInit, begin to search for closest plane geo in obj
-		// if prev planeFro exist, curr planeGeo exist, call planeUpdate; if closest obj planeGeo exist, update targeted obj planeGeo, pass to obj
-
-		if (leftPlane.isEmpty != true && rightPlane.isEmpty != true) {
-			gestureGeo.planeDetected = true;
-        } else {
-			gestureGeo.planeDetected = false;
-        }
-
-		if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == false) {
-			GesturePlaneInit();
-			SearchPlanePair(gameObject, gestureGeoInit);
-        }
-		else if (gestureGeo.planeDetected == true && gestureGeoPrev.planeDetected == true) {
-			GesturePlaneUpdate();
-        }
-
-		gestureGeoPrev.planeDetected = gestureGeo.planeDetected;
-		gestureGeoPrev.leftPlane = gestureGeo.leftPlane;
-		gestureGeoPrev.rightPlane = gestureGeo.rightPlane;
-	}
-
-	void GesturePlaneInit() {
-		Debug.Log("plane-plane gesture is detected.");
-
-		gestureGeoInit.leftPlane = leftPlane;
-		gestureGeoInit.rightPlane = rightPlane;
-		gestureGeoInit.planeDetected = true;
-
-		gestureGeo.leftPlane = leftPlane;
-		gestureGeo.rightPlane = rightPlane;
-
-		//gestureGeo["planePosInit"] = leftPlane.position - rightPlane.position;
-		//gestureGeo["planeForwardDirInit"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
-		//gestureGeo["planeNormalDirInit"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
-	}
-
+    #region Search object plane geometry with gesture plane geometry
 	void GesturePlaneUpdate() {
 		gestureGeo.leftPlane = leftPlane;
-		gestureGeo.rightPlane = rightPlane;
+		if (gestureGeo.leftPlane.isEmpty != true && gestureGeoPrev.leftPlane.isEmpty == true) {
+			gestureGeoInit.leftPlane = leftPlane;
+			Debug.Log("Left plane is initialized.");
+        }
+		if (gestureGeo.leftPlane.isEmpty == true && gestureGeoPrev.leftPlane.isEmpty != true) {
+			gestureGeoInit.leftPlane.isEmpty = true;
+        }
+		gestureGeoPrev.leftPlane = leftPlane;
 
-		//gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
-		//gestureGeo["planeForwardDir"] = Vector3.Angle(leftPlane.forwardDir, rightPlane.forwardDir);
-		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
+		gestureGeo.rightPlane = rightPlane;
+		if (gestureGeo.rightPlane.isEmpty != true && gestureGeoPrev.rightPlane.isEmpty == true) {
+			gestureGeoInit.rightPlane = rightPlane;
+			Debug.Log("Right plane is initialized.");
+        }
+		if (gestureGeo.rightPlane.isEmpty == true && gestureGeoPrev.rightPlane.isEmpty != true) {
+			gestureGeoInit.rightPlane.isEmpty = true;
+        }
+		gestureGeoPrev.rightPlane = rightPlane;
     }
 
 	// For testing object Cube
@@ -802,45 +779,10 @@ public class gestureTest : MonoBehaviour {
 		return planeListNew;
 	}
 
-	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, GestureGeo gestureGeo) {
-		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
-
-		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
-		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
-
-		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
-		if (gestureGeo.planeDetected == true) {
-			if (gestureGeo.leftPlane.isEmpty != true) {
-				sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
-			}
-			else {
-				Debug.Log("Fail to access left gesture plane for searching obj plane.");
-				return selectedPlanePair;
-            }
-			if (gestureGeo.rightPlane.isEmpty != true) {
-				sortedPlaneListRight = SortPlanes(gameObject, planeList, gestureGeo.rightPlane);
-			}
-			else {
-				Debug.Log("Fail to access right gesture plane for seaching obj plane.");
-				return selectedPlanePair;
-            }
-		}
-		else {
-			Debug.Log("Fail to access gesture plane geo for searching obj planes.");
-        }
-
-		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
-		int patchNum = Mathf.RoundToInt(planeList.Count / geoSearchPatchSize);
-
-
-
-		return selectedPlanePair;
-	}
-
 	#endregion
 
-    #region Calculate gesture line geometry
-	void GestureLine(GameObject gameObject) {
+    #region Search object line geometry with gesture line geometry
+	void GestureLineUpdate() {
 		if (leftLine.isEmpty != true && rightLine.isEmpty != true) {
 			Debug.Log("line-line gesture is detected.");
 			Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
@@ -848,37 +790,57 @@ public class gestureTest : MonoBehaviour {
 		}
 	}
 
-	void GestureLineInit() {
-		
-	}
-
-	void GestureLineUpdate() {
-
-    }
-
     #endregion
 
-    #region Calculate gesture point geometry
-	void GesturePoint(GameObject gameObject) {
+    #region Search object point geometry with gesture point geometry
+	void GesturePointUpdate() {
 		if (leftPoint.isEmpty != true && rightPoint.isEmpty != true) {
 			Debug.Log("point-point gesture is detected.");
 			Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
 		}
 	}
 
-	void GesturePointInit() {
-		
+	#endregion
+
+	#region Search object geometry in pairs
+	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, GestureGeo gestureGeo) {
+		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
+
+		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
+		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
+
+		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
+		if (gestureGeo.leftPlane.isEmpty != true) {
+			sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
+		}
+		else {
+			Debug.Log("Fail to access left gesture plane for searching obj plane.");
+			return selectedPlanePair;
+		}
+		if (gestureGeo.rightPlane.isEmpty != true) {
+			sortedPlaneListRight = SortPlanes(gameObject, planeList, gestureGeo.rightPlane);
+		}
+		else {
+			Debug.Log("Fail to access right gesture plane for seaching obj plane.");
+			return selectedPlanePair;
+		}
+
+		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
+		//gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
+		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
+		int patchNum = Mathf.RoundToInt(planeList.Count / geoSearchPatchSize);
+
+
+
+		return selectedPlanePair;
 	}
 
-	void GesturePointUpdate() {
 
-    }
+	#endregion
 
-    #endregion
-
-    #region Tune discrete parameters
-    // TODO: need improvement => more intuitive, extendible
-    void TuneObj(DesignObj designObj) {
+	#region Tune discrete parameters
+	// TODO: need improvement => more intuitive, extendible
+	void TuneObj(DesignObj designObj) {
 		// Steps:
 		// 0. find integer param
 		// 1. Detect hand gesture is thumb up
