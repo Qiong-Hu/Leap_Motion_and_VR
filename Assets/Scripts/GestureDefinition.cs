@@ -302,6 +302,7 @@ namespace FARVR.GestureDefinition {
 		public PlaneParams FindPlaneParams() {
 			PlaneParams planeParams = new PlaneParams();
 			planeParams.isEmpty = true;
+			planeParams.name = handPolarity + " hand plane";
 
 			try {
 				planeParams.position = GameObject.Find(handPolarity[0] + "_Palm").transform.position;
@@ -331,6 +332,7 @@ namespace FARVR.GestureDefinition {
 		public LineParams FindLineParams() {
 			LineParams lineParams = new LineParams();
 			lineParams.isEmpty = true;
+			lineParams.name = handPolarity + " hand line";
 
 			Vector3 fingertipPos = new Vector3();
 			try {
@@ -371,6 +373,7 @@ namespace FARVR.GestureDefinition {
 		public PointParams FindPointParams() {
 			PointParams pointParams = new PointParams();
 			pointParams.isEmpty = true;
+			pointParams.name = handPolarity + " hand point";
 
 			Vector3 indexTipPos = new Vector3();
 			try {
