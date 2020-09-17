@@ -99,7 +99,7 @@ public class gestureTest : MonoBehaviour {
 	// For searching targeted object plane
 	static float planeDirPosRatio = 0.8f;
 	static float lineDirPosRatio = 0.5f;
-	static int geoSearchPatchSize = 5;
+	static int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
@@ -686,6 +686,8 @@ public class gestureTest : MonoBehaviour {
 		GesturePlaneUpdate();
 		GestureLineUpdate();
 		GesturePointUpdate();
+
+
     }
     #endregion
 
@@ -1024,13 +1026,26 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	#region Search object geometry in pairs
-	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, GestureGeo gestureGeo) {
+	// The smaller the score is, the more similar the two plane pairs are
+	float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
+		float score = 1f;
+
+		// Evaluate on 4 standards: distance difference of position.x, .y, .z, angle difference of normalDir
+		score = score * Mathf.Abs(planePairEva[0].position.x - planePairEva[1].position.x) / Mathf.Abs(planePairTarget[0].position.x - planePairTarget[1].position.x);
+		score = score * Mathf.Abs(planePairEva[0].position.y - planePairEva[1].position.y) / Mathf.Abs(planePairTarget[0].position.y - planePairTarget[1].position.y);
+		score = score * Mathf.Abs(planePairEva[0].position.z - planePairEva[1].position.z) / Mathf.Abs(planePairTarget[0].position.z - planePairTarget[1].position.z);
+		score = score * Mathf.Abs(Vector3.Angle(planePairEva[0].normalDir, planePairEva[1].normalDir)) / Mathf.Abs(Vector3.Angle(planePairTarget[0].normalDir, planePairTarget[1].normalDir));
+
+		score = mathUtils.CloseTo1(score);
+		return score;
+	}
+
+	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, List<Gesture.PlaneParams> planeList, GestureGeo gestureGeo) {
 		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
 
 		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
 		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
 
-		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
 		if (gestureGeo.leftPlane.isEmpty != true) {
 			sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
 		}
@@ -1049,9 +1064,28 @@ public class gestureTest : MonoBehaviour {
 		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
 		//gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
 		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
-		int patchNum = Mathf.RoundToInt(planeList.Count / geoSearchPatchSize);
+		List<Gesture.PlaneParams> planePairTarget = new List<Gesture.PlaneParams>();
+		planePairTarget.Add(gestureGeo.leftPlane);
+		planePairTarget.Add(gestureGeo.rightPlane);
 
+		List<float> scores = new List<float>();
+		float score;
+		List<Gesture.PlaneParams> planePairEva;
+		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
+			planePairEva = new List<Gesture.PlaneParams>();
+			planePairEva.Add(sortedPlaneListLeft[idx[0]]);
+			planePairEva.Add(sortedPlaneListRight[idx[1]]);
+			score = PlanePairSimilarity(planePairEva, planePairTarget);
+			scores.Add(score);
+		}
 
+		// Sort plane pair in the order of score value from small to large
+		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
+		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+
+		Vector2Int pairIdx = mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))[scoreIdx[0]];
+		selectedPlanePair.Add(sortedPlaneListLeft[pairIdx[0]]);
+		selectedPlanePair.Add(sortedPlaneListRight[pairIdx[1]]);
 
 		return selectedPlanePair;
 	}
