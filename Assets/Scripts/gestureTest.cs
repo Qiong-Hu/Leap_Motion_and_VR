@@ -904,6 +904,7 @@ public class gestureTest : MonoBehaviour {
 		List<Gesture.PointParams> points = new List<Gesture.PointParams>();
 
 		Gesture.PointParams point = new Gesture.PointParams();
+		point.name = "---";
 		point.index = 1;
 		point.position = center 
 			- gameObject.transform.right * gameObject.transform.localScale.x
@@ -911,6 +912,7 @@ public class gestureTest : MonoBehaviour {
 			- gameObject.transform.forward* gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "+--";
 		point.index = 2;
 		point.position = center
 			+ gameObject.transform.right * gameObject.transform.localScale.x
@@ -918,6 +920,7 @@ public class gestureTest : MonoBehaviour {
 			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "+-+";
 		point.index = 3;
 		point.position = center
 			+ gameObject.transform.right * gameObject.transform.localScale.x
@@ -925,6 +928,7 @@ public class gestureTest : MonoBehaviour {
 			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "--+";
 		point.index = 4;
 		point.position = center
 			- gameObject.transform.right * gameObject.transform.localScale.x
@@ -932,6 +936,7 @@ public class gestureTest : MonoBehaviour {
 			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "-+-";
 		point.index = 5;
 		point.position = center
 			- gameObject.transform.right * gameObject.transform.localScale.x
@@ -939,6 +944,7 @@ public class gestureTest : MonoBehaviour {
 			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "++-";
 		point.index = 6;
 		point.position = center
 			+ gameObject.transform.right * gameObject.transform.localScale.x
@@ -946,6 +952,7 @@ public class gestureTest : MonoBehaviour {
 			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "+++";
 		point.index = 7;
 		point.position = center
 			+ gameObject.transform.right * gameObject.transform.localScale.x
@@ -953,6 +960,7 @@ public class gestureTest : MonoBehaviour {
 			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
 		points.Add(point);
 
+		point.name = "-++";
 		point.index = 8;
 		point.position = center
 			- gameObject.transform.right * gameObject.transform.localScale.x
