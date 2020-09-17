@@ -98,6 +98,7 @@ public class gestureTest : MonoBehaviour {
 
 	// For searching targeted object plane
 	static float planeDirPosRatio = 0.8f;
+	static float lineDirPosRatio = 0.5f;
 	static int geoSearchPatchSize = 5;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
@@ -871,6 +872,34 @@ public class gestureTest : MonoBehaviour {
 		lines.Add(line);
 
 		return lines;
+	}
+
+	List<Gesture.LineParams> SortLines(GameObject gameObject, List<Gesture.LineParams> lineList, Gesture.LineParams targetLine) {
+		List<Gesture.LineParams> lineListNew = new List<Gesture.LineParams>();
+		List<float> scores = new List<float>();
+
+		float score;
+		float centerDis = Vector3.Distance(targetLine.position, gameObject.transform.position); // For normalization
+		float angle;
+		foreach (Gesture.LineParams currLine in lineList) {
+			angle = Mathf.Abs(Vector3.Angle(currLine.direction, targetLine.direction));
+			if (angle > 90f) {
+				angle = 180f - angle;
+            }
+			score = angle / 90f * lineDirPosRatio +
+				Vector3.Distance(currLine.position, targetLine.position) / centerDis * (1 - lineDirPosRatio);
+			scores.Add(score);
+		}
+
+		// Add planes from planeList to planeListNew in the order of score value from small to large
+		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
+		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+
+		for (int i = 0; i < scores.Count; i++) {
+			lineListNew.Add(lineList[scoreIdx[i]]);
+		}
+
+		return lineListNew;
 	}
 
 	#endregion
