@@ -84,14 +84,90 @@ public class gestureTest : MonoBehaviour {
 	Gesture.PointParams rightPoint = new Gesture.PointParams();
 
 	// For storing gesture geos together
-	struct GestureGeo {
-		public Gesture.PlaneParams leftPlane;
-		public Gesture.PlaneParams rightPlane;
-		public Gesture.LineParams leftLine;
-		public Gesture.LineParams rightLine;
-		public Gesture.PointParams leftPoint;
-		public Gesture.PointParams rightPoint;
+	class GestureGeo {
+		public Gesture.PlaneParams leftPlane, rightPlane;
+		public Gesture.LineParams leftLine, rightLine;
+		public Gesture.PointParams leftPoint, rightPoint;
+
+		private int count;
+		public int Count {
+			get {
+				count = 0;
+				if (leftPlane.isEmpty != true) count += 1;
+				if (rightPlane.isEmpty != true) count += 1;
+				if (leftLine.isEmpty != true) count += 1;
+				if (rightLine.isEmpty != true) count += 1;
+				if (leftPoint.isEmpty != true) count += 1;
+				if (rightPoint.isEmpty != true) count += 1;
+
+				return count;
+            }
+		}
+	
+		public void Reset() {
+			leftPlane.isEmpty = true;
+			rightPlane.isEmpty = true;
+			leftLine.isEmpty = true;
+			rightLine.isEmpty = true;
+			leftPoint.isEmpty = true;
+			rightPoint.isEmpty = true;
+		}
+
+		public override string ToString() {
+			List<string> nonEmptyNames = new List<string>();
+			if (leftPlane.isEmpty != true) {
+				if (leftPlane.name != "") {
+					nonEmptyNames.Add(leftPlane.name);
+                }
+				else {
+					nonEmptyNames.Add("leftPlane");
+                }
+            }
+			if (rightPlane.isEmpty != true) {
+				if (rightPlane.name != "") {
+					nonEmptyNames.Add(rightPlane.name);
+				}
+				else {
+					nonEmptyNames.Add("rightPlane");
+				}
+			}
+			if (leftLine.isEmpty != true) {
+				if (leftLine.name != "") {
+					nonEmptyNames.Add(leftLine.name);
+				}
+				else {
+					nonEmptyNames.Add("leftLine");
+				}
+			}
+			if (rightLine.isEmpty != true) {
+				if (rightLine.name != "") {
+					nonEmptyNames.Add(rightLine.name);
+				}
+				else {
+					nonEmptyNames.Add("rightLine");
+				}
+			}
+			if (leftPoint.isEmpty != true) {
+				if (leftPoint.name != "") {
+					nonEmptyNames.Add(leftPoint.name);
+				}
+				else {
+					nonEmptyNames.Add("leftPoint");
+				}
+			}
+			if (rightPoint.isEmpty != true) {
+				if (rightPoint.name != "") {
+					nonEmptyNames.Add(rightPoint.name);
+				}
+				else {
+					nonEmptyNames.Add("rightPoint");
+				}
+			}
+
+			return string.Join(", ", nonEmptyNames.ToArray<string>());
+        }
 	}
+
 	GestureGeo gestureGeo = new GestureGeo();
 	GestureGeo gestureGeoPrev = new GestureGeo();
 	GestureGeo gestureGeoInit = new GestureGeo();
@@ -672,16 +748,10 @@ public class gestureTest : MonoBehaviour {
 
     #region Calculate gesture geometry
     void GestureGeoInit() {
-		gestureGeo.leftPlane.isEmpty = true;
-		gestureGeo.rightPlane.isEmpty = true;
-		gestureGeo.leftLine.isEmpty = true;
-		gestureGeo.rightLine.isEmpty = true;
-		gestureGeo.leftPoint.isEmpty = true;
-		gestureGeo.rightPoint.isEmpty = true;
-
-		gestureGeoPrev = gestureGeo;
-		gestureGeoInit = gestureGeo;
-		gestureGeoSelect = gestureGeo;
+		gestureGeo.Reset();
+		gestureGeoPrev.Reset();
+		gestureGeoInit.Reset();
+		gestureGeoSelect.Reset();
 	}
 
 	void CalcGestureGeo(GameObject gameObject) {
@@ -1026,6 +1096,7 @@ public class gestureTest : MonoBehaviour {
 	#region Search object geometry in pairs
 	void SelectObjGeo(GameObject gameObject) {
 		GestureGeo searchGeoResult = new GestureGeo();
+		searchGeoResult.Reset();
 
 		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
 		List<Gesture.LineParams> lineList = GetCubeLines(gameObject);
@@ -1052,7 +1123,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	// The smaller the score is, the more similar the two plane pairs are
-	float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
+	static float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
 		float score = 1f;
 
 		// Evaluate on 4 standards: distance difference of position.x, .y, .z, angle difference of normalDir
