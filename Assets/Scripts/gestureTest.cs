@@ -681,12 +681,15 @@ public class gestureTest : MonoBehaviour {
 
 		gestureGeoPrev = gestureGeo;
 		gestureGeoInit = gestureGeo;
+		gestureGeoSelect = gestureGeo;
 	}
 
 	void CalcGestureGeo(GameObject gameObject) {
 		GesturePlaneUpdate();
 		GestureLineUpdate();
 		GesturePointUpdate();
+
+		SelectObjGeo(gameObject);
 
 		gestureGeoPrev = gestureGeo;
     }
@@ -1021,6 +1024,22 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	#region Search object geometry in pairs
+	void SelectObjGeo(GameObject gameObject) {
+		GestureGeo searchGeoResult = new GestureGeo();
+
+		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
+		List<Gesture.LineParams> lineList = GetCubeLines(gameObject);
+		List<Gesture.PointParams> pointList = GetCubePoints(gameObject);
+
+		// Select plane pair
+		if (gestureGeoInit.leftPlane.isEmpty != true && gestureGeoInit.rightPlane.isEmpty != true && 
+			(gestureGeoSelect.leftPlane.isEmpty == true || gestureGeoSelect.rightPlane.isEmpty == true)) {
+			searchGeoResult = SearchPlanePair(gameObject, planeList, gestureGeoInit);
+			gestureGeoSelect.leftPlane = searchGeoResult.leftPlane;
+			gestureGeoSelect.rightPlane = searchGeoResult.rightPlane;
+        }
+    }
+
 	// The smaller the score is, the more similar the two plane pairs are
 	float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
 		float score = 1f;
