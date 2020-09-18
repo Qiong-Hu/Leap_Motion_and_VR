@@ -1038,7 +1038,18 @@ public class gestureTest : MonoBehaviour {
 			gestureGeoSelect.leftPlane = searchGeoResult.leftPlane;
 			gestureGeoSelect.rightPlane = searchGeoResult.rightPlane;
         }
-    }
+
+		// Select line pair
+
+		// Select point pair
+
+		// Select plane-line pair
+
+		// Select plane-point pair
+
+		// Select line-point pair
+
+	}
 
 	// The smaller the score is, the more similar the two plane pairs are
 	float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
