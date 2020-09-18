@@ -113,6 +113,15 @@ public class gestureTest : MonoBehaviour {
 			rightPoint.isEmpty = true;
 		}
 
+		public void Copy(GestureGeo gestureGeo) {
+			leftPlane = gestureGeo.leftPlane;
+			rightPlane = gestureGeo.rightPlane;
+			leftLine = gestureGeo.leftLine;
+			rightLine = gestureGeo.rightLine;
+			leftPoint = gestureGeo.leftPoint;
+			rightPoint = gestureGeo.rightPoint;
+        }
+
 		public override string ToString() {
 			List<string> nonEmptyNames = new List<string>();
 			if (leftPlane.isEmpty != true) {
@@ -758,10 +767,10 @@ public class gestureTest : MonoBehaviour {
 		GesturePlaneUpdate();
 		GestureLineUpdate();
 		GesturePointUpdate();
-
+		
 		SelectObjGeo(gameObject);
 
-		gestureGeoPrev = gestureGeo;
+		gestureGeoPrev.Copy(gestureGeo);
     }
     #endregion
 
