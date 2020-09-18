@@ -95,6 +95,7 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeo = new GestureGeo();
 	GestureGeo gestureGeoPrev = new GestureGeo();
 	GestureGeo gestureGeoInit = new GestureGeo();
+	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
 	static float planeDirPosRatio = 0.8f;
@@ -687,7 +688,7 @@ public class gestureTest : MonoBehaviour {
 		GestureLineUpdate();
 		GesturePointUpdate();
 
-
+		gestureGeoPrev = gestureGeo;
     }
     #endregion
 
@@ -701,7 +702,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.leftPlane.isEmpty == true && gestureGeoPrev.leftPlane.isEmpty != true) {
 			gestureGeoInit.leftPlane.isEmpty = true;
         }
-		gestureGeoPrev.leftPlane = leftPlane;
 
 		gestureGeo.rightPlane = rightPlane;
 		if (gestureGeo.rightPlane.isEmpty != true && gestureGeoPrev.rightPlane.isEmpty == true) {
@@ -711,7 +711,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightPlane.isEmpty == true && gestureGeoPrev.rightPlane.isEmpty != true) {
 			gestureGeoInit.rightPlane.isEmpty = true;
         }
-		gestureGeoPrev.rightPlane = rightPlane;
     }
 
 	// Get line geo from testing object "Cube"
@@ -794,7 +793,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.leftLine.isEmpty == true && gestureGeoPrev.leftLine.isEmpty != true) {
 			gestureGeoInit.leftLine.isEmpty = true;
 		}
-		gestureGeoPrev.leftLine = leftLine;
 
 		gestureGeo.rightLine = rightLine;
 		if (gestureGeo.rightLine.isEmpty != true && gestureGeoPrev.rightLine.isEmpty == true) {
@@ -804,7 +802,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightLine.isEmpty == true && gestureGeoPrev.rightLine.isEmpty != true) {
 			gestureGeoInit.rightLine.isEmpty = true;
 		}
-		gestureGeoPrev.rightLine = rightLine;
 	}
 
 	// Get line geo from testing object "Cube"
@@ -916,7 +913,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.leftPoint.isEmpty == true && gestureGeoPrev.leftPoint.isEmpty != true) {
 			gestureGeoInit.leftPoint.isEmpty = true;
 		}
-		gestureGeoPrev.leftPoint = leftPoint;
 
 		gestureGeo.rightPoint = rightPoint;
 		if (gestureGeo.rightPoint.isEmpty != true && gestureGeoPrev.rightPoint.isEmpty == true) {
@@ -926,7 +922,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightPoint.isEmpty == true && gestureGeoPrev.rightPoint.isEmpty != true) {
 			gestureGeoInit.rightPoint.isEmpty = true;
 		}
-		gestureGeoPrev.rightPoint = rightPoint;
 	}
 
 	// Get point geo from testing object "Cube"
@@ -1040,8 +1035,8 @@ public class gestureTest : MonoBehaviour {
 		return score;
 	}
 
-	List<Gesture.PlaneParams> SearchPlanePair(GameObject gameObject, List<Gesture.PlaneParams> planeList, GestureGeo gestureGeo) {
-		List<Gesture.PlaneParams> selectedPlanePair = new List<Gesture.PlaneParams>();
+	GestureGeo SearchPlanePair(GameObject gameObject, List<Gesture.PlaneParams> planeList, GestureGeo gestureGeo) {
+		GestureGeo selectedPlanePair = new GestureGeo();
 
 		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
 		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
@@ -1084,14 +1079,14 @@ public class gestureTest : MonoBehaviour {
 		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
 		Vector2Int pairIdx = mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))[scoreIdx[0]];
-		selectedPlanePair.Add(sortedPlaneListLeft[pairIdx[0]]);
-		selectedPlanePair.Add(sortedPlaneListRight[pairIdx[1]]);
+		selectedPlanePair.leftPlane = sortedPlaneListLeft[pairIdx[0]];
+		selectedPlanePair.rightPlane = sortedPlaneListRight[pairIdx[1]];
 
 		return selectedPlanePair;
 	}
 
-	List<Gesture.LineParams> SearchLinePair() {
-		List<Gesture.LineParams> selectedLinePair = new List<Gesture.LineParams>();
+	GestureGeo SearchLinePair() {
+		GestureGeo selectedLinePair = new GestureGeo();
 		//Debug.Log("line-line gesture is detected.");
 		//Debug.Log("line distance: " + Vector3.Distance(leftLine.position, rightLine.position).ToString());
 		//Debug.Log("line direction diff: " + Vector3.Angle(leftLine.direction, rightLine.direction).ToString());
@@ -1099,8 +1094,8 @@ public class gestureTest : MonoBehaviour {
 		return selectedLinePair;
 	}
 
-	List<Gesture.PointParams> SearchPointPair() {
-		List<Gesture.PointParams> selectedPointPair = new List<Gesture.PointParams>();
+	GestureGeo SearchPointPair() {
+		GestureGeo selectedPointPair = new GestureGeo();
 		//Debug.Log("point-point gesture is detected.");
 		//Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
 
