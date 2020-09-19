@@ -294,6 +294,7 @@ namespace FARVR.GestureDefinition {
 			public Vector3 forwardDir;
 			public Vector3 normalDir;
 			public bool isEmpty;
+			public float confidence; // The smaller the better
         }
 
 		/// <summary>
@@ -324,7 +325,8 @@ namespace FARVR.GestureDefinition {
 			public Vector3 position;
 			public Vector3 direction;
 			public bool isEmpty;
-        }
+			public float confidence; // The smaller the better
+		}
 
 		/// <summary>
 		/// Returns "position", "direction"
@@ -365,7 +367,8 @@ namespace FARVR.GestureDefinition {
 			public int index;
 			public Vector3 position;
 			public bool isEmpty;
-        }
+			public float confidence; // The smaller the better
+		}
 
 		/// <summary>
 		/// Returns "position"

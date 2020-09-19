@@ -183,6 +183,7 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
+	static float singlePairRatio = 0.4f;
 	static float planeDirPosRatio = 0.8f;
 	static float lineDirPosRatio = 0.5f;
 	static int geoSearchPatchSize = 10;
@@ -770,10 +771,6 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
-		if (gestureGeoSelect.Count > 0) {
-			Debug.Log(gestureGeoSelect.ToString());
-        }
-
 		gestureGeoPrev.Copy(gestureGeo);
     }
     #endregion
@@ -860,8 +857,11 @@ public class gestureTest : MonoBehaviour {
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
 		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
+		Gesture.PlaneParams tmpPlane;
 		for (int i = 0; i < scores.Count; i++) {
-			planeListNew.Add(planeList[scoreIdx[i]]);
+			tmpPlane = planeList[scoreIdx[i]];
+			tmpPlane.confidence = scores[scoreIdx[i]];
+			planeListNew.Add(tmpPlane);
 		}
 		
 		return planeListNew;
@@ -1149,8 +1149,9 @@ public class gestureTest : MonoBehaviour {
 			return score;
         }
 
-		score = score + mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position);
-		score = score + mathUtils.VectorSimilarity(planePairEva[0].normalDir - planePairEva[1].normalDir, planePairTarget[0].normalDir - planePairTarget[1].normalDir);
+		score = singlePairRatio * (planePairEva[0].confidence + planePairEva[1].confidence);
+		score = score + (1 - singlePairRatio) * (1 - planeDirPosRatio) * mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position);
+		score = score + (1 - singlePairRatio) * planeDirPosRatio * mathUtils.VectorSimilarity(planePairEva[0].normalDir - planePairEva[1].normalDir, planePairTarget[0].normalDir - planePairTarget[1].normalDir);
 
 		return score;
 	}

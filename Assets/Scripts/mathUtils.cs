@@ -76,7 +76,7 @@ namespace FARVR.MathUtils {
 		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget) {
 			float dirDisRatio = 0.8f;
 
-			float score;
+			float score = 0f;
 			if (vecEva == Vector3.zero) {
 				score = Mathf.Infinity;
 				return score;
@@ -86,8 +86,8 @@ namespace FARVR.MathUtils {
 				vecEva = Vector3.zero - vecEva;
 			}
 
-			score = Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) / 90f * dirDisRatio
-				+ Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
+			score = score + Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) / 90f * dirDisRatio;
+			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
 
 			return score;
 		}
