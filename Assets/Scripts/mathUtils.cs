@@ -63,11 +63,33 @@ namespace FARVR.MathUtils {
         }
     
 		/// <summary>
-        /// The small the result is, the closer x is to 1
+        /// The smaller the result is, the closer x is to 1
         /// </summary>
 		public static float CloseTo1(float x) {
 			float result = Mathf.Abs(Mathf.Log(x));
 			return result;
         }
+
+		/// <summary>
+        /// The smaller the result is, the more similar the two vectors are
+        /// </summary>
+		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget) {
+			float dirDisRatio = 0.8f;
+
+			float score;
+			if (vecEva == Vector3.zero) {
+				score = Mathf.Infinity;
+				return score;
+            }
+
+			if (Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) > 90f) {
+				vecEva = Vector3.zero - vecEva;
+			}
+
+			score = Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) / 90f * dirDisRatio
+				+ Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
+
+			return score;
+		}
 	}
 }

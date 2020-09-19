@@ -770,6 +770,10 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
+		if (gestureGeoSelect.Count > 0) {
+			Debug.Log(gestureGeoSelect.ToString());
+        }
+
 		gestureGeoPrev.Copy(gestureGeo);
     }
     #endregion
@@ -1131,17 +1135,19 @@ public class gestureTest : MonoBehaviour {
 
 	}
 
-	// The smaller the score is, the more similar the two plane pairs are
+	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
 	static float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
-		float score = 1f;
+		float score = 0f;
 
-		// Evaluate on 4 standards: distance difference of position.x, .y, .z, angle difference of normalDir
-		score = score * Mathf.Abs(planePairEva[0].position.x - planePairEva[1].position.x) / Mathf.Abs(planePairTarget[0].position.x - planePairTarget[1].position.x);
-		score = score * Mathf.Abs(planePairEva[0].position.y - planePairEva[1].position.y) / Mathf.Abs(planePairTarget[0].position.y - planePairTarget[1].position.y);
-		score = score * Mathf.Abs(planePairEva[0].position.z - planePairEva[1].position.z) / Mathf.Abs(planePairTarget[0].position.z - planePairTarget[1].position.z);
-		score = score * Mathf.Abs(Vector3.Angle(planePairEva[0].normalDir, planePairEva[1].normalDir)) / Mathf.Abs(Vector3.Angle(planePairTarget[0].normalDir, planePairTarget[1].normalDir));
+		if (planePairEva[0].position == planePairEva[1].position &&
+			planePairEva[0].normalDir == planePairEva[1].normalDir) {
+			score = Mathf.Infinity;
+			return score;
+        }
 
-		score = mathUtils.CloseTo1(score);
+		score = score + mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position);
+		score = score + mathUtils.VectorSimilarity(planePairEva[0].normalDir - planePairEva[1].normalDir, planePairTarget[0].normalDir - planePairTarget[1].normalDir);
+
 		return score;
 	}
 
@@ -1166,9 +1172,7 @@ public class gestureTest : MonoBehaviour {
 			return selectedPlanePair;
 		}
 
-		// TODO: Based on sortedPlaneListLeft and sortedPlaneListRight to find the best-fit plane pair, add to selectedPlanePair
-		//gestureGeo["planePos"] = leftPlane.position - rightPlane.position;
-		//gestureGeo["planeNormalDir"] = Vector3.Angle(leftPlane.normalDir, rightPlane.normalDir);
+		// Begin searching and selecting
 		List<Gesture.PlaneParams> planePairTarget = new List<Gesture.PlaneParams>();
 		planePairTarget.Add(gestureGeo.leftPlane);
 		planePairTarget.Add(gestureGeo.rightPlane);
