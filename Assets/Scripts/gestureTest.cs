@@ -1133,6 +1133,10 @@ public class gestureTest : MonoBehaviour {
 
 		// Select line-point pair
 
+		// Reset selecting
+		if (gestureGeoInit.Count == 0) {
+			gestureGeoSelect.Reset();
+		}
 	}
 
 	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
