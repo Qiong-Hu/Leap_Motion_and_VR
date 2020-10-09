@@ -771,6 +771,11 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
+		// for debug
+		if (gestureGeoSelect.Count > 0) {
+			Debug.Log(gestureGeoSelect.ToString());
+        }
+
 		gestureGeoPrev.Copy(gestureGeo);
     }
     #endregion
@@ -1149,6 +1154,7 @@ public class gestureTest : MonoBehaviour {
 			return score;
         }
 
+		// TODO: use left vec as ref (<- haven't updated in git yet)
 		score = singlePairRatio * (planePairEva[0].confidence + planePairEva[1].confidence);
 		score = score + (1 - singlePairRatio) * (1 - planeDirPosRatio) * mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position);
 		score = score + (1 - singlePairRatio) * planeDirPosRatio * mathUtils.VectorSimilarity(planePairEva[0].normalDir - planePairEva[1].normalDir, planePairTarget[0].normalDir - planePairTarget[1].normalDir);
