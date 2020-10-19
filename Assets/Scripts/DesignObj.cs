@@ -418,12 +418,28 @@ namespace FARVR.Design {
             return paramtypes;
         }
 
-        // Get object geo
-
         // Obsolete name: GetFurniture
         public GameObject GetGameobject()
         {
             return gameObject;
+        }
+        #endregion
+
+        #region Get object geometry
+        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo() {
+
+        }
+        
+        public List<Geometry.PlaneParams> GetPlaneInfo() {
+
+        }
+
+        public List<Geometry.LineParams> GetLineInfo() {
+
+        }
+
+        public List<Geomtry.PointParams> GetPointInfo() {
+
         }
         #endregion
 
