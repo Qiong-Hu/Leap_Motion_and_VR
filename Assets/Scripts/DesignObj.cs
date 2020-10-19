@@ -426,7 +426,7 @@ namespace FARVR.Design {
         #endregion
 
         #region Get object geometry
-        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo() {
+        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo(string ftype, Dictionary<string, dynamic> parameters) {
 
         }
         

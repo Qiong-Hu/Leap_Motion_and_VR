@@ -21,6 +21,8 @@ namespace FARVR.GeoParams {
 			public int index;
 			public Vector3 position;
 			public Vector3 direction;
+			public Vector3 start;
+			public Vector3 end;
 			public bool isEmpty;
 			public float confidence; // The smaller the better
 		}
