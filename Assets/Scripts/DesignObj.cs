@@ -417,6 +417,8 @@ namespace FARVR.Design {
             return paramtypes;
         }
 
+        // Get object geo
+
         // Obsolete name: GetFurniture
         public GameObject GetGameobject()
         {

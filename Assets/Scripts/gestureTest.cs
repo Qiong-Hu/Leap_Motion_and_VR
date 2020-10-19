@@ -183,7 +183,7 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
-	static float singlePairRatio = 0.4f;
+	static float singlePairRatio = 0.6f;
 	static float planeDirPosRatio = 0.8f;
 	static float lineDirPosRatio = 0.5f;
 	static int geoSearchPatchSize = 10;
@@ -778,9 +778,9 @@ public class gestureTest : MonoBehaviour {
 
 		gestureGeoPrev.Copy(gestureGeo);
     }
-    #endregion
+	#endregion
 
-    #region Search object plane geometry with gesture plane geometry
+	#region Search object plane geometry with gesture plane geometry
 	void GesturePlaneUpdate() {
 		gestureGeo.leftPlane = leftPlane;
 		if (gestureGeo.leftPlane.isEmpty != true && gestureGeoPrev.leftPlane.isEmpty == true) {
