@@ -426,20 +426,60 @@ namespace FARVR.Design {
         #endregion
 
         #region Get object geometry
-        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo(string ftype, Dictionary<string, dynamic> parameters) {
+        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo(string url, string ftype, Dictionary<string, dynamic> parameters) {
+            Dictionary<string, Dictionary<string, dynamic>> geoInfo = new Dictionary<string, Dictionary<string, dynamic>>();
 
+            string link = "{0}/{1}.yaml?{2}";
+            string paramStr = LinkParam(parameters);
+            link = string.Format(link, url, ftype, paramStr);
+
+            string jsonString = "";
+            using (UnityWebRequest www = UnityWebRequest.Get(link)) {
+                www.SendWebRequest();
+                while (!www.isDone) ;
+
+                if (www.isNetworkError || www.isHttpError) {
+                    Debug.Log(www.error);
+                }
+                else {
+                    jsonString = www.downloadHandler.text;
+                }
+            }
+
+            if (jsonString != "") {
+                JSONNode jsonNode = SimpleJSON.JSON.Parse(jsonString);
+
+                foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)jsonNode) {
+                    geoInfo[kvp.Key] = new Dictionary<string, dynamic>();
+
+                    foreach (KeyValuePair<string, JSONNode> kvp2 in kvp.Value) {
+                        geoInfo[kvp.Key][kvp2.Key] = kvp2.Value;
+                    }
+                }
+                return geoInfo;
+            }
+            else {
+                Debug.Log("Fail to find json file for geo info of " + ftype + ".");
+                return null;
+            }
         }
         
         public List<Geometry.PlaneParams> GetPlaneInfo() {
+            List<Geometry.PlaneParams> Planes = new List<Geometry.PlaneParams>();
 
+            return Planes;
         }
 
         public List<Geometry.LineParams> GetLineInfo() {
+            List<Geometry.LineParams> Lines = new List<Geometry.LineParams>();
 
+            return Lines;
         }
 
-        public List<Geomtry.PointParams> GetPointInfo() {
+        public List<Geometry.PointParams> GetPointInfo() {
+            List<Geometry.PointParams> Points = new List<Geometry.PointParams>();
 
+            return Points;
         }
         #endregion
 
