@@ -10,6 +10,7 @@ using System.IO;
 using Parabox.STL;
 using STLImporter;
 using SimpleJSON;
+using FARVR.GeoParams;
 
 namespace FARVR.Design {
     public class DesignObj : MonoBehaviour {

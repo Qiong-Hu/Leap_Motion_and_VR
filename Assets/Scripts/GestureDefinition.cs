@@ -6,6 +6,7 @@ using UnityEngine.Windows;
 using Leap;
 using FARVR.Design;
 using FARVR.MathUtils;
+using FARVR.GeoParams;
 
 namespace FARVR.GestureDefinition {
 	public class Gesture {
@@ -286,22 +287,11 @@ namespace FARVR.GestureDefinition {
 			}
 		}
 
-		// Pass params of plane (using palm) to main Update()
-		public struct PlaneParams {
-			public string name;
-			public int index;
-			public Vector3 position;
-			public Vector3 forwardDir;
-			public Vector3 normalDir;
-			public bool isEmpty;
-			public float confidence; // The smaller the better
-        }
-
 		/// <summary>
 		/// Returns "position", "forwardDir", "normalDir"
 		/// </summary>
-		public PlaneParams FindPlaneParams() {
-			PlaneParams planeParams = new PlaneParams();
+		public Geometry.PlaneParams FindPlaneParams() {
+			Geometry.PlaneParams planeParams = new Geometry.PlaneParams();
 			planeParams.isEmpty = true;
 			planeParams.name = handPolarity + " hand plane";
 
@@ -318,21 +308,11 @@ namespace FARVR.GestureDefinition {
 			return planeParams;
 		}
 
-		// Pass params of line (using finger as representative) to main Update()
-		public struct LineParams {
-			public string name;
-			public int index;
-			public Vector3 position;
-			public Vector3 direction;
-			public bool isEmpty;
-			public float confidence; // The smaller the better
-		}
-
 		/// <summary>
 		/// Returns "position", "direction"
 		/// </summary>
-		public LineParams FindLineParams() {
-			LineParams lineParams = new LineParams();
+		public Geometry.LineParams FindLineParams() {
+			Geometry.LineParams lineParams = new Geometry.LineParams();
 			lineParams.isEmpty = true;
 			lineParams.name = handPolarity + " hand line";
 
@@ -361,20 +341,11 @@ namespace FARVR.GestureDefinition {
 			return lineParams;
 		}
 
-		// Pass params of point (using pinch) to main Update()
-		public struct PointParams {
-			public string name;
-			public int index;
-			public Vector3 position;
-			public bool isEmpty;
-			public float confidence; // The smaller the better
-		}
-
 		/// <summary>
 		/// Returns "position"
 		/// </summary>
-		public PointParams FindPointParams() {
-			PointParams pointParams = new PointParams();
+		public Geometry.PointParams FindPointParams() {
+			Geometry.PointParams pointParams = new Geometry.PointParams();
 			pointParams.isEmpty = true;
 			pointParams.name = handPolarity + " hand point";
 

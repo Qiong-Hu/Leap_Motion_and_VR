@@ -11,6 +11,7 @@ using FARVR.Design;
 using FARVR.GestureDefinition;
 using FARVR.MathUtils;
 using SimpleJSON;
+using FARVR.GeoParams;
 
 public class gestureTest : MonoBehaviour {
 
@@ -76,18 +77,18 @@ public class gestureTest : MonoBehaviour {
 	Dictionary<string, dynamic> currParams = null;
 
 	// For storing gesture params on plane/line/point
-	Gesture.PlaneParams leftPlane = new Gesture.PlaneParams();
-	Gesture.PlaneParams rightPlane = new Gesture.PlaneParams();
-	Gesture.LineParams leftLine = new Gesture.LineParams();
-	Gesture.LineParams rightLine = new Gesture.LineParams();
-	Gesture.PointParams leftPoint = new Gesture.PointParams();
-	Gesture.PointParams rightPoint = new Gesture.PointParams();
+	Geometry.PlaneParams leftPlane = new Geometry.PlaneParams();
+	Geometry.PlaneParams rightPlane = new Geometry.PlaneParams();
+	Geometry.LineParams leftLine = new Geometry.LineParams();
+	Geometry.LineParams rightLine = new Geometry.LineParams();
+	Geometry.PointParams leftPoint = new Geometry.PointParams();
+	Geometry.PointParams rightPoint = new Geometry.PointParams();
 
 	// For storing gesture geos together
 	class GestureGeo {
-		public Gesture.PlaneParams leftPlane, rightPlane;
-		public Gesture.LineParams leftLine, rightLine;
-		public Gesture.PointParams leftPoint, rightPoint;
+		public Geometry.PlaneParams leftPlane, rightPlane;
+		public Geometry.LineParams leftLine, rightLine;
+		public Geometry.PointParams leftPoint, rightPoint;
 
 		private int count;
 		public int Count {
@@ -802,11 +803,11 @@ public class gestureTest : MonoBehaviour {
     }
 
 	// Get line geo from testing object "Cube"
-	List<Gesture.PlaneParams> GetCubePlanes(GameObject gameObject) {
+	List<Geometry.PlaneParams> GetCubePlanes(GameObject gameObject) {
 		Vector3 center = gameObject.transform.position;
-		List<Gesture.PlaneParams> planes = new List<Gesture.PlaneParams>();
+		List<Geometry.PlaneParams> planes = new List<Geometry.PlaneParams>();
 
-		Gesture.PlaneParams plane = new Gesture.PlaneParams();
+		Geometry.PlaneParams plane = new Geometry.PlaneParams();
 		plane.name = "x+";
 		plane.index = 1;
 		plane.position = center + gameObject.transform.right * gameObject.transform.localScale.x;
@@ -846,13 +847,13 @@ public class gestureTest : MonoBehaviour {
 		return planes;
 	}
 
-	List<Gesture.PlaneParams> SortPlanes(GameObject gameObject, List<Gesture.PlaneParams> planeList, Gesture.PlaneParams targetPlane) {
-		List<Gesture.PlaneParams> planeListNew = new List<Gesture.PlaneParams>();
+	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
+		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
 
 		float score;
 		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For normalization
-		foreach (Gesture.PlaneParams currPlane in planeList) {
+		foreach (Geometry.PlaneParams currPlane in planeList) {
 			score = Mathf.Abs(Vector3.Angle(currPlane.normalDir, targetPlane.normalDir)) / 180f * planeDirPosRatio +
 				Vector3.Distance(currPlane.position, targetPlane.position) / centerDis * (1 - planeDirPosRatio);
 			scores.Add(score);
@@ -862,7 +863,7 @@ public class gestureTest : MonoBehaviour {
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
 		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
-		Gesture.PlaneParams tmpPlane;
+		Geometry.PlaneParams tmpPlane;
 		for (int i = 0; i < scores.Count; i++) {
 			tmpPlane = planeList[scoreIdx[i]];
 			tmpPlane.confidence = scores[scoreIdx[i]];
@@ -896,11 +897,11 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	// Get line geo from testing object "Cube"
-	List<Gesture.LineParams> GetCubeLines(GameObject gameObject) {
+	List<Geometry.LineParams> GetCubeLines(GameObject gameObject) {
 		Vector3 center = gameObject.transform.position;
-		List<Gesture.LineParams> lines = new List<Gesture.LineParams>();
+		List<Geometry.LineParams> lines = new List<Geometry.LineParams>();
 
-		Gesture.LineParams line = new Gesture.LineParams();
+		Geometry.LineParams line = new Geometry.LineParams();
 		line.name = "y-z-";
 		line.position = center - gameObject.transform.up * gameObject.transform.localScale.y - gameObject.transform.forward * gameObject.transform.localScale.z;
 		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
@@ -964,14 +965,14 @@ public class gestureTest : MonoBehaviour {
 		return lines;
 	}
 
-	List<Gesture.LineParams> SortLines(GameObject gameObject, List<Gesture.LineParams> lineList, Gesture.LineParams targetLine) {
-		List<Gesture.LineParams> lineListNew = new List<Gesture.LineParams>();
+	List<Geometry.LineParams> SortLines(GameObject gameObject, List<Geometry.LineParams> lineList, Geometry.LineParams targetLine) {
+		List<Geometry.LineParams> lineListNew = new List<Geometry.LineParams>();
 		List<float> scores = new List<float>();
 
 		float score;
 		float centerDis = Vector3.Distance(targetLine.position, gameObject.transform.position); // For normalization
 		float angle;
-		foreach (Gesture.LineParams currLine in lineList) {
+		foreach (Geometry.LineParams currLine in lineList) {
 			angle = Mathf.Abs(Vector3.Angle(currLine.direction, targetLine.direction));
 			if (angle > 90f) {
 				angle = 180f - angle;
@@ -1016,11 +1017,11 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	// Get point geo from testing object "Cube"
-	List<Gesture.PointParams> GetCubePoints(GameObject gameObject) {
+	List<Geometry.PointParams> GetCubePoints(GameObject gameObject) {
 		Vector3 center = gameObject.transform.position;
-		List<Gesture.PointParams> points = new List<Gesture.PointParams>();
+		List<Geometry.PointParams> points = new List<Geometry.PointParams>();
 
-		Gesture.PointParams point = new Gesture.PointParams();
+		Geometry.PointParams point = new Geometry.PointParams();
 		point.name = "---";
 		point.index = 1;
 		point.position = center 
@@ -1088,12 +1089,12 @@ public class gestureTest : MonoBehaviour {
 		return points;
 	}
 
-	List<Gesture.PointParams> SortPoints(GameObject gameObject, List<Gesture.PointParams> pointList, Gesture.PointParams targetPoint) {
-		List<Gesture.PointParams> pointListNew = new List<Gesture.PointParams>();
+	List<Geometry.PointParams> SortPoints(GameObject gameObject, List<Geometry.PointParams> pointList, Geometry.PointParams targetPoint) {
+		List<Geometry.PointParams> pointListNew = new List<Geometry.PointParams>();
 		List<float> scores = new List<float>();
 
 		float score;
-		foreach (Gesture.PointParams currPoint in pointList) {
+		foreach (Geometry.PointParams currPoint in pointList) {
 			score = Vector3.Distance(currPoint.position, targetPoint.position);
 			scores.Add(score);
 		}
@@ -1116,9 +1117,9 @@ public class gestureTest : MonoBehaviour {
 		GestureGeo searchGeoResult = new GestureGeo();
 		searchGeoResult.Reset();
 
-		List<Gesture.PlaneParams> planeList = GetCubePlanes(gameObject);
-		List<Gesture.LineParams> lineList = GetCubeLines(gameObject);
-		List<Gesture.PointParams> pointList = GetCubePoints(gameObject);
+		List<Geometry.PlaneParams> planeList = GetCubePlanes(gameObject);
+		List<Geometry.LineParams> lineList = GetCubeLines(gameObject);
+		List<Geometry.PointParams> pointList = GetCubePoints(gameObject);
 
 		// Select plane pair
 		if (gestureGeoInit.leftPlane.isEmpty != true && gestureGeoInit.rightPlane.isEmpty != true && 
@@ -1145,7 +1146,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
-	static float PlanePairSimilarity(List<Gesture.PlaneParams> planePairEva, List<Gesture.PlaneParams> planePairTarget) {
+	static float PlanePairSimilarity(List<Geometry.PlaneParams> planePairEva, List<Geometry.PlaneParams> planePairTarget) {
 		float score = 0f;
 
 		if (planePairEva[0].position == planePairEva[1].position &&
@@ -1162,11 +1163,11 @@ public class gestureTest : MonoBehaviour {
 		return score;
 	}
 
-	GestureGeo SearchPlanePair(GameObject gameObject, List<Gesture.PlaneParams> planeList, GestureGeo gestureGeo) {
+	GestureGeo SearchPlanePair(GameObject gameObject, List<Geometry.PlaneParams> planeList, GestureGeo gestureGeo) {
 		GestureGeo selectedPlanePair = new GestureGeo();
 
-		List<Gesture.PlaneParams> sortedPlaneListLeft = new List<Gesture.PlaneParams>();
-		List<Gesture.PlaneParams> sortedPlaneListRight = new List<Gesture.PlaneParams>();
+		List<Geometry.PlaneParams> sortedPlaneListLeft = new List<Geometry.PlaneParams>();
+		List<Geometry.PlaneParams> sortedPlaneListRight = new List<Geometry.PlaneParams>();
 
 		if (gestureGeo.leftPlane.isEmpty != true) {
 			sortedPlaneListLeft = SortPlanes(gameObject, planeList, gestureGeo.leftPlane);
@@ -1184,15 +1185,15 @@ public class gestureTest : MonoBehaviour {
 		}
 
 		// Begin searching and selecting
-		List<Gesture.PlaneParams> planePairTarget = new List<Gesture.PlaneParams>();
+		List<Geometry.PlaneParams> planePairTarget = new List<Geometry.PlaneParams>();
 		planePairTarget.Add(gestureGeo.leftPlane);
 		planePairTarget.Add(gestureGeo.rightPlane);
 
 		List<float> scores = new List<float>();
 		float score;
-		List<Gesture.PlaneParams> planePairEva;
+		List<Geometry.PlaneParams> planePairEva;
 		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
-			planePairEva = new List<Gesture.PlaneParams>();
+			planePairEva = new List<Geometry.PlaneParams>();
 			planePairEva.Add(sortedPlaneListLeft[idx[0]]);
 			planePairEva.Add(sortedPlaneListRight[idx[1]]);
 			score = PlanePairSimilarity(planePairEva, planePairTarget);
