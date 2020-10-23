@@ -469,23 +469,17 @@ namespace FARVR.Design {
         }
 
         public void GetGeoInfoTest(string url) {
-            Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> geoInfo = GetGeoInfo(url, type, parameters);
+            List<Geometry.PlaneParams> Planes = GetPlaneInfo(url);
 
-            foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, dynamic>>> kvp in geoInfo) {
-                Debug.Log(kvp.Key);
-                foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp2 in kvp.Value) {
-                    Debug.Log(kvp2.Key);
-                    foreach (KeyValuePair<string, dynamic> kvp3 in kvp2.Value) {
-                        Debug.Log(kvp3.Key + ": " + kvp3.Value.ToString());
-                    }
-                }
+            foreach (Geometry.PlaneParams plane in Planes) {
+                Debug.Log(plane.name);
+                Debug.Log("pos: " + plane.position.ToString("F3"));
+                Debug.Log("norDir: " + plane.normalDir.ToString("F3"));
             }
         }
 
         public List<Geometry.PlaneParams> GetPlaneInfo(string url) {
             List<Geometry.PlaneParams> Planes = new List<Geometry.PlaneParams>();
-
-            Geometry.PlaneParams plane = new Geometry.PlaneParams();
 
             Dictionary<string, Dictionary<string, dynamic>> planeInfo = new Dictionary<string, Dictionary<string, dynamic>>();
             try {
@@ -496,12 +490,16 @@ namespace FARVR.Design {
                 return Planes;
             }
             
+            Geometry.PlaneParams plane = new Geometry.PlaneParams();
             foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp in planeInfo) {
                 plane = new Geometry.PlaneParams();
 
                 plane.name = kvp.Key;
-                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][1], kvp.Value["position"][2]);
-                plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][1], kvp.Value["normalDir"][2]);
+                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][2], kvp.Value["position"][1]); // Change coordinate
+                plane.position = plane.position / 100f; // Change unit
+                
+                plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][2], kvp.Value["normalDir"][1]); // Change coordinate
+                
                 plane.isEmpty = false;
 
                 Planes.Add(plane);
