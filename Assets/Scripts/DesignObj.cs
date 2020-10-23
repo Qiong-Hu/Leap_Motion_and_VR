@@ -546,6 +546,32 @@ namespace FARVR.Design {
         public List<Geometry.PointParams> GetPointInfo() {
             List<Geometry.PointParams> Points = new List<Geometry.PointParams>();
 
+            Dictionary<string, Dictionary<string, dynamic>> lineInfo = new Dictionary<string, Dictionary<string, dynamic>>();
+            try {
+                lineInfo = GetGeoInfo(url, type, parameters)["edge"];
+            }
+            catch {
+                Debug.Log("Fail to get line info from compiler.");
+                return Points;
+            }
+
+            Geometry.PointParams point = new Geometry.PointParams();
+            foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp in lineInfo) {
+                point = new Geometry.PointParams();
+                point.name = kvp.Key + ".1";
+                point.position = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]) / 100f; // Change coordinate & unit
+                point.isEmpty = false;
+                Points.Add(point);
+
+                point = new Geometry.PointParams();
+                point.name = kvp.Key + ".2";
+                point.position = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]) / 100f; // Change coordinate & unit
+                point.isEmpty = false;
+                Points.Add(point);
+            }
+
+            // TODO: remove same point
+
             return Points;
         }
         #endregion
