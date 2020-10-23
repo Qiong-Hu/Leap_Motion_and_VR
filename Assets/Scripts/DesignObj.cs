@@ -386,6 +386,10 @@ namespace FARVR.Design {
             return gameObject.transform.rotation;
         }
 
+        public Vector3 GetEulerAngle() {
+            return gameObject.transform.eulerAngles;
+        }
+
         public string GetFType()
         {
             return type;
@@ -564,7 +568,7 @@ namespace FARVR.Design {
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
-                    point.position = point.position + GetPosition(); // Update points with object center position
+                    point.position = Quaternion.LookRotation(GetEulerAngle(), Vector3.right) * point.position + GetPosition(); // Update points with object center position
                     Points.Add(point);
                 }
 
@@ -575,7 +579,7 @@ namespace FARVR.Design {
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
-                    point.position = point.position + GetPosition(); // Update points with object center position
+                    point.position = Quaternion.LookRotation(GetEulerAngle(), Vector3.right) * point.position + GetPosition(); // Update points with object center position
                     Points.Add(point);
                 }
             }
