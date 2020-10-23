@@ -469,12 +469,11 @@ namespace FARVR.Design {
         }
 
         public void GetGeoInfoTest(string url) {
-            List<Geometry.LineParams> Lines = GetLineInfo(url);
+            List<Geometry.PointParams> Points = GetPointInfo(url);
 
-            foreach (Geometry.LineParams line in Lines) {
-                Debug.Log(line.name);
-                Debug.Log("pos: " + line.position.ToString("F3"));
-                Debug.Log("dir: " + line.direction.ToString("F3"));
+            foreach (Geometry.PointParams point in Points) {
+                Debug.Log(point.name);
+                Debug.Log("pos: " + point.position.ToString("F3"));
             }
         }
 
@@ -543,7 +542,7 @@ namespace FARVR.Design {
             return Lines;
         }
 
-        public List<Geometry.PointParams> GetPointInfo() {
+        public List<Geometry.PointParams> GetPointInfo(string url) {
             List<Geometry.PointParams> Points = new List<Geometry.PointParams>();
 
             Dictionary<string, Dictionary<string, dynamic>> lineInfo = new Dictionary<string, Dictionary<string, dynamic>>();
@@ -571,6 +570,7 @@ namespace FARVR.Design {
             }
 
             // TODO: remove same point
+            // TODO: Update points with object center position
 
             return Points;
         }
