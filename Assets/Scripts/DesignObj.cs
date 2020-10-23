@@ -497,9 +497,11 @@ namespace FARVR.Design {
                 plane.name = kvp.Key;
                 plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][2], kvp.Value["position"][1]); // Change coordinate
                 plane.position = plane.position / 100f; // Change unit
-                
+                plane.position = plane.position + GetPosition(); // Update position with object center position
+
                 plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][2], kvp.Value["normalDir"][1]); // Change coordinate
-                
+                plane.normalDir = GetRotation() * plane.normalDir; // Update normal direction with object rotation
+
                 plane.isEmpty = false;
 
                 Planes.Add(plane);
