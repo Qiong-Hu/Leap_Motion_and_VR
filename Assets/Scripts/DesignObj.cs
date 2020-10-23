@@ -564,6 +564,7 @@ namespace FARVR.Design {
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
+                    point.position = point.position + GetPosition(); // Update points with object center position
                     Points.Add(point);
                 }
 
@@ -574,6 +575,7 @@ namespace FARVR.Design {
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
+                    point.position = point.position + GetPosition(); // Update points with object center position
                     Points.Add(point);
                 }
             }
