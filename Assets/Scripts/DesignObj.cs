@@ -510,8 +510,36 @@ namespace FARVR.Design {
             return Planes;
         }
 
-        public List<Geometry.LineParams> GetLineInfo() {
+        public List<Geometry.LineParams> GetLineInfo(string url) {
             List<Geometry.LineParams> Lines = new List<Geometry.LineParams>();
+
+            Dictionary<string, Dictionary<string, dynamic>> lineInfo = new Dictionary<string, Dictionary<string, dynamic>>();
+            try {
+                lineInfo = GetGeoInfo(url, type, parameters)["edge"];
+            }
+            catch {
+                Debug.Log("Fail to get line info from compiler.");
+                return Lines;
+            }
+
+            Geometry.LineParams line = new Geometry.LineParams();
+            foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp in lineInfo) {
+                line = new Geometry.LineParams();
+
+                line.name = kvp.Key;
+                line.start = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]); // Change coordinate
+                line.end = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]); // Change coordinate
+
+                line.position = (line.start + line.end) / 2f;
+                line.position = line.position + GetPosition(); // Update position with object center position
+
+                line.direction = (line.end - line.start).normalized;
+                line.direction = GetRotation() * line.direction; // Update direction with object rotation
+
+                line.isEmpty = false;
+
+                Lines.Add(line);
+            }
 
             return Lines;
         }
