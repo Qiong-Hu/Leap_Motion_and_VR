@@ -426,8 +426,8 @@ namespace FARVR.Design {
         #endregion
 
         #region Get object geometry
-        private Dictionary<string, Dictionary<string, dynamic>> GetGeoInfo(string url, string ftype, Dictionary<string, dynamic> parameters) {
-            Dictionary<string, Dictionary<string, dynamic>> geoInfo = new Dictionary<string, Dictionary<string, dynamic>>();
+        private Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> GetGeoInfo(string url, string ftype, Dictionary<string, dynamic> parameters) {
+            Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> geoInfo = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
 
             string link = "{0}/{1}.yaml?{2}";
             string paramStr = LinkParam(parameters);
@@ -450,10 +450,14 @@ namespace FARVR.Design {
                 JSONNode jsonNode = SimpleJSON.JSON.Parse(jsonString);
 
                 foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)jsonNode) {
-                    geoInfo[kvp.Key] = new Dictionary<string, dynamic>();
-
+                    geoInfo[kvp.Key] = new Dictionary<string, Dictionary<string, dynamic>>();
+                    
                     foreach (KeyValuePair<string, JSONNode> kvp2 in kvp.Value) {
-                        geoInfo[kvp.Key][kvp2.Key] = kvp2.Value;
+                        geoInfo[kvp.Key][kvp2.Key] = new Dictionary<string, dynamic>();
+                        
+                        foreach (KeyValuePair<string, JSONNode> kvp3 in kvp2.Value) {
+                            geoInfo[kvp.Key][kvp2.Key][kvp3.Key] = kvp3.Value;
+                        }
                     }
                 }
                 return geoInfo;
@@ -463,7 +467,21 @@ namespace FARVR.Design {
                 return null;
             }
         }
-        
+
+        public void GetGeoInfoTest(string url) {
+            Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> geoInfo = GetGeoInfo(url, type, parameters);
+
+            foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, dynamic>>> kvp in geoInfo) {
+                Debug.Log(kvp.Key);
+                foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp2 in kvp.Value) {
+                    Debug.Log(kvp2.Key);
+                    foreach (KeyValuePair<string, dynamic> kvp3 in kvp2.Value) {
+                        Debug.Log(kvp3.Key + ": " + kvp3.Value.ToString());
+                    }
+                }
+            }
+        }
+
         public List<Geometry.PlaneParams> GetPlaneInfo() {
             List<Geometry.PlaneParams> Planes = new List<Geometry.PlaneParams>();
 

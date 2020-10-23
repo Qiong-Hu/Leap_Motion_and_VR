@@ -284,10 +284,12 @@ public class gestureTest : MonoBehaviour {
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
 					//CalcGestureGeo();
+
+					selectObj.GetComponent<DesignObj>().GetGeoInfoTest(url);
 				}
 
 				// For debug
-				CalcGestureGeo(testObject);
+				//CalcGestureGeo(testObject);
 
             }
 		}
