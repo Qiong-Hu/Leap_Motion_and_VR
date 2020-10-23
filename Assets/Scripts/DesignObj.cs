@@ -469,12 +469,12 @@ namespace FARVR.Design {
         }
 
         public void GetGeoInfoTest(string url) {
-            List<Geometry.PlaneParams> Planes = GetPlaneInfo(url);
+            List<Geometry.LineParams> Lines = GetLineInfo(url);
 
-            foreach (Geometry.PlaneParams plane in Planes) {
-                Debug.Log(plane.name);
-                Debug.Log("pos: " + plane.position.ToString("F3"));
-                Debug.Log("norDir: " + plane.normalDir.ToString("F3"));
+            foreach (Geometry.LineParams line in Lines) {
+                Debug.Log(line.name);
+                Debug.Log("pos: " + line.position.ToString("F3"));
+                Debug.Log("dir: " + line.direction.ToString("F3"));
             }
         }
 
@@ -495,8 +495,7 @@ namespace FARVR.Design {
                 plane = new Geometry.PlaneParams();
 
                 plane.name = kvp.Key;
-                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][2], kvp.Value["position"][1]); // Change coordinate
-                plane.position = plane.position / 100f; // Change unit
+                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][2], kvp.Value["position"][1]) / 100f; // Change coordinate & unit
                 plane.position = plane.position + GetPosition(); // Update position with object center position
 
                 plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][2], kvp.Value["normalDir"][1]); // Change coordinate
@@ -527,8 +526,8 @@ namespace FARVR.Design {
                 line = new Geometry.LineParams();
 
                 line.name = kvp.Key;
-                line.start = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]); // Change coordinate
-                line.end = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]); // Change coordinate
+                line.start = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]) / 100f; // Change coordinate & unit
+                line.end = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]) / 100f; // Change coordinate & unit
 
                 line.position = (line.start + line.end) / 2f;
                 line.position = line.position + GetPosition(); // Update position with object center position
