@@ -482,8 +482,30 @@ namespace FARVR.Design {
             }
         }
 
-        public List<Geometry.PlaneParams> GetPlaneInfo() {
+        public List<Geometry.PlaneParams> GetPlaneInfo(string url) {
             List<Geometry.PlaneParams> Planes = new List<Geometry.PlaneParams>();
+
+            Geometry.PlaneParams plane = new Geometry.PlaneParams();
+
+            Dictionary<string, Dictionary<string, dynamic>> planeInfo = new Dictionary<string, Dictionary<string, dynamic>>();
+            try {
+                 planeInfo = GetGeoInfo(url, type, parameters)["face"];
+            }
+            catch {
+                Debug.Log("Fail to get plane info from compiler.");
+                return Planes;
+            }
+            
+            foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp in planeInfo) {
+                plane = new Geometry.PlaneParams();
+
+                plane.name = kvp.Key;
+                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][1], kvp.Value["position"][2]);
+                plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][1], kvp.Value["normalDir"][2]);
+                plane.isEmpty = false;
+
+                Planes.Add(plane);
+            }
 
             return Planes;
         }
