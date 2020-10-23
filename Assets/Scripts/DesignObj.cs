@@ -544,6 +544,7 @@ namespace FARVR.Design {
 
         public List<Geometry.PointParams> GetPointInfo(string url) {
             List<Geometry.PointParams> Points = new List<Geometry.PointParams>();
+            List<Vector3> PointPos = new List<Vector3>();
 
             Dictionary<string, Dictionary<string, dynamic>> lineInfo = new Dictionary<string, Dictionary<string, dynamic>>();
             try {
@@ -560,17 +561,22 @@ namespace FARVR.Design {
                 point.name = kvp.Key + ".1";
                 point.position = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]) / 100f; // Change coordinate & unit
                 point.isEmpty = false;
-                Points.Add(point);
+
+                if (!PointPos.Contains(point.position)) {
+                    PointPos.Add(point.position);
+                    Points.Add(point);
+                }
 
                 point = new Geometry.PointParams();
                 point.name = kvp.Key + ".2";
                 point.position = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]) / 100f; // Change coordinate & unit
                 point.isEmpty = false;
-                Points.Add(point);
-            }
 
-            // TODO: remove same point
-            // TODO: Update points with object center position
+                if (!PointPos.Contains(point.position)) {
+                    PointPos.Add(point.position);
+                    Points.Add(point);
+                }
+            }
 
             return Points;
         }
