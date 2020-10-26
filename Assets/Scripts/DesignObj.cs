@@ -473,11 +473,11 @@ namespace FARVR.Design {
         }
 
         public void GetGeoInfoTest(string url) {
-            List<Geometry.PointParams> Points = GetPointInfo(url);
+            List<Geometry.LineParams> Lines = GetLineInfo(url);
 
-            foreach (Geometry.PointParams point in Points) {
-                Debug.Log(point.name);
-                Debug.Log("pos: " + point.position.ToString("F3"));
+            foreach (Geometry.LineParams line in Lines) {
+                Debug.Log(line.name);
+                Debug.Log("pos: " + line.direction.ToString("F3"));
             }
         }
 
@@ -529,14 +529,14 @@ namespace FARVR.Design {
                 line = new Geometry.LineParams();
 
                 line.name = kvp.Key;
-                line.start = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]) / 100f; // Change coordinate & unit
-                line.end = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]) / 100f; // Change coordinate & unit
+                line.start = new Vector3(kvp.Value["start"][1], kvp.Value["start"][2], kvp.Value["start"][0]) / 1000f; // Change coordinate & unit
+                line.end = new Vector3(kvp.Value["end"][1], kvp.Value["end"][2], kvp.Value["end"][0]) / 1000f; // Change coordinate & unit
 
                 line.position = (line.start + line.end) / 2f;
-                line.position = line.position + GetPosition(); // Update position with object center position
+                line.position = transform.TransformPoint(line.position); // Update position with object center position
 
                 line.direction = (line.end - line.start).normalized;
-                line.direction = GetRotation() * line.direction; // Update direction with object rotation
+                line.direction = transform.TransformDirection(line.direction); // Update direction with object rotation
 
                 line.isEmpty = false;
 
