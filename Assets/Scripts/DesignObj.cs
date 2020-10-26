@@ -563,23 +563,23 @@ namespace FARVR.Design {
             foreach (KeyValuePair<string, Dictionary<string, dynamic>> kvp in lineInfo) {
                 point = new Geometry.PointParams();
                 point.name = kvp.Key + ".1";
-                point.position = new Vector3(kvp.Value["start"][0], kvp.Value["start"][2], kvp.Value["start"][1]) / 100f; // Change coordinate & unit
+                point.position = new Vector3(kvp.Value["start"][1], kvp.Value["start"][2], kvp.Value["start"][0]) / 1000f; // Change coordinate & unit
                 point.isEmpty = false;
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
-                    point.position = Quaternion.LookRotation(GetEulerAngle(), Vector3.right) * point.position + GetPosition(); // Update points with object center position
+                    point.position = transform.TransformPoint(point.position); // Update points with object center position
                     Points.Add(point);
                 }
 
                 point = new Geometry.PointParams();
                 point.name = kvp.Key + ".2";
-                point.position = new Vector3(kvp.Value["end"][0], kvp.Value["end"][2], kvp.Value["end"][1]) / 100f; // Change coordinate & unit
+                point.position = new Vector3(kvp.Value["end"][1], kvp.Value["end"][2], kvp.Value["end"][0]) / 1000f; // Change coordinate & unit
                 point.isEmpty = false;
 
                 if (!PointPos.Contains(point.position)) {
                     PointPos.Add(point.position);
-                    point.position = Quaternion.LookRotation(GetEulerAngle(), Vector3.right) * point.position + GetPosition(); // Update points with object center position
+                    point.position = transform.TransformPoint(point.position); // Update points with object center position
                     Points.Add(point);
                 }
             }
