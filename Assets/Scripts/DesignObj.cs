@@ -473,11 +473,12 @@ namespace FARVR.Design {
         }
 
         public void GetGeoInfoTest(string url) {
-            List<Geometry.LineParams> Lines = GetLineInfo(url);
+            List<Geometry.PlaneParams> Planes = GetPlaneInfo(url);
 
-            foreach (Geometry.LineParams line in Lines) {
-                Debug.Log(line.name);
-                Debug.Log("pos: " + line.direction.ToString("F3"));
+            foreach (Geometry.PlaneParams plane in Planes) {
+                Debug.Log(plane.name);
+                Debug.Log("pos: " + plane.position.ToString("F3"));
+                Debug.Log("dir: " + plane.normalDir.ToString("F4"));
             }
         }
 
@@ -498,11 +499,11 @@ namespace FARVR.Design {
                 plane = new Geometry.PlaneParams();
 
                 plane.name = kvp.Key;
-                plane.position = new Vector3(kvp.Value["position"][0], kvp.Value["position"][2], kvp.Value["position"][1]) / 100f; // Change coordinate & unit
-                plane.position = plane.position + GetPosition(); // Update position with object center position
+                plane.position = new Vector3(-kvp.Value["position"][1], kvp.Value["position"][2], kvp.Value["position"][0]) / 1000f; // Change coordinate & unit
+                plane.position = transform.TransformPoint(plane.position); // Update position with object center position
 
-                plane.normalDir = new Vector3(kvp.Value["normalDir"][0], kvp.Value["normalDir"][2], kvp.Value["normalDir"][1]); // Change coordinate
-                plane.normalDir = GetRotation() * plane.normalDir; // Update normal direction with object rotation
+                plane.normalDir = new Vector3(kvp.Value["normalDir"][1], kvp.Value["normalDir"][2], kvp.Value["normalDir"][0]); // Change coordinate
+                plane.normalDir = Vector3.Reflect(transform.TransformDirection(plane.normalDir), transform.right); // Update normal direction with object rotation
 
                 plane.isEmpty = false;
 
