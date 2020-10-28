@@ -472,16 +472,6 @@ namespace FARVR.Design {
             }
         }
 
-        public void GetGeoInfoTest(string url) {
-            List<Geometry.PlaneParams> Planes = GetPlaneInfo(url);
-
-            foreach (Geometry.PlaneParams plane in Planes) {
-                Debug.Log(plane.name);
-                Debug.Log("pos: " + plane.position.ToString("F3"));
-                Debug.Log("dir: " + plane.normalDir.ToString("F4"));
-            }
-        }
-
         public List<Geometry.PlaneParams> GetPlaneInfo(string url) {
             List<Geometry.PlaneParams> Planes = new List<Geometry.PlaneParams>();
 

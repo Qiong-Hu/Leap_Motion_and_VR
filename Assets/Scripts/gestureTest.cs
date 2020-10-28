@@ -285,7 +285,7 @@ public class gestureTest : MonoBehaviour {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
 					//CalcGestureGeo();
 
-					selectObj.GetComponent<DesignObj>().GetGeoInfoTest(url);
+					
 				}
 
 				// For debug
