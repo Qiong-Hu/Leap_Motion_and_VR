@@ -765,12 +765,7 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
-		// For debug
-		if (gestureGeo.rightPlane.isEmpty != true) {
-			foreach (Geometry.PlaneParams sortPlane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.rightPlane)) {
-				Debug.Log(sortPlane.name + ": " + sortPlane.confidence);
-            }
-        }
+
 
 		gestureGeoPrev.Copy(gestureGeo);
     }
@@ -903,21 +898,21 @@ public class gestureTest : MonoBehaviour {
 		return lineList;
 	}
 
+	static float LineSimilarity(Geometry.LineParams lineEva, Geometry.LineParams lineTar, float refDistance, float lineDirPosRatio = lineDirPosRatio) {
+		if (Mathf.Abs(Vector3.Angle(lineEva.direction, lineTar.direction)) > 90f) {
+			lineEva.direction = Vector3.zero - lineEva.direction;
+		}
+		return mathUtils.DirectionSimilarity(lineEva.direction, lineTar.direction) * lineDirPosRatio
+			+ Vector3.Distance(lineEva.position, lineTar.position) / refDistance * (1 - lineDirPosRatio);
+	}
+
 	List<Geometry.LineParams> SortLines(GameObject gameObject, List<Geometry.LineParams> lineList, Geometry.LineParams targetLine) {
 		List<Geometry.LineParams> lineListNew = new List<Geometry.LineParams>();
 		List<float> scores = new List<float>();
 
-		float score;
-		float centerDis = Vector3.Distance(targetLine.position, gameObject.transform.position); // For normalization
-		float angle;
+		float centerDis = Vector3.Distance(targetLine.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.LineParams currLine in lineList) {
-			angle = Mathf.Abs(Vector3.Angle(currLine.direction, targetLine.direction));
-			if (angle > 90f) {
-				angle = 180f - angle;
-            }
-			score = angle / 90f * lineDirPosRatio +
-				Vector3.Distance(currLine.position, targetLine.position) / centerDis * (1 - lineDirPosRatio);
-			scores.Add(score);
+			scores.Add(LineSimilarity(currLine, targetLine, centerDis));
 		}
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
