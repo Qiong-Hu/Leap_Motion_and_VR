@@ -214,9 +214,11 @@ public class gestureTest : MonoBehaviour {
 
 		// for test
 		Quaternion qua = new Quaternion();
-		qua.eulerAngles = new Vector3(0.866f, 0.5f, 0f);
+		qua = Quaternion.LookRotation(new Vector3(0.866f, 0.5f, 0f));
 		Quaternion qua2 = new Quaternion();
-		qua2.eulerAngles = new Vector3(0.866f, -0.5f, 0f);
+		qua2 = Quaternion.LookRotation(new Vector3(-0.866f, -0.5f, 0f));
+		Debug.Log(qua.ToString("F3"));
+		Debug.Log(qua2.ToString("F3"));
 		Debug.Log(mathUtils.QuaternionSimilarity(qua, qua2));
 	}
 
