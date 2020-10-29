@@ -211,6 +211,13 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log("Virtual design begins.");
 
 		Init();
+
+		// for test
+		Quaternion qua = new Quaternion();
+		qua.eulerAngles = new Vector3(0.866f, 0.5f, 0f);
+		Quaternion qua2 = new Quaternion();
+		qua2.eulerAngles = new Vector3(0.866f, -0.5f, 0f);
+		Debug.Log(mathUtils.QuaternionSimilarity(qua, qua2));
 	}
 
 	void Init() {
