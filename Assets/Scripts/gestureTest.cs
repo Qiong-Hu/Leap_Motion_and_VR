@@ -15,9 +15,6 @@ using FARVR.GeoParams;
 
 public class gestureTest : MonoBehaviour {
 
-	// For test
-	GameObject testObject;
-
     #region For canvas
     // Obtain canvas obj
     GameObject canvas;
@@ -214,8 +211,6 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log("Virtual design begins.");
 
 		Init();
-
-		testObject = GameObject.Find("Cube");// For test
 	}
 
 	void Init() {
@@ -287,9 +282,6 @@ public class gestureTest : MonoBehaviour {
 
 					
 				}
-
-				// For debug
-				//CalcGestureGeo(testObject);
 
             }
 		}
@@ -804,51 +796,6 @@ public class gestureTest : MonoBehaviour {
         }
     }
 
-	// Get line geo from testing object "Cube"
-	List<Geometry.PlaneParams> GetCubePlanes(GameObject gameObject) {
-		Vector3 center = gameObject.transform.position;
-		List<Geometry.PlaneParams> planes = new List<Geometry.PlaneParams>();
-
-		Geometry.PlaneParams plane = new Geometry.PlaneParams();
-		plane.name = "x+";
-		plane.index = 1;
-		plane.position = center + gameObject.transform.right * gameObject.transform.localScale.x;
-		plane.normalDir = gameObject.transform.right;
-		planes.Add(plane);
-
-		plane.name = "x-";
-		plane.index = 2;
-		plane.position = center - gameObject.transform.right * gameObject.transform.localScale.x;
-		plane.normalDir = -gameObject.transform.right;
-		planes.Add(plane);
-
-		plane.name = "y+";
-		plane.index = 3;
-		plane.position = center + gameObject.transform.up * gameObject.transform.localScale.y;
-		plane.normalDir = gameObject.transform.up;
-		planes.Add(plane);
-
-		plane.name = "y-";
-		plane.index = 4;
-		plane.position = center - gameObject.transform.up * gameObject.transform.localScale.y;
-		plane.normalDir = -gameObject.transform.up;
-		planes.Add(plane);
-
-		plane.name = "z+";
-		plane.index = 5;
-		plane.position = center + gameObject.transform.forward * gameObject.transform.localScale.z;
-		plane.normalDir = gameObject.transform.forward;
-		planes.Add(plane);
-
-		plane.name = "z-";
-		plane.index = 6;
-		plane.position = center - gameObject.transform.forward * gameObject.transform.localScale.z;
-		plane.normalDir = -gameObject.transform.forward;
-		planes.Add(plane);
-
-		return planes;
-	}
-
 	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
 		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
@@ -896,75 +843,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightLine.isEmpty == true && gestureGeoPrev.rightLine.isEmpty != true) {
 			gestureGeoInit.rightLine.isEmpty = true;
 		}
-	}
-
-	// Get line geo from testing object "Cube"
-	List<Geometry.LineParams> GetCubeLines(GameObject gameObject) {
-		Vector3 center = gameObject.transform.position;
-		List<Geometry.LineParams> lines = new List<Geometry.LineParams>();
-
-		Geometry.LineParams line = new Geometry.LineParams();
-		line.name = "y-z-";
-		line.position = center - gameObject.transform.up * gameObject.transform.localScale.y - gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
-		lines.Add(line);
-
-		line.name = "y-z+";
-		line.position = center - gameObject.transform.up * gameObject.transform.localScale.y + gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
-		lines.Add(line);
-
-		line.name = "y+z-";
-		line.position = center + gameObject.transform.up * gameObject.transform.localScale.y - gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
-		lines.Add(line);
-
-		line.name = "y+z+";
-		line.position = center + gameObject.transform.up * gameObject.transform.localScale.y + gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.right * gameObject.transform.localScale.x;
-		lines.Add(line);
-
-		line.name = "x+y-";
-		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.up * gameObject.transform.localScale.y;
-		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
-		lines.Add(line);
-
-		line.name = "x-y-";
-		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.up * gameObject.transform.localScale.y;
-		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
-		lines.Add(line);
-
-		line.name = "x+y+";
-		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.up * gameObject.transform.localScale.y;
-		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
-		lines.Add(line);
-
-		line.name = "x-y+";
-		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.up * gameObject.transform.localScale.y;
-		line.direction = gameObject.transform.forward * gameObject.transform.localScale.z;
-		lines.Add(line);
-
-		line.name = "x-z-";
-		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
-		lines.Add(line);
-
-		line.name = "x+z-";
-		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x - gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
-		lines.Add(line);
-
-		line.name = "x+z+";
-		line.position = center + gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
-		lines.Add(line);
-
-		line.name = "x-z+";
-		line.position = center - gameObject.transform.right * gameObject.transform.localScale.x + gameObject.transform.forward * gameObject.transform.localScale.z;
-		line.direction = gameObject.transform.up * gameObject.transform.localScale.y;
-		lines.Add(line);
-
-		return lines;
 	}
 
 	List<Geometry.LineParams> SortLines(GameObject gameObject, List<Geometry.LineParams> lineList, Geometry.LineParams targetLine) {
@@ -1016,79 +894,6 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightPoint.isEmpty == true && gestureGeoPrev.rightPoint.isEmpty != true) {
 			gestureGeoInit.rightPoint.isEmpty = true;
 		}
-	}
-
-	// Get point geo from testing object "Cube"
-	List<Geometry.PointParams> GetCubePoints(GameObject gameObject) {
-		Vector3 center = gameObject.transform.position;
-		List<Geometry.PointParams> points = new List<Geometry.PointParams>();
-
-		Geometry.PointParams point = new Geometry.PointParams();
-		point.name = "---";
-		point.index = 1;
-		point.position = center 
-			- gameObject.transform.right * gameObject.transform.localScale.x
-			- gameObject.transform.up * gameObject.transform.localScale.y
-			- gameObject.transform.forward* gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "+--";
-		point.index = 2;
-		point.position = center
-			+ gameObject.transform.right * gameObject.transform.localScale.x
-			- gameObject.transform.up * gameObject.transform.localScale.y
-			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "+-+";
-		point.index = 3;
-		point.position = center
-			+ gameObject.transform.right * gameObject.transform.localScale.x
-			- gameObject.transform.up * gameObject.transform.localScale.y
-			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "--+";
-		point.index = 4;
-		point.position = center
-			- gameObject.transform.right * gameObject.transform.localScale.x
-			- gameObject.transform.up * gameObject.transform.localScale.y
-			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "-+-";
-		point.index = 5;
-		point.position = center
-			- gameObject.transform.right * gameObject.transform.localScale.x
-			+ gameObject.transform.up * gameObject.transform.localScale.y
-			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "++-";
-		point.index = 6;
-		point.position = center
-			+ gameObject.transform.right * gameObject.transform.localScale.x
-			+ gameObject.transform.up * gameObject.transform.localScale.y
-			- gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "+++";
-		point.index = 7;
-		point.position = center
-			+ gameObject.transform.right * gameObject.transform.localScale.x
-			+ gameObject.transform.up * gameObject.transform.localScale.y
-			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		point.name = "-++";
-		point.index = 8;
-		point.position = center
-			- gameObject.transform.right * gameObject.transform.localScale.x
-			+ gameObject.transform.up * gameObject.transform.localScale.y
-			+ gameObject.transform.forward * gameObject.transform.localScale.z; ;
-		points.Add(point);
-
-		return points;
 	}
 
 	List<Geometry.PointParams> SortPoints(GameObject gameObject, List<Geometry.PointParams> pointList, Geometry.PointParams targetPoint) {
