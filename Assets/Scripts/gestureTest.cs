@@ -278,7 +278,7 @@ public class gestureTest : MonoBehaviour {
 
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
-					//CalcGestureGeo(selectObj);
+					CalcGestureGeo(selectObj);
 									
 				}
 
@@ -772,6 +772,39 @@ public class gestureTest : MonoBehaviour {
 
 		gestureGeoPrev.Copy(gestureGeo);
     }
+
+	void SelectObjGeo(GameObject gameObject) {
+		GestureGeo searchGeoResult = new GestureGeo();
+		searchGeoResult.Reset();
+
+		List<Geometry.PlaneParams> planeList = GetPlaneList(gameObject);
+		List<Geometry.LineParams> lineList = GetLineList(gameObject);
+		List<Geometry.PointParams> pointList = GetPointList(gameObject);
+
+		// Select plane pair
+		if (gestureGeoInit.leftPlane.isEmpty != true && gestureGeoInit.rightPlane.isEmpty != true && 
+			(gestureGeoSelect.leftPlane.isEmpty == true || gestureGeoSelect.rightPlane.isEmpty == true)) {
+			searchGeoResult = SearchPlanePair(gameObject, planeList, gestureGeoInit);
+			gestureGeoSelect.leftPlane = searchGeoResult.leftPlane;
+			gestureGeoSelect.rightPlane = searchGeoResult.rightPlane;
+        }
+
+		// Select line pair
+
+		// Select point pair
+
+		// Select plane-line pair
+
+		// Select plane-point pair
+
+		// Select line-point pair
+
+		// Reset selecting
+		if (gestureGeoInit.Count == 0) {
+			gestureGeoSelect.Reset();
+		}
+	}
+
 	#endregion
 
 	#region Search object plane geometry with gesture plane geometry
@@ -952,38 +985,6 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	#region Search object geometry in pairs
-	void SelectObjGeo(GameObject gameObject) {
-		GestureGeo searchGeoResult = new GestureGeo();
-		searchGeoResult.Reset();
-
-		List<Geometry.PlaneParams> planeList = GetPlaneList(gameObject);
-		List<Geometry.LineParams> lineList = GetLineList(gameObject);
-		List<Geometry.PointParams> pointList = GetPointList(gameObject);
-
-		// Select plane pair
-		if (gestureGeoInit.leftPlane.isEmpty != true && gestureGeoInit.rightPlane.isEmpty != true && 
-			(gestureGeoSelect.leftPlane.isEmpty == true || gestureGeoSelect.rightPlane.isEmpty == true)) {
-			searchGeoResult = SearchPlanePair(gameObject, planeList, gestureGeoInit);
-			gestureGeoSelect.leftPlane = searchGeoResult.leftPlane;
-			gestureGeoSelect.rightPlane = searchGeoResult.rightPlane;
-        }
-
-		// Select line pair
-
-		// Select point pair
-
-		// Select plane-line pair
-
-		// Select plane-point pair
-
-		// Select line-point pair
-
-		// Reset selecting
-		if (gestureGeoInit.Count == 0) {
-			gestureGeoSelect.Reset();
-		}
-	}
-
 	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
 	static float PlanePairSimilarity(List<Geometry.PlaneParams> planePairEva, List<Geometry.PlaneParams> planePairTarget) {
 		float score = 0f;
