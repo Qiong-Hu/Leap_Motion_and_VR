@@ -91,5 +91,9 @@ namespace FARVR.MathUtils {
 
 			return score;
 		}
+
+		public static float QuaternionSimilarity(Quaternion qua1, Quaternion qua2) {
+			return qua1.x * qua2.x + qua1.y * qua2.y + qua1.z * qua2.z + qua1.w * qua2.w;
+        }
 	}
 }

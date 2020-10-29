@@ -1025,17 +1025,17 @@ public class gestureTest : MonoBehaviour {
 		}
 
 		// Begin searching and selecting
-		List<Geometry.PlaneParams> planePairTarget = new List<Geometry.PlaneParams>();
-		planePairTarget.Add(gestureGeo.leftPlane);
-		planePairTarget.Add(gestureGeo.rightPlane);
+		List<Geometry.PlaneParams> planePairTarget = new List<Geometry.PlaneParams>(2);
+		planePairTarget[0] = gestureGeo.leftPlane;
+		planePairTarget[1] = gestureGeo.rightPlane;
 
 		List<float> scores = new List<float>();
 		float score;
 		List<Geometry.PlaneParams> planePairEva;
 		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
-			planePairEva = new List<Geometry.PlaneParams>();
-			planePairEva.Add(sortedPlaneListLeft[idx[0]]);
-			planePairEva.Add(sortedPlaneListRight[idx[1]]);
+			planePairEva = new List<Geometry.PlaneParams>(2);
+			planePairEva[0] = sortedPlaneListLeft[idx[0]];
+			planePairEva[1] = sortedPlaneListRight[idx[1]];
 			score = PlanePairSimilarity(planePairEva, planePairTarget);
 			scores.Add(score);
 		}
