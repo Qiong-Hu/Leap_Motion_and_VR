@@ -87,7 +87,7 @@ namespace FARVR.MathUtils {
 				vecEva = Vector3.zero - vecEva;
 			}
 
-			score = score + (1 - DirectionSimilarity(vecEva.normalized, vecTarget.normalized)) * dirDisRatio;
+			score = score + DirectionSimilarity(vecEva.normalized, vecTarget.normalized) * dirDisRatio;
 			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
 
 			return score;
@@ -97,20 +97,20 @@ namespace FARVR.MathUtils {
         /// result = 1: two quaternions are same; = 0: opposite
         /// </summary>
         /// <returns></returns>
-		public static float QuaternionSimilarity(Quaternion qua1, Quaternion qua2) {
+		private static float QuaternionSimilarity(Quaternion qua1, Quaternion qua2) {
 			return qua1.x * qua2.x + qua1.y * qua2.y + qua1.z * qua2.z + qua1.w * qua2.w;
         }
 
 		/// <summary>
-        /// result = 1: two directions are same; = 0: opposite
+        /// result = 0: two directions are same; = 1: opposite
         /// </summary>
         /// <returns></returns>
 		public static float DirectionSimilarity(Vector3 vec1, Vector3 vec2) {
 			Quaternion qua1 = new Quaternion();
-			qua1 = Quaternion.LookRotation(vec1);
+			qua1 = Quaternion.LookRotation(vec1.normalized);
 			Quaternion qua2 = new Quaternion();
-			qua2 = Quaternion.LookRotation(vec2);
-			return QuaternionSimilarity(qua1, qua2);
+			qua2 = Quaternion.LookRotation(vec2.normalized);
+			return 1 - QuaternionSimilarity(qua1, qua2);
 		}
 	}
 }
