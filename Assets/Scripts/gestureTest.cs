@@ -211,11 +211,6 @@ public class gestureTest : MonoBehaviour {
 		Debug.Log("Virtual design begins.");
 
 		Init();
-
-		// for test
-		Vector3 vec1 = new Vector3(0.866f, 0.5f, 0f);
-		Vector3 vec2 = new Vector3(0.866f, -0.5f, 0f);
-		Debug.Log(mathUtils.DirectionSimilarity(vec1, vec2));
 	}
 
 	void Init() {
