@@ -280,10 +280,9 @@ public class gestureTest : MonoBehaviour {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
 					//CalcGestureGeo(selectObj);
 
-					foreach (Geometry.LineParams line in GetLineList(selectObj)) {
-						Debug.Log(line.name);
-						Debug.Log(line.position.ToString("F3"));
-						Debug.Log(line.direction.ToString("F3"));
+					foreach (Geometry.PointParams point in GetPointList(selectObj)) {
+						Debug.Log(point.name);
+						Debug.Log(point.position.ToString("F3"));
                     }
 										
 				}
