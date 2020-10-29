@@ -850,12 +850,9 @@ public class gestureTest : MonoBehaviour {
 		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
 
-		float score;
 		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For normalization
 		foreach (Geometry.PlaneParams currPlane in planeList) {
-			score = Mathf.Abs(Vector3.Angle(currPlane.normalDir, targetPlane.normalDir)) / 180f * planeDirPosRatio +
-				Vector3.Distance(currPlane.position, targetPlane.position) / centerDis * (1 - planeDirPosRatio);
-			scores.Add(score);
+			scores.Add(PlaneSimilarity(currPlane, targetPlane, centerDis));
         }
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
