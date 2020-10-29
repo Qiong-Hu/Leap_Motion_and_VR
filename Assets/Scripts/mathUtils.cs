@@ -95,5 +95,13 @@ namespace FARVR.MathUtils {
 		public static float QuaternionSimilarity(Quaternion qua1, Quaternion qua2) {
 			return qua1.x * qua2.x + qua1.y * qua2.y + qua1.z * qua2.z + qua1.w * qua2.w;
         }
+
+		public static float DirectionSimilarity(Vector3 vec1, Vector3 vec2) {
+			Quaternion qua1 = new Quaternion();
+			qua1 = Quaternion.LookRotation(vec1);
+			Quaternion qua2 = new Quaternion();
+			qua2 = Quaternion.LookRotation(vec2);
+			return QuaternionSimilarity(qua1, qua2);
+		}
 	}
 }
