@@ -181,15 +181,15 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
-	static float singlePairRatio = 0.6f;
-	static float planeDirPosRatio = 0.8f;
-	static float lineDirPosRatio = 0.5f;
-	static int geoSearchPatchSize = 10;
+	const float singlePairRatio = 0.6f;
+	const float planeDirPosRatio = 0.8f;
+	const float lineDirPosRatio = 0.5f;
+	const int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
 	Gesture.TuneParams tuneParams = new Gesture.TuneParams();
 	bool isTuned = false;
-	static float palmAngleTHLD = 5f; // Degree
+	const float palmAngleTHLD = 5f; // Degree
 	#endregion
 
 	#region Customized Gesture Determination
@@ -841,7 +841,7 @@ public class gestureTest : MonoBehaviour {
 		return planeList;
 	}
 
-	float PlaneSimilarity(Geometry.PlaneParams planeEva, Geometry.PlaneParams planeTar, float refDistance, float planeDirPosRatio = planeDirPosRatio) {
+	static float PlaneSimilarity(Geometry.PlaneParams planeEva, Geometry.PlaneParams planeTar, float refDistance, float planeDirPosRatio = planeDirPosRatio) {
 		return mathUtils.DirectionSimilarity(planeEva.normalDir, planeTar.normalDir) * planeDirPosRatio
 			+ Vector3.Distance(planeEva.position, planeTar.position) / refDistance * (1 - planeDirPosRatio);
     }
