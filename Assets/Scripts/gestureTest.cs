@@ -278,9 +278,8 @@ public class gestureTest : MonoBehaviour {
 
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
-					//CalcGestureGeo();
-
-					
+					CalcGestureGeo(selectObj);
+										
 				}
 
             }
@@ -796,6 +795,17 @@ public class gestureTest : MonoBehaviour {
         }
     }
 
+	List<Geometry.PlaneParams> GetPlaneList(GameObject gameobject) {
+		List<Geometry.PlaneParams> planeList = new List<Geometry.PlaneParams>();
+		try {
+			planeList = gameobject.GetComponent<DesignObj>().GetPlaneInfo(url);
+		}
+		catch {
+			Debug.Log("Fail to get plane list from compiler.");
+        }
+		return planeList;
+	}
+
 	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
 		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
@@ -843,6 +853,17 @@ public class gestureTest : MonoBehaviour {
 		if (gestureGeo.rightLine.isEmpty == true && gestureGeoPrev.rightLine.isEmpty != true) {
 			gestureGeoInit.rightLine.isEmpty = true;
 		}
+	}
+
+	List<Geometry.LineParams> GetLineList(GameObject gameobject) {
+		List<Geometry.LineParams> lineList = new List<Geometry.LineParams>();
+		try {
+			lineList = gameobject.GetComponent<DesignObj>().GetLineInfo(url);
+		}
+		catch {
+			Debug.Log("Fail to get line list from compiler.");
+		}
+		return lineList;
 	}
 
 	List<Geometry.LineParams> SortLines(GameObject gameObject, List<Geometry.LineParams> lineList, Geometry.LineParams targetLine) {
@@ -896,6 +917,17 @@ public class gestureTest : MonoBehaviour {
 		}
 	}
 
+	List<Geometry.PointParams> GetPointList(GameObject gameobject) {
+		List<Geometry.PointParams> pointList = new List<Geometry.PointParams>();
+		try {
+			pointList = gameobject.GetComponent<DesignObj>().GetPointInfo(url);
+		}
+		catch {
+			Debug.Log("Fail to get point list from compiler.");
+		}
+		return pointList;
+	}
+
 	List<Geometry.PointParams> SortPoints(GameObject gameObject, List<Geometry.PointParams> pointList, Geometry.PointParams targetPoint) {
 		List<Geometry.PointParams> pointListNew = new List<Geometry.PointParams>();
 		List<float> scores = new List<float>();
@@ -924,9 +956,9 @@ public class gestureTest : MonoBehaviour {
 		GestureGeo searchGeoResult = new GestureGeo();
 		searchGeoResult.Reset();
 
-		List<Geometry.PlaneParams> planeList = GetCubePlanes(gameObject);
-		List<Geometry.LineParams> lineList = GetCubeLines(gameObject);
-		List<Geometry.PointParams> pointList = GetCubePoints(gameObject);
+		List<Geometry.PlaneParams> planeList = GetPlaneList(gameObject);
+		List<Geometry.LineParams> lineList = GetLineList(gameObject);
+		List<Geometry.PointParams> pointList = GetPointList(gameObject);
 
 		// Select plane pair
 		if (gestureGeoInit.leftPlane.isEmpty != true && gestureGeoInit.rightPlane.isEmpty != true && 

@@ -480,7 +480,7 @@ namespace FARVR.Design {
                  planeInfo = GetGeoInfo(url, type, parameters)["face"];
             }
             catch {
-                Debug.Log("Fail to get plane info from compiler.");
+                Debug.Log("Fail to get plane info in compiler.");
                 return Planes;
             }
             
@@ -511,7 +511,7 @@ namespace FARVR.Design {
                 lineInfo = GetGeoInfo(url, type, parameters)["edge"];
             }
             catch {
-                Debug.Log("Fail to get line info from compiler.");
+                Debug.Log("Fail to get line info in compiler.");
                 return Lines;
             }
 
@@ -546,7 +546,7 @@ namespace FARVR.Design {
                 lineInfo = GetGeoInfo(url, type, parameters)["edge"];
             }
             catch {
-                Debug.Log("Fail to get line info from compiler.");
+                Debug.Log("Fail to get point info in compiler.");
                 return Points;
             }
 
