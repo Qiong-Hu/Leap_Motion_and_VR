@@ -279,12 +279,7 @@ public class gestureTest : MonoBehaviour {
 				if (selectObj != null && isSelected == true) {
 					//TuneObj(selectObj.GetComponent<DesignObj>());
 					//CalcGestureGeo(selectObj);
-
-					foreach (Geometry.PointParams point in GetPointList(selectObj)) {
-						Debug.Log(point.name);
-						Debug.Log(point.position.ToString("F3"));
-                    }
-										
+									
 				}
 
             }
