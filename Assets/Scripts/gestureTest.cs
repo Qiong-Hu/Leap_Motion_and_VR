@@ -184,7 +184,7 @@ public class gestureTest : MonoBehaviour {
 	const float planeDirPosRatio = 0.8f;
 	const float lineDirPosRatio = 0.8f;
 	const float singlePairRatio = 0.8f;
-	const float pairDirPosRatio = 0.5f;
+	const float pairDirPosRatio = 0.8f;
 	const int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
@@ -767,9 +767,16 @@ public class gestureTest : MonoBehaviour {
 		SelectObjGeo(gameObject);
 
 		// For debug
-		if (gestureGeoSelect.Count > 0) {
-			Debug.Log(gestureGeoSelect.ToString());
+		if (gestureGeo.rightPlane.isEmpty != true) {
+			foreach (Geometry.PlaneParams plane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.rightPlane)) {
+				Debug.Log(plane.name + ": " + plane.confidence);
+            }
         }
+		if (gestureGeo.leftPlane.isEmpty != true) {
+			foreach (Geometry.PlaneParams plane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.leftPlane)) {
+				Debug.Log(plane.name + ": " + plane.confidence);
+			}
+		}
 
 		gestureGeoPrev.Copy(gestureGeo);
     }
