@@ -973,22 +973,28 @@ public class gestureTest : MonoBehaviour {
 		return pointList;
 	}
 
+	static float PointSimilarity(Geometry.PointParams pointEva, Geometry.PointParams pointTar, float refDistance) {
+		return Vector3.Distance(pointEva.position, pointTar.position) / refDistance;
+    }
+
 	List<Geometry.PointParams> SortPoints(GameObject gameObject, List<Geometry.PointParams> pointList, Geometry.PointParams targetPoint) {
 		List<Geometry.PointParams> pointListNew = new List<Geometry.PointParams>();
 		List<float> scores = new List<float>();
 
-		float score;
+		float centerDis = Vector3.Distance(targetPoint.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.PointParams currPoint in pointList) {
-			score = Vector3.Distance(currPoint.position, targetPoint.position);
-			scores.Add(score);
+			scores.Add(PointSimilarity(currPoint, targetPoint, centerDis));
 		}
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
 		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
+		Geometry.PointParams tmpPoint;
 		for (int i = 0; i < scores.Count; i++) {
-			pointListNew.Add(pointList[scoreIdx[i]]);
+			tmpPoint = pointList[scoreIdx[i]];
+			tmpPoint.confidence = scores[scoreIdx[i]];
+			pointListNew.Add(tmpPoint);
 		}
 
 		return pointListNew;
