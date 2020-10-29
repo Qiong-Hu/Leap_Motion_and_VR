@@ -181,9 +181,10 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
-	const float singlePairRatio = 0.6f;
 	const float planeDirPosRatio = 0.8f;
 	const float lineDirPosRatio = 0.8f;
+	const float singlePairRatio = 0.8f;
+	const float planePairDirPosRatio = 0.5f;
 	const int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
@@ -765,6 +766,11 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
+		// For debug
+		if (gestureGeoSelect.Count > 0) {
+			Debug.Log(gestureGeoSelect.ToString());
+        }
+
 		gestureGeoPrev.Copy(gestureGeo);
     }
 
@@ -992,7 +998,7 @@ public class gestureTest : MonoBehaviour {
 
 	#region Search object geometry in pairs
 	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
-	static float PlanePairSimilarity(List<Geometry.PlaneParams> planePairEva, List<Geometry.PlaneParams> planePairTarget) {
+	static float PlanePairSimilarity(List<Geometry.PlaneParams> planePairEva, List<Geometry.PlaneParams> planePairTarget, float singlePairRatio = singlePairRatio, float planePairDirPosRatio = planePairDirPosRatio) {
 		float score = 0f;
 
 		if (planePairEva[0].position == planePairEva[1].position &&
@@ -1001,10 +1007,9 @@ public class gestureTest : MonoBehaviour {
 			return score;
         }
 
-		// TODO: use left vec as ref (<- haven't updated in git yet)
-		score = singlePairRatio * (planePairEva[0].confidence + planePairEva[1].confidence);
-		score = score + (1 - singlePairRatio) * (1 - planeDirPosRatio) * mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position);
-		score = score + (1 - singlePairRatio) * planeDirPosRatio * mathUtils.VectorSimilarity(planePairEva[0].normalDir - planePairEva[1].normalDir, planePairTarget[0].normalDir - planePairTarget[1].normalDir);
+		score += (1 - planePairDirPosRatio) * mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position); // Similarity of two relative vectors between two plane pairs
+		score += planePairDirPosRatio * mathUtils.DirectionSimilarity(Quaternion.FromToRotation(planePairEva[0].normalDir, planePairTarget[0].normalDir) * planePairEva[1].normalDir, planePairTarget[1].normalDir); // Rotate eva pair so eva[0] align with tar[0], compare rotated eva[1] with tar[1]
+		score = score * (1 - singlePairRatio) + (planePairEva[0].confidence + planePairEva[1].confidence) / 2 * singlePairRatio;
 
 		return score;
 	}
