@@ -839,6 +839,13 @@ public class gestureTest : MonoBehaviour {
 		return planeList;
 	}
 
+	float PlaneSimilarity(Geometry.PlaneParams planeEva, Geometry.PlaneParams planeTar, float refDistance, float planeDirPosRatio = planeDirPosRatio) {
+		float score = 0f;
+		score = score + mathUtils.DirectionSimilarity(planeEva.normalDir, planeTar.normalDir) * planeDirPosRatio;
+		score = score + Vector3.Distance(planeEva.position, planeTar.position) / refDistance * (1 - planeDirPosRatio);
+		return score;
+    }
+
 	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
 		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
