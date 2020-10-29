@@ -71,20 +71,33 @@ namespace FARVR.MathUtils {
 			return result;
         }
 
+		public static bool VectorNeedFlip(Vector3 vecEva, Vector3 vecTar) {
+			if (Mathf.Abs(Vector3.Angle(vecEva, vecTar)) > 90f) {
+				return true;
+			}
+			else {
+				return false;
+            }
+		}
+
+		public static Vector3 VectorFlip(Vector3 vecEva) {
+			return Vector3.zero - vecEva;
+		}
+
 		/// <summary>
         /// The smaller the result is, the more similar the two vectors are
         /// </summary>
-		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget, float dirDisRatio = 0.8f) {
+		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTar, float dirDisRatio = 0.8f) {
 			if (vecEva == Vector3.zero) {
 				return Mathf.Infinity;
             }
 
-			if (Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) > 90f) {
-				vecEva = Vector3.zero - vecEva;
-			}
+			if (VectorNeedFlip(vecEva, vecTar)) {
+				vecEva = VectorFlip(vecEva);
+            }
 
-			return DirectionSimilarity(vecEva.normalized, vecTarget.normalized) * dirDisRatio 
-				+ Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio); // For pseudo- normalization
+			return DirectionSimilarity(vecEva.normalized, vecTar.normalized) * dirDisRatio 
+				+ Vector3.Distance(vecEva, vecTar) / vecTar.magnitude * (1 - dirDisRatio); // For pseudo- normalization
 		}
 
 		/// <summary>

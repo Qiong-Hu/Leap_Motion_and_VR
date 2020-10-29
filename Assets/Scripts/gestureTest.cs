@@ -184,7 +184,7 @@ public class gestureTest : MonoBehaviour {
 	const float planeDirPosRatio = 0.8f;
 	const float lineDirPosRatio = 0.8f;
 	const float singlePairRatio = 0.8f;
-	const float planePairDirPosRatio = 0.5f;
+	const float pairDirPosRatio = 0.5f;
 	const int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
@@ -903,8 +903,8 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	static float LineSimilarity(Geometry.LineParams lineEva, Geometry.LineParams lineTar, float refDistance, float lineDirPosRatio = lineDirPosRatio) {
-		if (Mathf.Abs(Vector3.Angle(lineEva.direction, lineTar.direction)) > 90f) {
-			lineEva.direction = Vector3.zero - lineEva.direction;
+		if (mathUtils.VectorNeedFlip(lineEva.direction, lineTar.direction)) {
+			lineEva.direction = mathUtils.VectorFlip(lineEva.direction);
 		}
 		return mathUtils.DirectionSimilarity(lineEva.direction, lineTar.direction) * lineDirPosRatio
 			+ Vector3.Distance(lineEva.position, lineTar.position) / refDistance * (1 - lineDirPosRatio);
@@ -997,19 +997,39 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 
 	#region Search object geometry in pairs
-	// The smaller the score is, the more similar the two plane pairs are to the target plane pair
-	static float PlanePairSimilarity(List<Geometry.PlaneParams> planePairEva, List<Geometry.PlaneParams> planePairTarget, float singlePairRatio = singlePairRatio, float planePairDirPosRatio = planePairDirPosRatio) {
+	// The smaller the score is, the more similar the evaluated pair are to the target pair
+	static float PairSimilarity(GestureGeo pairEva, GestureGeo pairTar, float singlePairRatio = singlePairRatio, float pairDirPosRatio = pairDirPosRatio) {
 		float score = 0f;
 
-		if (planePairEva[0].position == planePairEva[1].position &&
-			planePairEva[0].normalDir == planePairEva[1].normalDir) {
-			score = Mathf.Infinity;
+		if (pairEva.Count != 2 || pairTar.Count != 2) {
+			Debug.Log("Incorrect variable number for calculating Pair Similarity.");
 			return score;
+		}
+
+		// For plane pair
+		if (pairEva.leftPlane.isEmpty != true && pairEva.rightPlane.isEmpty != true &&
+			pairTar.leftPlane.isEmpty != true && pairTar.rightPlane.isEmpty != true) {
+
+			if (pairEva.leftPlane.position == pairEva.rightPlane.position &&
+				pairEva.leftPlane.normalDir == pairEva.rightPlane.normalDir) {
+				score = Mathf.Infinity;
+				return score;
+			}
+
+			score += (1 - pairDirPosRatio) * mathUtils.VectorSimilarity(pairEva.leftPlane.position - pairEva.rightPlane.position, pairTar.leftPlane.position - pairTar.rightPlane.position); // Similarity of two relative vectors between two plane pairs
+			score += pairDirPosRatio * mathUtils.DirectionSimilarity(Quaternion.FromToRotation(pairEva.leftPlane.normalDir, pairTar.leftPlane.normalDir) * pairEva.rightPlane.normalDir, pairTar.rightPlane.normalDir); // Rotate eva pair so eva[0] align with tar[0], compare rotated eva[1] with tar[1]
+			score = score * (1 - singlePairRatio) + (pairEva.leftPlane.confidence + pairEva.rightPlane.confidence) / 2 * singlePairRatio;
         }
 
-		score += (1 - planePairDirPosRatio) * mathUtils.VectorSimilarity(planePairEva[0].position - planePairEva[1].position, planePairTarget[0].position - planePairTarget[1].position); // Similarity of two relative vectors between two plane pairs
-		score += planePairDirPosRatio * mathUtils.DirectionSimilarity(Quaternion.FromToRotation(planePairEva[0].normalDir, planePairTarget[0].normalDir) * planePairEva[1].normalDir, planePairTarget[1].normalDir); // Rotate eva pair so eva[0] align with tar[0], compare rotated eva[1] with tar[1]
-		score = score * (1 - singlePairRatio) + (planePairEva[0].confidence + planePairEva[1].confidence) / 2 * singlePairRatio;
+		// For line pair
+
+		// For point pair
+
+		// For plane-line pair
+
+		// For plane-point pair
+
+		// For line-point pair
 
 		return score;
 	}
@@ -1036,18 +1056,19 @@ public class gestureTest : MonoBehaviour {
 		}
 
 		// Begin searching and selecting
-		List<Geometry.PlaneParams> planePairTarget = new List<Geometry.PlaneParams>(2);
-		planePairTarget[0] = gestureGeo.leftPlane;
-		planePairTarget[1] = gestureGeo.rightPlane;
+		GestureGeo planePairTarget = new GestureGeo();
+		planePairTarget.Reset();
+		planePairTarget.leftPlane = gestureGeo.leftPlane;
+		planePairTarget.rightPlane = gestureGeo.rightPlane;
 
 		List<float> scores = new List<float>();
 		float score;
-		List<Geometry.PlaneParams> planePairEva;
+		GestureGeo planePairEva = new GestureGeo();
 		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
-			planePairEva = new List<Geometry.PlaneParams>(2);
-			planePairEva[0] = sortedPlaneListLeft[idx[0]];
-			planePairEva[1] = sortedPlaneListRight[idx[1]];
-			score = PlanePairSimilarity(planePairEva, planePairTarget);
+			planePairEva.Reset();
+			planePairEva.leftPlane = sortedPlaneListLeft[idx[0]];
+			planePairEva.rightPlane = sortedPlaneListRight[idx[1]];
+			score = PairSimilarity(planePairEva, planePairTarget);
 			scores.Add(score);
 		}
 
