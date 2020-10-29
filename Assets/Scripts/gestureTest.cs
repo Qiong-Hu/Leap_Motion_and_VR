@@ -919,8 +919,11 @@ public class gestureTest : MonoBehaviour {
 		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
 		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
 
+		Geometry.LineParams tmpLine;
 		for (int i = 0; i < scores.Count; i++) {
-			lineListNew.Add(lineList[scoreIdx[i]]);
+			tmpLine = lineList[scoreIdx[i]];
+			tmpLine.confidence = scores[scoreIdx[i]];
+			lineListNew.Add(tmpLine);
 		}
 
 		return lineListNew;
