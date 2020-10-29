@@ -765,12 +765,6 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
-		// For debug
-		if (gestureGeo.rightPoint.isEmpty != true) {
-			Geometry.PointParams point = SortPoints(gameObject, GetPointList(gameObject), gestureGeo.rightPoint)[0];
-			Debug.Log(point.name + ": " + point.confidence);
-        }
-
 		gestureGeoPrev.Copy(gestureGeo);
     }
 
