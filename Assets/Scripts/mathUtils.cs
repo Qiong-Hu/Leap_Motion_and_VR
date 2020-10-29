@@ -87,7 +87,7 @@ namespace FARVR.MathUtils {
 			}
 
 			score = score + DirectionSimilarity(vecEva.normalized, vecTarget.normalized) * dirDisRatio;
-			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
+			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio); // For pseudo- normalization
 
 			return score;
 		}
