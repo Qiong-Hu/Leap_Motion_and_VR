@@ -74,10 +74,9 @@ namespace FARVR.MathUtils {
 		/// <summary>
         /// The smaller the result is, the more similar the two vectors are
         /// </summary>
-		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget) {
-			float dirDisRatio = 0.8f;
-
+		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget, float dirDisRatio = 0.8f) {
 			float score = 0f;
+
 			if (vecEva == Vector3.zero) {
 				score = Mathf.Infinity;
 				return score;
