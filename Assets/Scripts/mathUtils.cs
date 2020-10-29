@@ -75,21 +75,16 @@ namespace FARVR.MathUtils {
         /// The smaller the result is, the more similar the two vectors are
         /// </summary>
 		public static float VectorSimilarity(Vector3 vecEva, Vector3 vecTarget, float dirDisRatio = 0.8f) {
-			float score = 0f;
-
 			if (vecEva == Vector3.zero) {
-				score = Mathf.Infinity;
-				return score;
+				return Mathf.Infinity;
             }
 
 			if (Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) > 90f) {
 				vecEva = Vector3.zero - vecEva;
 			}
 
-			score = score + DirectionSimilarity(vecEva.normalized, vecTarget.normalized) * dirDisRatio;
-			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio); // For pseudo- normalization
-
-			return score;
+			return DirectionSimilarity(vecEva.normalized, vecTarget.normalized) * dirDisRatio 
+				+ Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio); // For pseudo- normalization
 		}
 
 		/// <summary>
