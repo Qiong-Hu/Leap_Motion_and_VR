@@ -765,9 +765,11 @@ public class gestureTest : MonoBehaviour {
 		
 		SelectObjGeo(gameObject);
 
-		// for debug
-		if (gestureGeoSelect.Count > 0) {
-			Debug.Log(gestureGeoSelect.ToString());
+		// For debug
+		if (gestureGeo.rightPlane.isEmpty != true) {
+			foreach (Geometry.PlaneParams sortPlane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.rightPlane)) {
+				Debug.Log(sortPlane.name + ": " + sortPlane.confidence);
+            }
         }
 
 		gestureGeoPrev.Copy(gestureGeo);
@@ -840,10 +842,8 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	float PlaneSimilarity(Geometry.PlaneParams planeEva, Geometry.PlaneParams planeTar, float refDistance, float planeDirPosRatio = planeDirPosRatio) {
-		float score = 0f;
-		score = score + mathUtils.DirectionSimilarity(planeEva.normalDir, planeTar.normalDir) * planeDirPosRatio;
-		score = score + Vector3.Distance(planeEva.position, planeTar.position) / refDistance * (1 - planeDirPosRatio);
-		return score;
+		return mathUtils.DirectionSimilarity(planeEva.normalDir, planeTar.normalDir) * planeDirPosRatio
+			+ Vector3.Distance(planeEva.position, planeTar.position) / refDistance * (1 - planeDirPosRatio);
     }
 
 	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
