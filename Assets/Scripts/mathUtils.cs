@@ -63,7 +63,8 @@ namespace FARVR.MathUtils {
         }
     
 		/// <summary>
-        /// The smaller the result is, the closer x is to 1
+        /// x = 1: return 0; x = 0: return infinity; x large: return large
+        /// The closer x is to 1, the smaller the return result is
         /// </summary>
 		public static float CloseTo1(float x) {
 			float result = Mathf.Abs(Mathf.Log(x));
@@ -86,16 +87,24 @@ namespace FARVR.MathUtils {
 				vecEva = Vector3.zero - vecEva;
 			}
 
-			score = score + Mathf.Abs(Vector3.Angle(vecEva, vecTarget)) / 90f * dirDisRatio;
+			score = score + (1 - DirectionSimilarity(vecEva.normalized, vecTarget.normalized)) * dirDisRatio;
 			score = score + Vector3.Distance(vecEva, vecTarget) / vecTarget.magnitude * (1 - dirDisRatio);
 
 			return score;
 		}
 
+		/// <summary>
+        /// result = 1: two quaternions are same; = 0: opposite
+        /// </summary>
+        /// <returns></returns>
 		public static float QuaternionSimilarity(Quaternion qua1, Quaternion qua2) {
 			return qua1.x * qua2.x + qua1.y * qua2.y + qua1.z * qua2.z + qua1.w * qua2.w;
         }
 
+		/// <summary>
+        /// result = 1: two directions are same; = 0: opposite
+        /// </summary>
+        /// <returns></returns>
 		public static float DirectionSimilarity(Vector3 vec1, Vector3 vec2) {
 			Quaternion qua1 = new Quaternion();
 			qua1 = Quaternion.LookRotation(vec1);
