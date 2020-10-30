@@ -55,15 +55,39 @@ namespace FARVR.GeoUtils {
         }
 
         // For line pair
+        public static float LinePairSimilarity() {
+            float score = 0f;
+            
+            return score;
+        }
 
         // For point pair
+        public static float PointPairSimilarity() {
+            float score = 0f;
+
+            return score;
+        }
 
         // For plane-line pair
+        public static float PlaneLineSimilarity() {
+            float score = 0f;
+
+            return score;
+        }
 
         // For plane-point pair
+        public static float PlanePointSimilarity() {
+            float score = 0f;
+
+            return score;
+        }
 
         // For line-point pair
+        public static float LinePointSimilarity() {
+            float score = 0f;
 
+            return score;
+        }
 
         #endregion
     }
