@@ -764,19 +764,12 @@ public class gestureTest : MonoBehaviour {
 		GestureLineUpdate();
 		GesturePointUpdate();
 		
-		SelectObjGeo(gameObject);
+		//SelectObjGeo(gameObject);
 
 		// For debug
 		if (gestureGeo.rightPlane.isEmpty != true) {
-			foreach (Geometry.PlaneParams plane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.rightPlane)) {
-				Debug.Log(plane.name + ": " + plane.confidence);
-            }
+			SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.rightPlane);
         }
-		if (gestureGeo.leftPlane.isEmpty != true) {
-			foreach (Geometry.PlaneParams plane in SortPlanes(gameObject, GetPlaneList(gameObject), gestureGeo.leftPlane)) {
-				Debug.Log(plane.name + ": " + plane.confidence);
-			}
-		}
 
 		gestureGeoPrev.Copy(gestureGeo);
     }
@@ -858,6 +851,9 @@ public class gestureTest : MonoBehaviour {
 
 		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.PlaneParams currPlane in planeList) {
+			Debug.Log(currPlane.name + ": " + mathUtils.DirectionSimilarity(currPlane.normalDir, targetPlane.normalDir).ToString("F3") + ", "
+				+ (Vector3.Distance(currPlane.position, targetPlane.position) / centerDis).ToString() + ", "
+				+ PlaneSimilarity(currPlane, targetPlane, centerDis));
 			scores.Add(PlaneSimilarity(currPlane, targetPlane, centerDis));
         }
 
