@@ -1062,14 +1062,12 @@ public class gestureTest : MonoBehaviour {
 		planePairTarget.rightPlane = gestureGeo.rightPlane;
 
 		List<float> scores = new List<float>();
-		float score;
 		GestureGeo planePairEva = new GestureGeo();
 		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
 			planePairEva.Reset();
 			planePairEva.leftPlane = sortedPlaneListLeft[idx[0]];
 			planePairEva.rightPlane = sortedPlaneListRight[idx[1]];
-			score = PairSimilarity(planePairEva, planePairTarget);
-			scores.Add(score);
+			scores.Add(PairSimilarity(planePairEva, planePairTarget));
 		}
 
 		// Sort plane pair in the order of score value from small to large
@@ -1092,10 +1090,49 @@ public class gestureTest : MonoBehaviour {
 		return selectedLinePair;
 	}
 
-	GestureGeo SearchPointPair() {
+	GestureGeo SearchPointPair(GameObject gameObject, List<Geometry.PointParams> pointList, GestureGeo gestureGeo) {
 		GestureGeo selectedPointPair = new GestureGeo();
-		//Debug.Log("point-point gesture is detected.");
-		//Debug.Log("point distance: " + Vector3.Distance(leftPoint.position, rightPoint.position).ToString());
+
+		List<Geometry.PointParams> sortedPointListLeft = new List<Geometry.PointParams>();
+		List<Geometry.PointParams> sortedPointListRight = new List<Geometry.PointParams>();
+
+		if (gestureGeo.leftPoint.isEmpty != true) {
+			sortedPointListLeft = SortPoints(gameObject, pointList, gestureGeo.leftPoint);
+		}
+		else {
+			Debug.Log("Fail to access left gesture point for searching obj plane.");
+			return selectedPointPair;
+		}
+		if (gestureGeo.rightPoint.isEmpty != true) {
+			sortedPointListRight = SortPoints(gameObject, pointList, gestureGeo.rightPoint);
+		}
+		else {
+			Debug.Log("Fail to access right gesture point for seaching obj plane.");
+			return selectedPointPair;
+		}
+
+		// Begin searching and selecting
+		GestureGeo pointPairTarget = new GestureGeo();
+		pointPairTarget.Reset();
+		pointPairTarget.leftPoint = gestureGeo.leftPoint;
+		pointPairTarget.rightPoint = gestureGeo.rightPoint;
+
+		List<float> scores = new List<float>();
+		GestureGeo pointPairEva = new GestureGeo();
+		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(pointList.Count, geoSearchPatchSize))) {
+			pointPairEva.Reset();
+			pointPairEva.leftPoint = sortedPointListLeft[idx[0]];
+			pointPairEva.rightPoint = sortedPointListRight[idx[1]];
+			scores.Add(PairSimilarity(pointPairEva, pointPairTarget));
+		}
+
+		// Sort plane pair in the order of score value from small to large
+		int[] scoreIdx = Enumerable.Range(0, scores.Count).ToArray<int>();
+		Array.Sort<int>(scoreIdx, (i, j) => scores[i].CompareTo(scores[j]));
+
+		Vector2Int pairIdx = mathUtils.Permutation(Mathf.Min(pointList.Count, geoSearchPatchSize))[scoreIdx[0]];
+		selectedPointPair.leftPoint = sortedPointListLeft[pairIdx[0]];
+		selectedPointPair.rightPoint = sortedPointListRight[pairIdx[1]];
 
 		return selectedPointPair;
 	}
