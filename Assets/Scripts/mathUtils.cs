@@ -113,11 +113,7 @@ namespace FARVR.MathUtils {
         /// </summary>
         /// <returns></returns>
 		public static float DirectionSimilarity(Vector3 vec1, Vector3 vec2) {
-			Quaternion qua1 = new Quaternion();
-			qua1 = Quaternion.LookRotation(vec1.normalized);
-			Quaternion qua2 = new Quaternion();
-			qua2 = Quaternion.LookRotation(vec2.normalized);
-			return 1 - QuaternionSimilarity(qua1, qua2);
+			return Mathf.Abs(Vector3.Angle(vec1, vec2)) / 180f;
 		}
 	}
 }
