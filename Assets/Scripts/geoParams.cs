@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace FARVR.GeoParams {
-    public class Geometry : MonoBehaviour {
+    public class Geometry {
 		// Define params of plane
 		public struct PlaneParams {
 			public string name;

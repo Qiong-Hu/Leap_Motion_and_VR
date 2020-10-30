@@ -12,6 +12,7 @@ using FARVR.GestureDefinition;
 using FARVR.MathUtils;
 using SimpleJSON;
 using FARVR.GeoParams;
+using FARVR.GeoUtils;
 
 public class gestureTest : MonoBehaviour {
 
@@ -181,10 +182,6 @@ public class gestureTest : MonoBehaviour {
 	GestureGeo gestureGeoSelect = new GestureGeo();
 
 	// For searching targeted object plane
-	const float planeDirPosRatio = 0.8f;
-	const float lineDirPosRatio = 0.8f;
-	const float singlePairRatio = 0.8f;
-	const float pairDirPosRatio = 0.8f;
 	const int geoSearchPatchSize = 10;
 
 	// For changing discrete params (leg num, boat n, etc) => TODO: need improvement
@@ -840,18 +837,13 @@ public class gestureTest : MonoBehaviour {
 		return planeList;
 	}
 
-	static float PlaneSimilarity(Geometry.PlaneParams planeEva, Geometry.PlaneParams planeTar, float refDistance, float planeDirPosRatio = planeDirPosRatio) {
-		return mathUtils.DirectionSimilarity(planeEva.normalDir, planeTar.normalDir) * planeDirPosRatio
-			+ Vector3.Distance(planeEva.position, planeTar.position) / refDistance * (1 - planeDirPosRatio);
-    }
-
 	List<Geometry.PlaneParams> SortPlanes(GameObject gameObject, List<Geometry.PlaneParams> planeList, Geometry.PlaneParams targetPlane) {
 		List<Geometry.PlaneParams> planeListNew = new List<Geometry.PlaneParams>();
 		List<float> scores = new List<float>();
 
 		float centerDis = Vector3.Distance(targetPlane.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.PlaneParams currPlane in planeList) {
-			scores.Add(PlaneSimilarity(currPlane, targetPlane, centerDis));
+			scores.Add(geoUtils.PlaneSimilarity(currPlane, targetPlane, centerDis));
         }
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
@@ -902,21 +894,13 @@ public class gestureTest : MonoBehaviour {
 		return lineList;
 	}
 
-	static float LineSimilarity(Geometry.LineParams lineEva, Geometry.LineParams lineTar, float refDistance, float lineDirPosRatio = lineDirPosRatio) {
-		if (mathUtils.VectorNeedFlip(lineEva.direction, lineTar.direction)) {
-			lineEva.direction = mathUtils.VectorFlip(lineEva.direction);
-		}
-		return mathUtils.DirectionSimilarity(lineEva.direction, lineTar.direction) * lineDirPosRatio
-			+ Vector3.Distance(lineEva.position, lineTar.position) / refDistance * (1 - lineDirPosRatio);
-	}
-
 	List<Geometry.LineParams> SortLines(GameObject gameObject, List<Geometry.LineParams> lineList, Geometry.LineParams targetLine) {
 		List<Geometry.LineParams> lineListNew = new List<Geometry.LineParams>();
 		List<float> scores = new List<float>();
 
 		float centerDis = Vector3.Distance(targetLine.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.LineParams currLine in lineList) {
-			scores.Add(LineSimilarity(currLine, targetLine, centerDis));
+			scores.Add(geoUtils.LineSimilarity(currLine, targetLine, centerDis));
 		}
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
@@ -967,17 +951,13 @@ public class gestureTest : MonoBehaviour {
 		return pointList;
 	}
 
-	static float PointSimilarity(Geometry.PointParams pointEva, Geometry.PointParams pointTar, float refDistance) {
-		return Vector3.Distance(pointEva.position, pointTar.position) / refDistance;
-    }
-
 	List<Geometry.PointParams> SortPoints(GameObject gameObject, List<Geometry.PointParams> pointList, Geometry.PointParams targetPoint) {
 		List<Geometry.PointParams> pointListNew = new List<Geometry.PointParams>();
 		List<float> scores = new List<float>();
 
 		float centerDis = Vector3.Distance(targetPoint.position, gameObject.transform.position); // For pseudo- normalization
 		foreach (Geometry.PointParams currPoint in pointList) {
-			scores.Add(PointSimilarity(currPoint, targetPoint, centerDis));
+			scores.Add(geoUtils.PointSimilarity(currPoint, targetPoint, centerDis));
 		}
 
 		// Add planes from planeList to planeListNew in the order of score value from small to large
@@ -995,7 +975,7 @@ public class gestureTest : MonoBehaviour {
 	}
 
 	#endregion
-
+	
 	#region Search object geometry in pairs
 	// The smaller the score is, the more similar the evaluated pair are to the target pair
 	static float PairSimilarity(GestureGeo pairEva, GestureGeo pairTar, float singlePairRatio = singlePairRatio, float pairDirPosRatio = pairDirPosRatio) {
