@@ -977,43 +977,6 @@ public class gestureTest : MonoBehaviour {
 	#endregion
 	
 	#region Search object geometry in pairs
-	// The smaller the score is, the more similar the evaluated pair are to the target pair
-	static float PairSimilarity(GestureGeo pairEva, GestureGeo pairTar, float singlePairRatio = singlePairRatio, float pairDirPosRatio = pairDirPosRatio) {
-		float score = 0f;
-
-		if (pairEva.Count != 2 || pairTar.Count != 2) {
-			Debug.Log("Incorrect variable number for calculating Pair Similarity.");
-			return score;
-		}
-
-		// For plane pair
-		if (pairEva.leftPlane.isEmpty != true && pairEva.rightPlane.isEmpty != true &&
-			pairTar.leftPlane.isEmpty != true && pairTar.rightPlane.isEmpty != true) {
-
-			if (pairEva.leftPlane.position == pairEva.rightPlane.position &&
-				pairEva.leftPlane.normalDir == pairEva.rightPlane.normalDir) {
-				score = Mathf.Infinity;
-				return score;
-			}
-
-			score += (1 - pairDirPosRatio) * mathUtils.VectorSimilarity(pairEva.leftPlane.position - pairEva.rightPlane.position, pairTar.leftPlane.position - pairTar.rightPlane.position); // Similarity of two relative vectors between two plane pairs
-			score += pairDirPosRatio * mathUtils.DirectionSimilarity(Quaternion.FromToRotation(pairEva.leftPlane.normalDir, pairTar.leftPlane.normalDir) * pairEva.rightPlane.normalDir, pairTar.rightPlane.normalDir); // Rotate eva pair so eva[0] align with tar[0], compare rotated eva[1] with tar[1]
-			score = score * (1 - singlePairRatio) + (pairEva.leftPlane.confidence + pairEva.rightPlane.confidence) / 2 * singlePairRatio;
-        }
-
-		// For line pair
-
-		// For point pair
-
-		// For plane-line pair
-
-		// For plane-point pair
-
-		// For line-point pair
-
-		return score;
-	}
-
 	GestureGeo SearchPlanePair(GameObject gameObject, List<Geometry.PlaneParams> planeList, GestureGeo gestureGeo) {
 		GestureGeo selectedPlanePair = new GestureGeo();
 
@@ -1035,19 +998,10 @@ public class gestureTest : MonoBehaviour {
 			return selectedPlanePair;
 		}
 
-		// Begin searching and selecting
-		GestureGeo planePairTarget = new GestureGeo();
-		planePairTarget.Reset();
-		planePairTarget.leftPlane = gestureGeo.leftPlane;
-		planePairTarget.rightPlane = gestureGeo.rightPlane;
-
+		// Begin searching and calculating similarity
 		List<float> scores = new List<float>();
-		GestureGeo planePairEva = new GestureGeo();
 		foreach (Vector2Int idx in mathUtils.Permutation(Mathf.Min(planeList.Count, geoSearchPatchSize))) {
-			planePairEva.Reset();
-			planePairEva.leftPlane = sortedPlaneListLeft[idx[0]];
-			planePairEva.rightPlane = sortedPlaneListRight[idx[1]];
-			scores.Add(PairSimilarity(planePairEva, planePairTarget));
+			scores.Add(geoUtils.PlanePairSimilarity(sortedPlaneListLeft[idx[0]], sortedPlaneListRight[idx[1]], gestureGeo.leftPlane, gestureGeo.rightPlane));
 		}
 
 		// Sort plane pair in the order of score value from small to large

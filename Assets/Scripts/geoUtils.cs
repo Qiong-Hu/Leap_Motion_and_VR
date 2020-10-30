@@ -36,6 +36,33 @@ namespace FARVR.GeoUtils {
         #endregion
 
         #region Geo pair comparison
+        // The smaller the score is, the more similar the evaluated pair are to the target pair
+        // For plane pair
+        public static float PlanePairSimilarity(Geometry.PlaneParams eva1, Geometry.PlaneParams eva2, Geometry.PlaneParams tar1, Geometry.PlaneParams tar2, float singlePairRatio = singlePairRatio, float pairDirPosRatio = pairDirPosRatio) {
+            float score = 0f;
+
+            // If eva1 == eva2 (same plane)
+            if (eva1.position == eva2.position && eva1.normalDir == eva2.normalDir) {
+                score = Mathf.Infinity;
+            }
+            else {
+                score += (1 - pairDirPosRatio) * mathUtils.VectorSimilarity(eva1.position - eva2.position, tar1.position - tar2.position); // Similarity of two relative vectors between two plane pairs
+                score += pairDirPosRatio * mathUtils.DirectionSimilarity(Quaternion.FromToRotation(eva1.normalDir, tar1.normalDir) * eva2.normalDir, tar2.normalDir); // Rotate eva pair so eva[0] align with tar[0], compare rotated eva[1] with tar[1]
+                score = score * (1 - singlePairRatio) + (eva1.confidence + eva2.confidence) / 2 * singlePairRatio;
+            }
+
+            return score;
+        }
+
+        // For line pair
+
+        // For point pair
+
+        // For plane-line pair
+
+        // For plane-point pair
+
+        // For line-point pair
 
 
         #endregion
